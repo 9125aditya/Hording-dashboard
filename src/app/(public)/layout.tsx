@@ -24,6 +24,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
              <Link href="/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Client Login
             </Link>
+             <Link href="/admin/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Admin Login
+            </Link>
             <PublicMobileMenu />
           </div>
         </div>
