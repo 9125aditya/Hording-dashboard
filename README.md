@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hoarding Dashboard (OOH Media Platform)
 
-## Getting Started
+Hey there! 👋 Welcome to the Hoarding Dashboard.
 
-First, run the development server:
+This is a modern web application built to make finding and booking Out-of-Home (OOH) advertising spaces—like billboards and digital hoardings—super easy and visual. We specifically focus on premium locations across North India (Delhi, Gurgaon, Noida, Chandigarh, Jaipur, etc.).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## What's inside?
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+I built this platform with a few key features in mind to help brands find their next big impact:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Interactive Map Search:** A smooth, live map (powered by Leaflet) to visually hunt down the best hoarding locations by city, landmark, or pincode.
+- **Visual Catalog:** Browse through high-quality images of available, booked, or blocked sites with all their details (size, lighting type, coordinates, etc.).
+- **Admin Dashboard:** A clean, utilitarian backend view to manage inventory and handle incoming leads/enquiries efficiently.
+- **Premium Aesthetics:** A sleek, responsive design using Tailwind CSS and shadcn/ui because we want the platform to look as good as the ads it hosts.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
 
-## Learn More
+Under the hood, this project is running on:
+- **Next.js** (React framework)
+- **TypeScript**
+- **Tailwind CSS**
+- **shadcn/ui** for UI components
+- **Leaflet** for the interactive map
 
-To learn more about Next.js, take a look at the following resources:
+## How to run it locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If you want to spin this up on your own machine, it's pretty straightforward:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repo
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser and you're good to go!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel free to poke around the code. Enjoy! 🚀
