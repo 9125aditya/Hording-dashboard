@@ -21,8 +21,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
              <Link href="/contact" className="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
               Contact for rates
             </Link>
-             <Link href="/dashboard" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Login
+             <Link href="/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Client Login
             </Link>
             <PublicMobileMenu />
           </div>
@@ -34,7 +34,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <footer className="border-t border-border py-8 bg-card mt-auto">
         <div className="container flex flex-col items-center justify-between gap-4 md:flex-row mx-auto px-4 text-sm text-muted-foreground">
           <p className="font-heading font-semibold text-foreground">OOH MEDIA PLATFORM</p>
-          <p>© {new Date().getFullYear()} All rights reserved.</p>
+          <p>© {new Date().getFullYear()} All rights reserved. | <Link href="/admin/login" className="hover:text-foreground hover:underline ml-1">Admin Login</Link></p>
         </div>
       </footer>
     </div>

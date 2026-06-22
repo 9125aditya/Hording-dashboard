@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut, PanelLeftClose } from "lucide-react";
 import AdminMobileMenu from "@/components/AdminMobileMenu";
+import { logout } from "@/lib/auth-actions";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -31,10 +32,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </div>
         <div className="p-4 border-t border-border">
-          <button className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors">
-            <LogOut className="mr-3 h-4 w-4" />
-            Sign Out
-          </button>
+          <form action={logout}>
+            <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors">
+              <LogOut className="mr-3 h-4 w-4" />
+              Sign Out
+            </button>
+          </form>
         </div>
       </aside>
 

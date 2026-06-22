@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PanelLeftClose, LayoutDashboard, Map, MessageSquare, Users, LogOut, X } from "lucide-react";
+import { logout } from "@/lib/auth-actions";
 
 export default function AdminMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,9 +51,11 @@ export default function AdminMobileMenu() {
               </Link>
             </div>
             <div className="p-4 border-t border-border">
-              <button className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors">
-                <LogOut className="mr-3 h-4 w-4" /> Sign Out
-              </button>
+              <form action={logout}>
+                <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors">
+                  <LogOut className="mr-3 h-4 w-4" /> Sign Out
+                </button>
+              </form>
             </div>
           </div>
         </div>

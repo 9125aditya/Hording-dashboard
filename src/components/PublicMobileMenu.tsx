@@ -43,8 +43,11 @@ export default function PublicMobileMenu() {
               <Link href="/contact" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
                 Contact for rates
               </Link>
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                Admin Login
+              <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                Client Login
+              </Link>
+              <Link href="/admin/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Admin Portal
               </Link>
             </div>
           </div>
