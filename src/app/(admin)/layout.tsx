@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut, PanelLeftClose } from "lucide-react";
+import AdminMobileMenu from "@/components/AdminMobileMenu";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,9 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 border-b border-border bg-card flex items-center px-4 md:px-6 justify-between sticky top-0 z-30">
           <div className="flex items-center">
-            <button className="md:hidden mr-4 text-muted-foreground">
-              <PanelLeftClose className="h-5 w-5" />
-            </button>
+            <AdminMobileMenu />
             <h1 className="text-lg font-semibold text-foreground tracking-tight">Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">

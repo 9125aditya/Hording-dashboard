@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Link from "next/link";
+import PublicMobileMenu from "@/components/PublicMobileMenu";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -20,9 +21,10 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
              <Link href="/contact" className="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
               Contact for rates
             </Link>
-             <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+             <Link href="/dashboard" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Login
             </Link>
+            <PublicMobileMenu />
           </div>
         </div>
       </header>

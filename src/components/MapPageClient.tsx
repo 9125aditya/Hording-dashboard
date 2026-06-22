@@ -81,7 +81,7 @@ export default function MapPageClient() {
     <div className="flex flex-col md:flex-row" style={{ height: "calc(100vh - 64px)" }}>
 
       {/* Left Panel — Search & List */}
-      <div className="w-full md:w-[380px] lg:w-[420px] h-[45vh] md:h-full bg-white border-b md:border-b-0 md:border-r border-slate-200 flex flex-col flex-shrink-0 order-1 md:order-1">
+      <div className="w-full md:w-[380px] lg:w-[420px] h-[55vh] md:h-full bg-white border-t md:border-t-0 md:border-r border-slate-200 flex flex-col flex-shrink-0 order-2 md:order-1">
 
         {/* Panel Header */}
         <div className="p-5 border-b border-slate-100">
@@ -220,7 +220,7 @@ export default function MapPageClient() {
       </div>
 
       {/* Right — Map Area */}
-      <div className="flex-1 relative order-2 md:order-2 h-[55vh] md:h-full">
+      <div className="flex-1 relative order-1 md:order-2 h-[45vh] md:h-full flex-shrink-0">
         <LeafletMap onMarkerClick={handleMarkerClick} />
       </div>
 
