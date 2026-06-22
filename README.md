@@ -1,40 +1,64 @@
-# Hoarding Dashboard (OOH Media Platform)
+# OOH Media Platform (Hoarding Dashboard)
 
-Hey there! 👋 Welcome to the Hoarding Dashboard.
+Welcome to the **OOH Media Platform** repository! 👋 
 
-This is a modern web application built to make finding and booking Out-of-Home (OOH) advertising spaces—like billboards and digital hoardings—super easy and visual. We specifically focus on premium locations across North India (Delhi, Gurgaon, Noida, Chandigarh, Jaipur, etc.).
+This is a modern, premium web application built to make finding and booking Out-of-Home (OOH) advertising spaces—like billboards, unipolar displays, and digital hoardings—visual, seamless, and secure. We focus on premium locations across North India (Delhi, Gurgaon, Noida, Chandigarh, Jaipur, etc.).
 
-## What's inside?
+🟢 **Live Demo:** [https://estroc-ooh-dashboard.vercel.app](https://estroc-ooh-dashboard.vercel.app)
 
-I built this platform with a few key features in mind to help brands find their next big impact:
+---
 
-- **Interactive Map Search:** A smooth, live map (powered by Leaflet) to visually hunt down the best hoarding locations by city, landmark, or pincode.
-- **Visual Catalog:** Browse through high-quality images of available, booked, or blocked sites with all their details (size, lighting type, coordinates, etc.).
-- **Admin Dashboard:** A clean, utilitarian backend view to manage inventory and handle incoming leads/enquiries efficiently.
-- **Premium Aesthetics:** A sleek, responsive design using Tailwind CSS and shadcn/ui because we want the platform to look as good as the ads it hosts.
+## 🌟 What's Inside?
 
-## Tech Stack
+We built this platform with a dual-focus: an incredible public-facing catalog for brands, and a secure, powerful management backend for the ESTROC team.
 
-Under the hood, this project is running on:
-- **Next.js** (React framework)
-- **TypeScript**
-- **Tailwind CSS**
-- **shadcn/ui** for UI components
-- **Leaflet** for the interactive map
+- **Public Features:**
+  - **Interactive Map Search:** A smooth, live Leaflet map to visually hunt down the best hoarding locations by city or landmark.
+  - **Visual Catalog:** Browse through high-quality images of available, booked, or blocked sites with all technical details (dimensions, lighting type, coordinates).
+  - **Mobile-First Experience:** Native-feeling mobile navigation, sliding menus, and completely responsive grid layouts.
 
-## How to run it locally
+- **Admin & Management Features:**
+  - **Security Wall:** Strict role-based middleware guarding all management routes.
+  - **Separate Login Portals:** Dedicated, isolated login portals for `Clients/Brands` vs. `Admin Staff`.
+  - **Admin Dashboard:** A centralized control room to oversee KPIs, manage site statuses, and handle incoming booking enquiries.
+
+---
+
+## 🛠️ Tech Stack
+
+Under the hood, the platform is blazing fast and type-safe:
+- **Framework:** [Next.js 16](https://nextjs.org/) (React, App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS (v4)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+- **Maps:** Leaflet & React-Leaflet
+- **Authentication Guard:** Next.js Middleware & Server Actions
+- **Deployment:** Vercel
+
+---
+
+## 🚀 How to run it locally
 
 If you want to spin this up on your own machine, it's pretty straightforward:
 
-1. Clone the repo
-2. Install the dependencies:
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/ESTROCtech/Hoarding-Dashboard.git
+   cd Hoarding-Dashboard
+   ```
+
+2. **Install dependencies:**
    ```bash
    npm install
    ```
-3. Start the dev server:
+
+3. **Start the dev server:**
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser and you're good to go!
 
-Feel free to poke around the code. Enjoy! 🚀
+4. **Explore:**
+   - Public Catalog: [http://localhost:3000](http://localhost:3000)
+   - Admin Login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+
+Enjoy exploring the code! 🚀
