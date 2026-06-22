@@ -26,9 +26,13 @@ export default function AdminMobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm md:hidden animate-in fade-in duration-200">
-          <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border shadow-2xl flex flex-col animate-in slide-in-from-left-full duration-300">
-            <div className="h-16 flex items-center justify-between px-6 border-b border-border">
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsOpen(false)} />
+          
+          {/* Drawer */}
+          <div className="absolute inset-y-0 left-0 w-64 bg-card border-r border-border shadow-2xl flex flex-col animate-in slide-in-from-left-full duration-300">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-border relative z-10">
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className="font-heading font-bold text-lg text-primary tracking-tight">
                 OOH ADMIN
               </Link>
@@ -36,7 +40,7 @@ export default function AdminMobileMenu() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex-1 py-6 px-3 space-y-1">
+            <div className="flex-1 py-6 px-3 space-y-1 relative z-10">
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-md bg-secondary text-secondary-foreground">
                 <LayoutDashboard className="mr-3 h-4 w-4" /> Overview
               </Link>
@@ -50,9 +54,9 @@ export default function AdminMobileMenu() {
                 <Users className="mr-3 h-4 w-4" /> Staff
               </Link>
             </div>
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-border relative z-10">
               <form action={logout}>
-                <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors">
+                <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground w-full transition-colors bg-card">
                   <LogOut className="mr-3 h-4 w-4" /> Sign Out
                 </button>
               </form>

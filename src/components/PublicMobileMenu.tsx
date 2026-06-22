@@ -26,27 +26,31 @@ export default function PublicMobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="fixed inset-y-0 right-0 w-full max-w-[80vw] bg-background border-l border-border shadow-2xl p-6 flex flex-col animate-in slide-in-from-right-full duration-300">
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsOpen(false)} />
+          
+          {/* Drawer */}
+          <div className="absolute inset-y-0 right-0 w-[80vw] max-w-sm bg-white dark:bg-slate-950 border-l border-border shadow-2xl p-6 flex flex-col animate-in slide-in-from-right-full duration-300">
             <div className="flex items-center justify-between mb-8">
               <span className="font-heading font-bold text-xl text-primary">Menu</span>
               <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 text-foreground bg-muted/50 rounded-full hover:bg-muted" aria-label="Close menu">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col space-y-6 text-lg font-medium">
+            <nav className="flex flex-col space-y-6 text-lg font-medium relative z-10">
               <Link href="/catalog" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-border/50 pb-4">Catalog</Link>
               <Link href="/map" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-border/50 pb-4">Map Search</Link>
               <Link href="/contact" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-border/50 pb-4">Contact</Link>
             </nav>
-            <div className="mt-auto pt-6 flex flex-col gap-4">
+            <div className="mt-auto pt-6 flex flex-col gap-4 relative z-10">
               <Link href="/contact" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
                 Contact for rates
               </Link>
-              <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+              <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
                 Client Login
               </Link>
-              <Link href="/admin/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/admin/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-white">
                 Admin Portal
               </Link>
             </div>
