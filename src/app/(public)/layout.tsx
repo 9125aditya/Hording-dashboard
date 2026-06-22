@@ -5,7 +5,7 @@ import PublicMobileMenu from "@/components/PublicMobileMenu";
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-full flex flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
         <div className="container flex h-16 max-w-screen-2xl items-center mx-auto px-4 justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="font-heading font-bold text-xl tracking-tight text-primary">
