@@ -39,8 +39,8 @@ export default function InventoryPage() {
           </button>
         </div>
 
-        {/* Data Table */}
-        <div className="overflow-x-auto">
+        {/* Data Table (md and up) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 border-b border-border text-muted-foreground">
               <tr>
@@ -87,9 +87,37 @@ export default function InventoryPage() {
             </tbody>
           </table>
         </div>
-        
+
+        {/* Card List (below md) */}
+        <div className="md:hidden divide-y divide-border">
+          {INVENTORY.map((item) => (
+            <div key={item.id} className="p-4 flex flex-col gap-2">
+              <div className="flex justify-between items-start gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground truncate">{item.name}</p>
+                  <p className="font-mono text-xs text-muted-foreground">{item.id}</p>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${item.statusColor}`}>
+                    {item.status}
+                  </span>
+                  <button className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors -mr-1">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                <span>{item.city}</span>
+                <span>{item.size}</span>
+                <span>{item.type}</span>
+              </div>
+              <p className="text-sm font-medium text-foreground">{item.price}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Pagination Footer */}
-        <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-between text-sm text-muted-foreground">
+        <div className="p-4 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
           <div>Showing 1 to 7 of 248 entries</div>
           <div className="flex space-x-2">
             <button className="px-3 py-1 border border-input rounded-md bg-background hover:bg-muted disabled:opacity-50">Prev</button>

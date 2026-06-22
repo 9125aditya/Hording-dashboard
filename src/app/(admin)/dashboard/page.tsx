@@ -88,16 +88,16 @@ export default function DashboardPage() {
                 { name: "Initech", contact: "peter@initech.com", status: "Converted", color: "bg-available text-primary-foreground", time: "Yesterday" }
               ].map((eq, i) => (
                 <div key={i} className="flex items-center">
-                  <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center font-medium text-sm text-secondary-foreground">
+                  <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center font-medium text-sm text-secondary-foreground flex-shrink-0">
                     {eq.name.substring(0,2).toUpperCase()}
                   </div>
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">{eq.name}</p>
-                    <p className="text-sm text-muted-foreground">{eq.contact}</p>
+                  <div className="ml-4 space-y-1 min-w-0">
+                    <p className="text-sm font-medium leading-none truncate">{eq.name}</p>
+                    <p className="text-sm text-muted-foreground truncate">{eq.contact}</p>
                   </div>
-                  <div className="ml-auto font-medium text-sm flex items-center gap-3">
+                  <div className="ml-auto pl-3 font-medium text-sm flex items-center gap-3 flex-shrink-0">
                     <span className="text-xs text-muted-foreground hidden sm:inline-block">{eq.time}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${eq.color}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${eq.color}`}>
                       {eq.status}
                     </span>
                   </div>

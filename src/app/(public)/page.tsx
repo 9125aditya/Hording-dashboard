@@ -25,11 +25,11 @@ export default function PublicHomePage() {
           <p className="text-lg md:text-2xl text-sky-tint mb-10 max-w-2xl mx-auto font-light leading-relaxed">
             Premium outdoor media locations for brands that demand visual impact.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/catalog" className="inline-flex h-14 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+            <Link href="/catalog" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
               Browse Catalog
             </Link>
-            <Link href="/contact" className="inline-flex h-14 items-center justify-center rounded-full border-2 border-cloud bg-transparent px-8 text-base font-semibold text-cloud shadow-sm transition-all hover:bg-cloud hover:text-ink hover:scale-105 active:scale-95">
+            <Link href="/contact" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-full border-2 border-cloud bg-transparent px-8 text-base font-semibold text-cloud shadow-sm transition-all hover:bg-cloud hover:text-ink hover:scale-105 active:scale-95">
               Contact for rates
             </Link>
           </div>
@@ -118,7 +118,7 @@ export default function PublicHomePage() {
             {/* Search Box */}
             <div className="bg-card/10 backdrop-blur-md border border-cloud/10 rounded-2xl p-6 shadow-2xl">
               <h3 className="font-semibold text-lg mb-4 text-cloud">Search Area</h3>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
                 <div className="relative flex-1">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2">
                     <MapPin className="h-5 w-5 text-cloud/50" />
@@ -129,7 +129,7 @@ export default function PublicHomePage() {
                     className="w-full h-14 pl-12 pr-4 rounded-xl border border-cloud/20 bg-ink/50 text-cloud placeholder:text-cloud/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                   />
                 </div>
-                <Link href="/map" className="inline-flex h-14 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 whitespace-nowrap">
+                <Link href="/map" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 whitespace-nowrap">
                   Explore Map
                 </Link>
               </div>
