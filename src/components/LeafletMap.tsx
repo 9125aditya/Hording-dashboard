@@ -3,13 +3,22 @@
 import { useEffect, useRef } from "react";
 
 const LOCATIONS = [
-  { id: 1, name: "Connaught Place", city: "Delhi", lat: 28.6315, lng: 77.2167, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 2, name: "Cyber Hub", city: "Gurgaon", lat: 28.4950, lng: 77.0895, status: "Booked", size: "60 × 30 ft", type: "Digital" },
-  { id: 3, name: "Sector 17", city: "Chandigarh", lat: 30.7398, lng: 76.7827, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 4, name: "MI Road", city: "Jaipur", lat: 26.9155, lng: 75.8010, status: "Blocked", size: "50 × 25 ft", type: "Unipole" },
-  { id: 5, name: "Sector 18", city: "Noida", lat: 28.5708, lng: 77.3225, status: "Available", size: "30 × 15 ft", type: "Gantry" },
-  { id: 6, name: "Nehru Place", city: "Delhi", lat: 28.5494, lng: 77.2530, status: "Available", size: "45 × 20 ft", type: "Front-lit" },
-  { id: 7, name: "MG Road", city: "Gurugram", lat: 28.4799, lng: 77.0268, status: "Available", size: "80 × 40 ft", type: "Digital" },
+  { id: 1, name: "Sitabuldi Main Road", city: "Nagpur", lat: 21.1458, lng: 79.0882, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
+  { id: 2, name: "Dharampeth", city: "Nagpur", lat: 21.1384, lng: 79.0621, status: "Booked", size: "60 × 30 ft", type: "Digital" },
+  { id: 3, name: "Sadar", city: "Nagpur", lat: 21.1610, lng: 79.0833, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
+  { id: 4, name: "Shankar Nagar", city: "Nagpur", lat: 21.1332, lng: 79.0560, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
+  { id: 5, name: "Bajaj Nagar", city: "Nagpur", lat: 21.1275, lng: 79.0612, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
+  { id: 6, name: "Kamptee Road", city: "Nagpur", lat: 21.2167, lng: 79.1667, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
+  { id: 7, name: "Wardha Road", city: "Nagpur", lat: 21.0963, lng: 79.0634, status: "Available", size: "60 × 30 ft", type: "Digital" },
+  { id: 8, name: "Hingna", city: "Nagpur", lat: 21.0945, lng: 78.9882, status: "Booked", size: "40 × 20 ft", type: "Front-lit" },
+  { id: 9, name: "Manewada", city: "Nagpur", lat: 21.1075, lng: 79.1022, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
+  { id: 10, name: "Pardi", city: "Nagpur", lat: 21.1541, lng: 79.1351, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
+  { id: 11, name: "Lakadganj", city: "Nagpur", lat: 21.1557, lng: 79.1158, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
+  { id: 12, name: "Itwari", city: "Nagpur", lat: 21.1524, lng: 79.1124, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
+  { id: 13, name: "Rajapeth Market", city: "Amravati", lat: 20.9258, lng: 77.7640, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
+  { id: 14, name: "Camp Area", city: "Amravati", lat: 20.9320, lng: 77.7523, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
+  { id: 15, name: "Super Market Complex", city: "Chandrapur", lat: 19.9501, lng: 79.2961, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
+  { id: 16, name: "Hinjewadi Phase 1", city: "Pune", lat: 18.5913, lng: 73.7389, status: "Booked", size: "80 × 40 ft", type: "Digital" },
 ];
 
 interface LeafletMapProps {
@@ -76,7 +85,7 @@ export default function LeafletMap({ onMarkerClick }: LeafletMapProps) {
 
       // Init map
       const map = L.map(containerRef.current, {
-        center: [28.2, 77.0],
+        center: [20.5, 77.5], // Centered around Maharashtra (Nagpur/Amravati region)
         zoom: 7,
         zoomControl: false,
         attributionControl: false,
