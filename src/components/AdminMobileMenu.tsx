@@ -36,15 +36,9 @@ export default function AdminMobileMenu() {
             style={{ backgroundColor: '#1e2a3a' }}
           >
             <div className="px-5 py-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: '#3b82f6' }}>
-                  M
-                </div>
-                <div>
-                  <h1 className="text-white font-bold text-base tracking-tight">Media Inv.</h1>
-                  <p className="text-xs" style={{ color: '#7a8ba3' }}>OOH Management</p>
-                </div>
-              </div>
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="font-heading font-bold text-xl tracking-tight text-white">
+                OOH
+              </Link>
               <button onClick={() => setIsOpen(false)} className="p-1.5 rounded text-gray-400 hover:text-white">
                 <X className="h-5 w-5" />
               </button>
