@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search, MapPin, X, Maximize2, ChevronRight, Loader2 } from "lucide-react";
+import AnimateOnScroll from "./AnimateOnScroll";
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
@@ -84,124 +85,136 @@ export default function MapPageClient() {
       <div className="w-full md:w-[380px] lg:w-[420px] h-[55%] md:h-full bg-white border-t md:border-t-0 md:border-r border-slate-200 flex flex-col flex-shrink-0 order-2 md:order-1">
 
         {/* Panel Header */}
-        <div className="p-5 border-b border-slate-100">
-          <h2 className="text-slate-900 font-bold text-lg tracking-tight mb-3">Find Sites</h2>
+        <AnimateOnScroll animation="fade-down" duration={500}>
+          <div className="p-5 border-b border-slate-100 relative overflow-hidden">
+            <h2 className="text-slate-900 font-bold text-lg tracking-tight mb-3 relative z-10">Find Sites</h2>
 
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search city, landmark, pincode…"
-              className="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-            />
-          </div>
+            {/* Search Input */}
+            <div className="relative z-10 group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search city, landmark, pincode…"
+                className="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all hover:border-slate-300"
+              />
+            </div>
 
-          {/* Filter chips */}
-          <div className="flex gap-2 mt-3 flex-wrap">
-            {["All", "Available", "Booked", "Digital"].map((filter) => (
-              <button
-                key={filter}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  filter === "All"
-                    ? "bg-primary text-white"
-                    : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
+            {/* Filter chips */}
+            <div className="flex gap-2 mt-3 flex-wrap relative z-10">
+              {["All", "Available", "Booked", "Digital"].map((filter) => (
+                <button
+                  key={filter}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
+                    filter === "All"
+                      ? "bg-primary text-white shadow-md shadow-primary/20"
+                      : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </AnimateOnScroll>
 
         {/* Site List / Selected Site */}
         <div className="flex-1 overflow-y-auto">
           {selectedSite ? (
             /* Selected Site Detail */
-            <div className="p-5">
-              <button
-                onClick={() => setSelectedSite(null)}
-                className="flex items-center text-xs text-slate-500 hover:text-slate-900 mb-4 transition-colors"
-              >
-                ← Back to list
-              </button>
+            <AnimateOnScroll animation="fade-left" duration={400}>
+              <div className="p-5">
+                <button
+                  onClick={() => setSelectedSite(null)}
+                  className="flex items-center text-xs text-slate-500 hover:text-primary mb-4 transition-colors font-medium"
+                >
+                  ← Back to list
+                </button>
 
-              {/* Site Image */}
-              <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 relative mb-4">
-                <div className={`absolute top-3 left-3 z-10 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${statusBadge(selectedSite.status)}`}>
-                  {selectedSite.status}
+                {/* Site Image */}
+                <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 relative mb-4 group cursor-pointer hover-lift">
+                  <div className={`absolute top-3 left-3 z-10 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border shadow-sm ${statusBadge(selectedSite.status)}`}>
+                    {selectedSite.status}
+                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80"
+                    alt={selectedSite.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer pointer-events-none" />
                 </div>
-                <img
-                  src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80"
-                  alt={selectedSite.name}
-                  className="w-full h-full object-cover"
-                />
+
+                {/* Site Info */}
+                <h3 className="text-slate-900 font-bold text-xl mb-1">{selectedSite.name}</h3>
+                <p className="text-slate-500 text-sm flex items-center mb-5">
+                  <MapPin className="mr-1 h-3.5 w-3.5 text-primary/70" /> {selectedSite.city}
+                </p>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-slate-50 hover:bg-white hover:shadow-sm transition-all rounded-xl p-3.5 border border-slate-100 cursor-default">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Size</p>
+                    <p className="text-slate-900 text-sm font-semibold flex items-center">
+                      <Maximize2 className="mr-1.5 h-3.5 w-3.5 text-primary" />
+                      {selectedSite.size}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 hover:bg-white hover:shadow-sm transition-all rounded-xl p-3.5 border border-slate-100 cursor-default">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Type</p>
+                    <p className="text-slate-900 text-sm font-semibold">{selectedSite.type}</p>
+                  </div>
+                  <div className="bg-slate-50 hover:bg-white hover:shadow-sm transition-all rounded-xl p-3.5 border border-slate-100 cursor-default">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Status</p>
+                    <p className={`text-sm font-semibold ${
+                      selectedSite.status === "Available" ? "text-emerald-600" :
+                      selectedSite.status === "Booked" ? "text-red-600" : "text-amber-600"
+                    }`}>{selectedSite.status}</p>
+                  </div>
+                  <div className="bg-slate-50 hover:bg-white hover:shadow-sm transition-all rounded-xl p-3.5 border border-slate-100 cursor-default">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Coordinates</p>
+                    <p className="text-slate-700 text-xs font-mono">{selectedSite.lat.toFixed(2)}, {selectedSite.lng.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <Link
+                  href={`/catalog/${selectedSite.id}`}
+                  className="flex w-full h-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] group overflow-hidden relative"
+                >
+                  <span className="relative z-10 flex items-center">
+                    View Full Details
+                    <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12" />
+                </Link>
               </div>
-
-              {/* Site Info */}
-              <h3 className="text-slate-900 font-bold text-xl mb-1">{selectedSite.name}</h3>
-              <p className="text-slate-500 text-sm flex items-center mb-5">
-                <MapPin className="mr-1 h-3.5 w-3.5" /> {selectedSite.city}
-              </p>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Size</p>
-                  <p className="text-slate-900 text-sm font-semibold flex items-center">
-                    <Maximize2 className="mr-1.5 h-3.5 w-3.5 text-primary" />
-                    {selectedSite.size}
-                  </p>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Type</p>
-                  <p className="text-slate-900 text-sm font-semibold">{selectedSite.type}</p>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Status</p>
-                  <p className={`text-sm font-semibold ${
-                    selectedSite.status === "Available" ? "text-emerald-600" :
-                    selectedSite.status === "Booked" ? "text-red-600" : "text-amber-600"
-                  }`}>{selectedSite.status}</p>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Coordinates</p>
-                  <p className="text-slate-700 text-xs font-mono">{selectedSite.lat.toFixed(2)}, {selectedSite.lng.toFixed(2)}</p>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <Link
-                href={`/catalog/${selectedSite.id}`}
-                className="flex w-full h-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
-              >
-                View Full Details
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
+            </AnimateOnScroll>
           ) : (
             /* Site List */
-            <div className="p-3">
-              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-2">
-                {SITES.length} sites found
-              </p>
-              {SITES.map((site) => (
-                <button
-                  key={site.id}
-                  onClick={() => setSelectedSite(site)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-all text-left group"
-                >
-                  <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${statusDot(site.status)}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-900 text-sm font-medium truncate group-hover:text-primary transition-colors">
-                      {site.name}
-                    </p>
-                    <p className="text-slate-400 text-xs">{site.city} · {site.type} · {site.size}</p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-500 transition-colors flex-shrink-0" />
-                </button>
+            <div className="p-3 stagger-children">
+              <AnimateOnScroll animation="fade-right" duration={300}>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-2">
+                  {SITES.length} sites found
+                </p>
+              </AnimateOnScroll>
+              {SITES.map((site, i) => (
+                <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 50} duration={300}>
+                  <button
+                    onClick={() => setSelectedSite(site)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 hover:shadow-sm hover:border hover:border-slate-100 border border-transparent transition-all text-left group hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${statusDot(site.status)} group-hover:scale-125 transition-transform`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-900 text-sm font-medium truncate group-hover:text-primary transition-colors">
+                        {site.name}
+                      </p>
+                      <p className="text-slate-400 text-xs">{site.city} · {site.type} · {site.size}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
+                  </button>
+                </AnimateOnScroll>
               ))}
             </div>
           )}
