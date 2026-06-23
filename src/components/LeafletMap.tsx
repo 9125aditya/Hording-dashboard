@@ -174,5 +174,3 @@ export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
     </>
   );
 }
-
-export { LOCATIONS };

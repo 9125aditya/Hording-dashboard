@@ -34,12 +34,15 @@ export default async function DashboardPage() {
     ...cityMap[name]
   })).sort((a, b) => b.total - a.total);
 
-  const mediaTypes = Object.keys(mediaMap).map(name => ({
-    name,
-    icon: name.includes('Digital') ? "💠" : name.includes('Kiosk') ? "🟪" : "🔲",
-    cities: Array.from(mediaMap[name].cities),
-    ...mediaMap[name]
-  })).sort((a, b) => b.total - a.total);
+  const mediaTypes = Object.keys(mediaMap).map(name => {
+    const { cities: mediaCities, ...rest } = mediaMap[name];
+    return {
+      name,
+      icon: name.includes('Digital') ? "💠" : name.includes('Kiosk') ? "🟪" : "🔲",
+      cities: Array.from(mediaCities),
+      ...rest
+    };
+  }).sort((a, b) => b.total - a.total);
 
   const totalSites = sites.length;
   const totalAvail = sites.filter((s: any) => s.status === 'Available').length;

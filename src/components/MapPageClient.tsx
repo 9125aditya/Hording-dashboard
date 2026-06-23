@@ -48,6 +48,10 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
     }
   }, [searchParams, initialSites]);
 
+  const filteredSites = initialSites.filter((site) => 
+    site.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    site.city.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const handleMarkerClick = useCallback((site: SiteData) => {
     setSelectedSite(site);
   }, []);
@@ -188,10 +192,10 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
             <div className="p-3 stagger-children">
               <AnimateOnScroll animation="fade-right" duration={300}>
                 <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-2">
-                  {SITES.length} sites found
+                  {filteredSites.length} sites found
                 </p>
               </AnimateOnScroll>
-              {SITES.map((site, i) => (
+              {filteredSites.map((site, i) => (
                 <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 50} duration={300}>
                   <button
                     onClick={() => setSelectedSite(site)}
@@ -226,7 +230,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
 
       {/* Right — Map Area */}
       <div className="w-full relative order-1 md:order-2 h-[45%] md:h-full flex-shrink-0 md:flex-1">
-        <LeafletMap onMarkerClick={handleMarkerClick} />
+        <LeafletMap sites={filteredSites} onMarkerClick={handleMarkerClick} />
       </div>
 
     </div>
