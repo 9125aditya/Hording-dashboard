@@ -8,112 +8,100 @@ export default function PublicHomePage() {
   return (
     <div className="relative flex-1 flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center bg-[#0B1120] text-cloud overflow-hidden pt-16 pb-20">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+      <section className="relative min-h-[85vh] flex items-center justify-center bg-slate-50 text-slate-900 overflow-hidden pt-20 pb-24 border-b border-border">
+        {/* Subtle background patterns */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
+        </div>
         
         <div className="container relative z-20 px-4 mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             
             {/* Left Column: Content */}
-            <div className="flex flex-col items-start text-left max-w-2xl">
+            <div className="flex flex-col items-start text-left max-w-2xl relative z-10">
               <AnimateOnScroll animation="fade-right" duration={800}>
-                <div className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 mb-6 text-xs font-semibold text-primary uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.15)]">
+                <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-8 text-xs font-bold text-primary uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse"></span>
                   Outdoor Media • OOH Advertising
                 </div>
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-right" delay={100} duration={800}>
-                <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.15] text-slate-900">
                   Your Brand.<br />
-                  <span className="text-primary drop-shadow-[0_0_25px_rgba(249,115,22,0.3)]">Every Street.</span><br />
+                  <span className="text-primary relative inline-block">
+                    Every Street.
+                    <div className="absolute bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 -rotate-1"></div>
+                  </span><br />
                   Every City.
                 </h1>
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-right" delay={200} duration={800}>
-                <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-xl font-light leading-relaxed">
-                  Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, get personalized rates.
+                <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-xl leading-relaxed">
+                  Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, and get personalized rates.
                 </p>
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-up" delay={300} duration={800} className="w-full">
-                <div className="w-full bg-white rounded-2xl p-2 flex items-center shadow-2xl relative z-30">
-                  <div className="pl-4 pr-2 text-slate-400">
-                    <MapPin className="h-5 w-5" />
+                <div className="w-full bg-white rounded-2xl p-2.5 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 relative z-30 transition-shadow hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                  <div className="pl-4 pr-2 text-primary">
+                    <MapPin className="h-6 w-6" />
                   </div>
                   <input 
                     type="text" 
                     placeholder="Search by area, landmark, or city..." 
-                    className="flex-1 h-12 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-base md:text-lg"
+                    className="flex-1 h-14 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-base md:text-lg font-medium"
                   />
-                  <Link href="/map" className="h-12 px-6 sm:px-8 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30">
+                  <Link href="/map" className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-primary/20">
                     Search
                   </Link>
                 </div>
                 
-                <div className="flex flex-wrap gap-3 mt-6">
-                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Nagpur</Link>
-                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Amravati</Link>
-                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Chandrapur</Link>
-                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Pune</Link>
+                <div className="flex flex-wrap items-center gap-3 mt-6">
+                  <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider mr-2">Trending:</span>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full bg-white border border-slate-200 hover:border-primary/50 hover:text-primary text-sm font-medium text-slate-600 transition-colors shadow-sm">Nagpur</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full bg-white border border-slate-200 hover:border-primary/50 hover:text-primary text-sm font-medium text-slate-600 transition-colors shadow-sm">Amravati</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full bg-white border border-slate-200 hover:border-primary/50 hover:text-primary text-sm font-medium text-slate-600 transition-colors shadow-sm">Chandrapur</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full bg-white border border-slate-200 hover:border-primary/50 hover:text-primary text-sm font-medium text-slate-600 transition-colors shadow-sm">Pune</Link>
                 </div>
               </AnimateOnScroll>
             </div>
 
-            {/* Right Column: Premium CSS Billboard Illustration */}
-            <div className="relative w-full h-[400px] lg:h-[500px] flex items-center justify-center lg:justify-end perspective-[1000px] z-10 hidden md:flex mt-10 lg:mt-0">
-              <AnimateOnScroll animation="zoom-in" delay={200} duration={1000} className="relative w-[90%] max-w-[500px]">
+            {/* Right Column: Professional Image Composition */}
+            <div className="relative w-full h-[500px] lg:h-[600px] flex items-center justify-center lg:justify-end z-10 hidden md:flex mt-10 lg:mt-0">
+              <AnimateOnScroll animation="zoom-in" delay={200} duration={1000} className="relative w-full h-full max-w-[550px]">
                 
-                {/* Structural Pole */}
-                <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-32 h-[300px] flex flex-col items-center">
-                  <div className="w-full h-full border-x-[6px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900/0 relative">
-                    {/* Cross beams */}
-                    <div className="absolute top-[20%] left-0 w-full h-[4px] bg-slate-700/60 rotate-45 scale-110"></div>
-                    <div className="absolute top-[20%] left-0 w-full h-[4px] bg-slate-700/60 -rotate-45 scale-110"></div>
-                    <div className="absolute top-[50%] left-0 w-full h-[4px] bg-slate-700/60 rotate-45 scale-110"></div>
-                    <div className="absolute top-[50%] left-0 w-full h-[4px] bg-slate-700/60 -rotate-45 scale-110"></div>
+                {/* Main Image */}
+                <div className="absolute top-1/2 right-4 -translate-y-1/2 w-[85%] aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white bg-slate-100 rotate-2 group hover:rotate-0 transition-all duration-500 hover:scale-105">
+                  <img 
+                    src="https://images.unsplash.com/photo-1542204637-e67bc7d41e48?w=800&q=80" 
+                    alt="Premium Billboard" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+                </div>
+
+                {/* Secondary Image overlapping */}
+                <div className="absolute bottom-12 left-0 w-[55%] aspect-square rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-8 border-white bg-slate-100 -rotate-3 group hover:rotate-0 transition-all duration-500 hover:scale-105 hover:z-20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=600&q=80" 
+                    alt="Digital Display" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Glassmorphism Stats Card */}
+                <div className="absolute top-24 -left-8 bg-white/90 backdrop-blur-md border border-white p-5 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex items-center gap-4 animate-float-slow hover:scale-105 transition-transform cursor-default">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <TrendingUp className="h-6 w-6" />
                   </div>
-                </div>
-
-                {/* The Billboard Display */}
-                <div className="relative w-full aspect-[21/9] rounded-2xl border-[6px] border-primary bg-slate-950 shadow-[0_0_50px_rgba(249,115,22,0.4)] flex flex-col items-center justify-center overflow-hidden animate-float z-20">
-                  {/* Subtle screen grid */}
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-                  
-                  {/* Glowing edges inside */}
-                  <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(249,115,22,0.3)]"></div>
-                  
-                  {/* Billboard Content */}
-                  <div className="relative z-10 text-center flex flex-col items-center">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(249,115,22,0.8)] tracking-tight">
-                      YOUR AD
-                    </h2>
-                    <div className="w-24 h-[1px] bg-primary/50 my-3"></div>
-                    <p className="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] opacity-80">
-                      Goes Here
-                    </p>
+                  <div>
+                    <div className="text-2xl font-black text-slate-900">10k+</div>
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Campaigns Live</div>
                   </div>
-                  
-                  {/* Ambient light streak */}
-                  <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-30deg] animate-[shimmer_3s_infinite]"></div>
-                </div>
-
-                {/* Top Lights */}
-                <div className="absolute -top-6 left-[10%] w-8 h-8 flex flex-col items-center z-30">
-                  <div className="w-6 h-4 bg-primary rounded-t-lg shadow-[0_-10px_25px_rgba(249,115,22,0.9)] animate-pulse-glow"></div>
-                  <div className="w-1.5 h-4 bg-slate-600"></div>
-                </div>
-                <div className="absolute -top-6 right-[10%] w-8 h-8 flex flex-col items-center z-30">
-                  <div className="w-6 h-4 bg-primary rounded-t-lg shadow-[0_-10px_25px_rgba(249,115,22,0.9)] animate-pulse-glow"></div>
-                  <div className="w-1.5 h-4 bg-slate-600"></div>
-                </div>
-
-                {/* Hanging Tag */}
-                <div className="absolute -bottom-6 -right-4 bg-[#1e293b] border border-primary text-primary text-[10px] md:text-xs font-bold px-4 py-2 rounded-lg rotate-[-5deg] shadow-lg shadow-primary/20 z-30">
-                  NOW BOOKING
-                  <div className="absolute -top-2 left-[20%] w-[2px] h-3 bg-slate-400 -rotate-[15deg]"></div>
-                  <div className="absolute -top-2 right-[20%] w-[2px] h-3 bg-slate-400 rotate-[15deg]"></div>
                 </div>
 
               </AnimateOnScroll>
