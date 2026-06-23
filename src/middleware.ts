@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect Admin Routes
-  const adminRoutes = ['/dashboard', '/inventory', '/enquiries', '/staff'];
+  const adminRoutes = ['/dashboard', '/inventory', '/enquiries', '/attendance'];
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
 
   if (isAdminRoute && authRole !== 'admin') {
@@ -17,5 +17,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/inventory/:path*', '/enquiries/:path*', '/staff/:path*'],
+  matcher: ['/dashboard/:path*', '/inventory/:path*', '/enquiries/:path*', '/attendance/:path*'],
 };

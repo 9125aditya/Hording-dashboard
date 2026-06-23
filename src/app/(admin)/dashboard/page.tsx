@@ -1,138 +1,112 @@
-import { ArrowUpRight, ArrowDownRight, MapPin, Target, Users, Activity } from "lucide-react";
-
 export default function DashboardPage() {
+  const cities = [
+    { name: "Mumbai", total: 12, avail: 6, blocked: 2, booked: 4 },
+    { name: "Pune", total: 6, avail: 3, blocked: 1, booked: 2 },
+    { name: "Nagpur", total: 11, avail: 7, blocked: 2, booked: 2 },
+    { name: "Delhi", total: 7, avail: 3, blocked: 2, booked: 2 },
+  ];
+
+  const totalSites = cities.reduce((sum, c) => sum + c.total, 0);
+  const totalAvail = cities.reduce((sum, c) => sum + c.avail, 0);
+  const totalBlocked = cities.reduce((sum, c) => sum + c.blocked, 0);
+  const totalBooked = cities.reduce((sum, c) => sum + c.booked, 0);
+  const occupancy = Math.round((totalBooked / totalSites) * 100);
+
+  const mediaTypes = [
+    { name: "Hoarding", icon: "🔲", cities: ["Mumbai", "Pune", "Nagpur", "Delhi"], avail: 13, blocked: 5, booked: 8 },
+    { name: "LED Board", icon: "💠", cities: ["Mumbai"], avail: 2, blocked: 1, booked: 1 },
+    { name: "Metro Pillar", icon: "🟪", cities: ["Nagpur"], avail: 4, blocked: 1, booked: 1 },
+  ];
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* KPI Card 1 */}
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Total Sites</h3>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <div className="text-3xl font-bold font-heading text-foreground mt-2">248</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <span className="text-available flex items-center mr-1">
-                <ArrowUpRight className="h-3 w-3 mr-0.5" /> +4
-              </span>
-              since last month
-            </p>
-          </div>
-        </div>
-        
-        {/* KPI Card 2 */}
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Occupancy</h3>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <div className="text-3xl font-bold font-heading text-foreground mt-2">71%</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <span className="text-available flex items-center mr-1">
-                <ArrowUpRight className="h-3 w-3 mr-0.5" /> +4%
-              </span>
-              since last month
-            </p>
-          </div>
-        </div>
+    <div className="space-y-6 max-w-6xl">
+      {/* KPI Row */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} color="#0f172a" />
+        <KpiCard label="AVAILABLE" value={totalAvail} sub={`${Math.round((totalAvail / totalSites) * 100)}%`} color="#10b981" />
+        <KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" color="#f59e0b" />
+        <KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" color="#ef4444" />
+        <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" color="#7c3aed" />
+      </div>
 
-        {/* KPI Card 3 */}
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-muted-foreground">New Enquiries</h3>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <div className="text-3xl font-bold font-heading text-foreground mt-2">42</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <span className="text-destructive flex items-center mr-1">
-                <ArrowDownRight className="h-3 w-3 mr-0.5" /> -2%
-              </span>
-              since last week
-            </p>
-          </div>
-        </div>
-
-        {/* KPI Card 4 */}
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-muted-foreground">Conversion Rate</h3>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <div className="text-3xl font-bold font-heading text-foreground mt-2">18.2%</div>
-             <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <span className="text-available flex items-center mr-1">
-                <ArrowUpRight className="h-3 w-3 mr-0.5" /> +1.2%
-              </span>
-              since last month
-            </p>
-          </div>
+      {/* City Breakdown */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">City Breakdown</h2>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {cities.map((city) => (
+            <div key={city.name} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-gray-900">{city.name}</h3>
+                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{city.total}</span>
+              </div>
+              <div className="space-y-3">
+                <BarRow label="Avail" value={city.avail} max={city.total} color="#10b981" />
+                <BarRow label="Blocked" value={city.blocked} max={city.total} color="#f59e0b" />
+                <BarRow label="Booked" value={city.booked} max={city.total} color="#ef4444" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-4 flex flex-col">
-          <div className="p-6 pb-2">
-            <h3 className="font-semibold leading-none tracking-tight">Recent Enquiries</h3>
-            <p className="text-sm text-muted-foreground mt-2">You have 5 new enquiries today.</p>
-          </div>
-          <div className="p-6">
-            <div className="space-y-6">
-              {/* Dummy Enquiry Rows */}
-              {[
-                { name: "Acme Corp", contact: "john@acme.com", status: "New", color: "bg-primary text-primary-foreground", time: "10 min ago" },
-                { name: "Globex Inc", contact: "sarah@globex.co", status: "Contacted", color: "bg-muted text-muted-foreground", time: "2 hours ago" },
-                { name: "Initech", contact: "peter@initech.com", status: "Converted", color: "bg-available text-primary-foreground", time: "Yesterday" }
-              ].map((eq, i) => (
-                <div key={i} className="flex items-center">
-                  <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center font-medium text-sm text-secondary-foreground flex-shrink-0">
-                    {eq.name.substring(0,2).toUpperCase()}
-                  </div>
-                  <div className="ml-4 space-y-1 min-w-0">
-                    <p className="text-sm font-medium leading-none truncate">{eq.name}</p>
-                    <p className="text-sm text-muted-foreground truncate">{eq.contact}</p>
-                  </div>
-                  <div className="ml-auto pl-3 font-medium text-sm flex items-center gap-3 flex-shrink-0">
-                    <span className="text-xs text-muted-foreground hidden sm:inline-block">{eq.time}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${eq.color}`}>
-                      {eq.status}
-                    </span>
+      {/* Media Types */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Media Types</h2>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {mediaTypes.map((mt) => (
+            <div key={mt.name} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">{mt.name}</h3>
+                  <div className="flex gap-1.5 mt-1.5">
+                    {mt.cities.map((c) => (
+                      <span key={c} className="text-[11px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{c}</span>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-3">
-          <div className="p-6 pb-2">
-            <h3 className="font-semibold leading-none tracking-tight">Occupancy by Area</h3>
-            <p className="text-sm text-muted-foreground mt-2">Current fill rate across districts.</p>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              {[
-                { area: "Downtown", percent: 92 },
-                { area: "North Ring", percent: 78 },
-                { area: "Airport Zone", percent: 85 },
-                { area: "West End", percent: 45 },
-              ].map((area, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">{area.area}</span>
-                    <span className="text-muted-foreground">{area.percent}%</span>
-                  </div>
-                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${area.percent}%` }} />
-                  </div>
+                <span className="text-2xl">{mt.icon}</span>
+              </div>
+              <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-100">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-emerald-600">{mt.avail}</div>
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Avail</div>
                 </div>
-              ))}
+                <div className="text-center">
+                  <div className="text-lg font-bold text-amber-500">{mt.blocked}</div>
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Blocked</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-500">{mt.booked}</div>
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Booked</div>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, sub, color }: { label: string; value: string | number; sub: string; color: string }) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+      <p className="text-[11px] text-gray-500 uppercase font-semibold tracking-wider">{label}</p>
+      <p className="text-3xl font-bold mt-1" style={{ color }}>{value}</p>
+      <p className="text-xs text-gray-400 mt-1">{sub}</p>
+    </div>
+  );
+}
+
+function BarRow({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = Math.round((value / max) * 100);
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-gray-500 w-14">{label}</span>
+      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+      </div>
+      <span className="text-xs font-semibold text-gray-700 w-5 text-right">{value}</span>
     </div>
   );
 }
