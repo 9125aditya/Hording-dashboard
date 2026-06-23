@@ -8,52 +8,117 @@ export default function PublicHomePage() {
   return (
     <div className="relative flex-1 flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex flex-col items-center justify-center bg-ink text-cloud overflow-hidden">
-        {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/30 z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?q=80&w=2532&auto=format&fit=crop" 
-            alt="City billboard" 
-            className="w-full h-full object-cover opacity-60"
-          />
-        </div>
-
-        {/* Ambient floating orbs */}
-        <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-[20%] left-[15%] w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-drift" />
-          <div className="absolute bottom-[20%] right-[10%] w-80 h-80 bg-blue-400/15 rounded-full blur-3xl animate-float-slow" />
-          <div className="absolute top-[50%] right-[30%] w-40 h-40 bg-sky-300/10 rounded-full blur-2xl animate-float" />
-        </div>
+      <section className="relative min-h-[85vh] flex items-center justify-center bg-[#0B1120] text-cloud overflow-hidden pt-16 pb-20">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
         
-        {/* Hero Content */}
-        <div className="container relative z-20 px-4 text-center max-w-4xl mx-auto py-20">
-          <AnimateOnScroll animation="blur-in" duration={1000}>
-            <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 leading-tight">
-              Own every street.
-            </h1>
-          </AnimateOnScroll>
-          <AnimateOnScroll animation="fade-up" delay={200} duration={800}>
-            <p className="text-lg md:text-2xl text-sky-tint mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-              Premium outdoor media locations for brands that demand visual impact.
-            </p>
-          </AnimateOnScroll>
-          <AnimateOnScroll animation="fade-up" delay={400} duration={800}>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-              <Link href="/catalog" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 hover:shadow-primary/25 hover:shadow-2xl active:scale-95">
-                Browse Catalog
-              </Link>
-              <Link href="/contact" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-full border-2 border-cloud bg-transparent px-8 text-base font-semibold text-cloud shadow-sm transition-all hover:bg-cloud hover:text-ink hover:scale-105 active:scale-95">
-                Contact for rates
-              </Link>
+        <div className="container relative z-20 px-4 mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+            
+            {/* Left Column: Content */}
+            <div className="flex flex-col items-start text-left max-w-2xl">
+              <AnimateOnScroll animation="fade-right" duration={800}>
+                <div className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 mb-6 text-xs font-semibold text-primary uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.15)]">
+                  Outdoor Media • OOH Advertising
+                </div>
+              </AnimateOnScroll>
+              
+              <AnimateOnScroll animation="fade-right" delay={100} duration={800}>
+                <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                  Your Brand.<br />
+                  <span className="text-primary drop-shadow-[0_0_25px_rgba(249,115,22,0.3)]">Every Street.</span><br />
+                  Every City.
+                </h1>
+              </AnimateOnScroll>
+              
+              <AnimateOnScroll animation="fade-right" delay={200} duration={800}>
+                <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-xl font-light leading-relaxed">
+                  Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, get personalized rates.
+                </p>
+              </AnimateOnScroll>
+              
+              <AnimateOnScroll animation="fade-up" delay={300} duration={800} className="w-full">
+                <div className="w-full bg-white rounded-2xl p-2 flex items-center shadow-2xl relative z-30">
+                  <div className="pl-4 pr-2 text-slate-400">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Search by area, landmark, or city..." 
+                    className="flex-1 h-12 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-base md:text-lg"
+                  />
+                  <Link href="/map" className="h-12 px-6 sm:px-8 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30">
+                    Search
+                  </Link>
+                </div>
+                
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Nagpur</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Amravati</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Chandrapur</Link>
+                  <Link href="/catalog" className="px-4 py-1.5 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-colors">Pune</Link>
+                </div>
+              </AnimateOnScroll>
             </div>
-          </AnimateOnScroll>
-        </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 z-20 flex flex-col items-center animate-float">
-          <div className="w-6 h-10 border-2 border-cloud/40 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2.5 bg-cloud/60 rounded-full animate-bounce" />
+            {/* Right Column: Premium CSS Billboard Illustration */}
+            <div className="relative w-full h-[400px] lg:h-[500px] flex items-center justify-center lg:justify-end perspective-[1000px] z-10 hidden md:flex mt-10 lg:mt-0">
+              <AnimateOnScroll animation="zoom-in" delay={200} duration={1000} className="relative w-[90%] max-w-[500px]">
+                
+                {/* Structural Pole */}
+                <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-32 h-[300px] flex flex-col items-center">
+                  <div className="w-full h-full border-x-[6px] border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900/0 relative">
+                    {/* Cross beams */}
+                    <div className="absolute top-[20%] left-0 w-full h-[4px] bg-slate-700/60 rotate-45 scale-110"></div>
+                    <div className="absolute top-[20%] left-0 w-full h-[4px] bg-slate-700/60 -rotate-45 scale-110"></div>
+                    <div className="absolute top-[50%] left-0 w-full h-[4px] bg-slate-700/60 rotate-45 scale-110"></div>
+                    <div className="absolute top-[50%] left-0 w-full h-[4px] bg-slate-700/60 -rotate-45 scale-110"></div>
+                  </div>
+                </div>
+
+                {/* The Billboard Display */}
+                <div className="relative w-full aspect-[21/9] rounded-2xl border-[6px] border-primary bg-slate-950 shadow-[0_0_50px_rgba(249,115,22,0.4)] flex flex-col items-center justify-center overflow-hidden animate-float z-20">
+                  {/* Subtle screen grid */}
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                  
+                  {/* Glowing edges inside */}
+                  <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(249,115,22,0.3)]"></div>
+                  
+                  {/* Billboard Content */}
+                  <div className="relative z-10 text-center flex flex-col items-center">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(249,115,22,0.8)] tracking-tight">
+                      YOUR AD
+                    </h2>
+                    <div className="w-24 h-[1px] bg-primary/50 my-3"></div>
+                    <p className="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] opacity-80">
+                      Goes Here
+                    </p>
+                  </div>
+                  
+                  {/* Ambient light streak */}
+                  <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-30deg] animate-[shimmer_3s_infinite]"></div>
+                </div>
+
+                {/* Top Lights */}
+                <div className="absolute -top-6 left-[10%] w-8 h-8 flex flex-col items-center z-30">
+                  <div className="w-6 h-4 bg-primary rounded-t-lg shadow-[0_-10px_25px_rgba(249,115,22,0.9)] animate-pulse-glow"></div>
+                  <div className="w-1.5 h-4 bg-slate-600"></div>
+                </div>
+                <div className="absolute -top-6 right-[10%] w-8 h-8 flex flex-col items-center z-30">
+                  <div className="w-6 h-4 bg-primary rounded-t-lg shadow-[0_-10px_25px_rgba(249,115,22,0.9)] animate-pulse-glow"></div>
+                  <div className="w-1.5 h-4 bg-slate-600"></div>
+                </div>
+
+                {/* Hanging Tag */}
+                <div className="absolute -bottom-6 -right-4 bg-[#1e293b] border border-primary text-primary text-[10px] md:text-xs font-bold px-4 py-2 rounded-lg rotate-[-5deg] shadow-lg shadow-primary/20 z-30">
+                  NOW BOOKING
+                  <div className="absolute -top-2 left-[20%] w-[2px] h-3 bg-slate-400 -rotate-[15deg]"></div>
+                  <div className="absolute -top-2 right-[20%] w-[2px] h-3 bg-slate-400 rotate-[15deg]"></div>
+                </div>
+
+              </AnimateOnScroll>
+            </div>
+            
           </div>
         </div>
       </section>
