@@ -1,6 +1,4 @@
 import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
-
-import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function InventoryPage() {

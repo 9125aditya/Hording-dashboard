@@ -109,7 +109,7 @@ export default function EnquiriesPage() {
                   </span>
                 </div>
               </button>
-            ))}
+            )))}
           </div>
         </div>
 
