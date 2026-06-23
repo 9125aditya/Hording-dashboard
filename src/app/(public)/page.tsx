@@ -77,7 +77,7 @@ export default function PublicHomePage() {
                 {/* Main Image */}
                 <div className="absolute top-1/2 right-4 -translate-y-1/2 w-[85%] aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white bg-slate-100 rotate-2 group hover:rotate-0 transition-all duration-500 hover:scale-105">
                   <img 
-                    src="https://images.unsplash.com/photo-1542204637-e67bc7d41e48?w=800&q=80" 
+                    src="https://images.unsplash.com/photo-1517594422361-5e18d04ac5aa?w=800&q=80" 
                     alt="Premium Billboard" 
                     className="w-full h-full object-cover"
                   />

@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <div className="container flex h-16 max-w-screen-2xl items-center mx-auto px-4 justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="font-heading font-bold text-xl tracking-tight text-primary flex items-center gap-2">
-              <span className="text-xl">📣</span> OUTREACH OOH
+              OUTREACH OOH
             </Link>
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               <Link href="/catalog" className="transition-colors hover:text-foreground/80 text-foreground/60">Catalog</Link>
@@ -39,9 +39,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             
             {/* Brand Column */}
-            <div className="md:col-span-1 space-y-4">
-              <Link href="/" className="font-heading font-bold text-lg tracking-tight text-primary flex items-center gap-2">
-                <span className="text-lg">📣</span> OUTREACH OOH
+            <div className="col-span-1 md:col-span-1">
+              <Link href="/" className="font-heading font-bold text-2xl tracking-tight text-primary flex items-center gap-2 mb-4">
+                OUTREACH OOH
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Premium outdoor media inventory across Maharashtra. Hoardings, billboards, and brand campaigns that drive reach.
