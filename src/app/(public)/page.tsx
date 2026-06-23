@@ -138,38 +138,7 @@ export default function PublicHomePage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-24 bg-muted/50 border-y border-border">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <AnimateOnScroll animation="fade-up">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">Why brands choose us</h2>
-              <p className="text-muted-foreground text-lg">End-to-end outdoor advertising with data-driven placement and premium locations.</p>
-            </div>
-          </AnimateOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: <MapPin className="h-7 w-7" />, title: "Prime Locations", desc: "Handpicked spots in the busiest corridors of 12+ cities across North India." },
-              { icon: <Sparkles className="h-7 w-7" />, title: "Premium Quality", desc: "High-resolution digital and static displays maintained to the highest standards." },
-              { icon: <TrendingUp className="h-7 w-7" />, title: "Real-Time Data", desc: "Live occupancy tracking, audience insights, and campaign performance dashboards." },
-            ].map((item, i) => (
-              <AnimateOnScroll key={i} animation="fade-up" delay={i * 150}>
-                <div className="bg-card rounded-2xl border border-border p-8 text-center hover-lift relative overflow-hidden group">
-                  {/* Ambient glow on hover */}
-                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                  <div className="relative z-10">
-                    <div className="mx-auto w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-5">
-                      {item.icon}
-                    </div>
-                    <h3 className="font-heading font-bold text-lg mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Testimonials Section */}
       <section className="py-24 bg-background overflow-hidden flex flex-col items-center">
