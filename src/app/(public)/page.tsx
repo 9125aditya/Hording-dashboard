@@ -87,8 +87,8 @@ export default function PublicHomePage() {
                 {/* Secondary Image overlapping */}
                 <div className="absolute bottom-12 left-0 w-[55%] aspect-square rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-8 border-white bg-slate-100 -rotate-3 group hover:rotate-0 transition-all duration-500 hover:scale-105 hover:z-20">
                   <img 
-                    src="https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=600&q=80" 
-                    alt="Digital Display" 
+                    src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80" 
+                    alt="Outdoor Billboard" 
                     className="w-full h-full object-cover"
                   />
                 </div>
