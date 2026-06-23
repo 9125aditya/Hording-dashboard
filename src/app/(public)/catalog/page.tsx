@@ -2,26 +2,22 @@ import Link from "next/link";
 import { ArrowRight, MapPin, Maximize2, SlidersHorizontal, Search } from "lucide-react";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 
-const SITES = [
-  { id: 1, name: "Sitabuldi Main Road", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80", city: "Nagpur" },
-  { id: 2, name: "Dharampeth", size: "60 × 30 ft", type: "Digital", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80", city: "Nagpur" },
-  { id: 3, name: "Sadar", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80", city: "Nagpur" },
-  { id: 4, name: "Shankar Nagar", size: "30 × 15 ft", type: "Digital", status: "Blocked", color: "bg-blocked text-white", img: "https://images.unsplash.com/photo-1691480267478-8b39a167075b?w=800&q=80", city: "Nagpur" },
-  { id: 5, name: "Bajaj Nagar", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1610376096719-9819725cfb00?w=800&q=80", city: "Nagpur" },
-  { id: 6, name: "Kamptee Road", size: "80 × 40 ft", type: "Front-lit", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1560196327-cca0a731441b?w=800&q=80", city: "Nagpur" },
-  { id: 7, name: "Wardha Road", size: "60 × 30 ft", type: "Digital", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80", city: "Nagpur" },
-  { id: 8, name: "Hingna", size: "40 × 20 ft", type: "Front-lit", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80", city: "Nagpur" },
-  { id: 9, name: "Manewada", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80", city: "Nagpur" },
-  { id: 10, name: "Pardi", size: "30 × 15 ft", type: "Digital", status: "Blocked", color: "bg-blocked text-white", img: "https://images.unsplash.com/photo-1691480267478-8b39a167075b?w=800&q=80", city: "Nagpur" },
-  { id: 11, name: "Lakadganj", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1610376096719-9819725cfb00?w=800&q=80", city: "Nagpur" },
-  { id: 12, name: "Itwari", size: "80 × 40 ft", type: "Front-lit", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1560196327-cca0a731441b?w=800&q=80", city: "Nagpur" },
-  { id: 13, name: "Rajapeth Market", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80", city: "Amravati" },
-  { id: 14, name: "Camp Area", size: "30 × 15 ft", type: "Digital", status: "Blocked", color: "bg-blocked text-white", img: "https://images.unsplash.com/photo-1691480267478-8b39a167075b?w=800&q=80", city: "Amravati" },
-  { id: 15, name: "Super Market Complex", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1610376096719-9819725cfb00?w=800&q=80", city: "Chandrapur" },
-  { id: 16, name: "Hinjewadi Phase 1", size: "80 × 40 ft", type: "Front-lit", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1560196327-cca0a731441b?w=800&q=80", city: "Pune" },
-];
+import { createClient } from "@/lib/supabase/server";
 
-export default function CatalogPage() {
+export default async function CatalogPage() {
+  const supabase = await createClient();
+  const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
+
+  const sites = dbSites?.map((s: any) => ({
+    id: s.site_id,
+    name: s.name,
+    size: s.size,
+    type: s.type,
+    status: s.status,
+    color: s.status === 'Available' ? 'bg-available' : s.status === 'Booked' ? 'bg-booked' : 'bg-blocked text-white',
+    img: s.photos?.[0] || 'https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80',
+    city: s.city
+  })) || [];
   return (
     <div className="flex-1 bg-background pt-10 pb-24">
       <div className="container mx-auto px-4 max-w-7xl">
@@ -64,8 +60,8 @@ export default function CatalogPage() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SITES.map((site, i) => (
-            <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 100}>
+          {sites.map((site, i) => (
+            <AnimateOnScroll key={site.id} animation="fade-up" delay={(i % 10) * 100}>
               <Link href={`/catalog/${site.id}`} className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover-lift">
                 <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                   <div className={`absolute top-4 left-4 z-10 text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-sm ${site.color}`}>

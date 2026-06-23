@@ -30,26 +30,11 @@ interface SiteData {
   type: string;
 }
 
-const SITES: SiteData[] = [
-  { id: 1, name: "Sitabuldi Main Road", city: "Nagpur", lat: 21.1458, lng: 79.0882, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 2, name: "Dharampeth", city: "Nagpur", lat: 21.1384, lng: 79.0621, status: "Booked", size: "60 × 30 ft", type: "Digital" },
-  { id: 3, name: "Sadar", city: "Nagpur", lat: 21.1610, lng: 79.0833, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 4, name: "Shankar Nagar", city: "Nagpur", lat: 21.1332, lng: 79.0560, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 5, name: "Bajaj Nagar", city: "Nagpur", lat: 21.1275, lng: 79.0612, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 6, name: "Kamptee Road", city: "Nagpur", lat: 21.2167, lng: 79.1667, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
-  { id: 7, name: "Wardha Road", city: "Nagpur", lat: 21.0963, lng: 79.0634, status: "Available", size: "60 × 30 ft", type: "Digital" },
-  { id: 8, name: "Hingna", city: "Nagpur", lat: 21.0945, lng: 78.9882, status: "Booked", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 9, name: "Manewada", city: "Nagpur", lat: 21.1075, lng: 79.1022, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 10, name: "Pardi", city: "Nagpur", lat: 21.1541, lng: 79.1351, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 11, name: "Lakadganj", city: "Nagpur", lat: 21.1557, lng: 79.1158, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 12, name: "Itwari", city: "Nagpur", lat: 21.1524, lng: 79.1124, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
-  { id: 13, name: "Rajapeth Market", city: "Amravati", lat: 20.9258, lng: 77.7640, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 14, name: "Camp Area", city: "Amravati", lat: 20.9320, lng: 77.7523, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 15, name: "Super Market Complex", city: "Chandrapur", lat: 19.9501, lng: 79.2961, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 16, name: "Hinjewadi Phase 1", city: "Pune", lat: 18.5913, lng: 73.7389, status: "Booked", size: "80 × 40 ft", type: "Digital" },
-];
+interface MapPageClientProps {
+  initialSites: SiteData[];
+}
 
-export default function MapPageClient() {
+export default function MapPageClient({ initialSites }: MapPageClientProps) {
   const [selectedSite, setSelectedSite] = useState<SiteData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const searchParams = useSearchParams();
@@ -57,13 +42,11 @@ export default function MapPageClient() {
   useEffect(() => {
     const siteIdParam = searchParams.get("siteId");
     if (siteIdParam) {
-      const id = parseInt(siteIdParam, 10);
-      const site = SITES.find((s) => s.id === id);
-      if (site) {
-        setSelectedSite(site);
-      }
+      const id = siteIdParam;
+      const found = initialSites.find((s) => String(s.id) === id);
+      if (found) setSelectedSite(found);
     }
-  }, [searchParams]);
+  }, [searchParams, initialSites]);
 
   const handleMarkerClick = useCallback((site: SiteData) => {
     setSelectedSite(site);

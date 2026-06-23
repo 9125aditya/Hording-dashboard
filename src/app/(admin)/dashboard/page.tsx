@@ -1,22 +1,51 @@
-export default function DashboardPage() {
-  const cities = [
-    { name: "Mumbai", total: 12, avail: 6, blocked: 2, booked: 4 },
-    { name: "Pune", total: 6, avail: 3, blocked: 1, booked: 2 },
-    { name: "Nagpur", total: 11, avail: 7, blocked: 2, booked: 2 },
-    { name: "Delhi", total: 7, avail: 3, blocked: 2, booked: 2 },
-  ];
+import { createClient } from "@/lib/supabase/server";
 
-  const totalSites = cities.reduce((sum, c) => sum + c.total, 0);
-  const totalAvail = cities.reduce((sum, c) => sum + c.avail, 0);
-  const totalBlocked = cities.reduce((sum, c) => sum + c.blocked, 0);
-  const totalBooked = cities.reduce((sum, c) => sum + c.booked, 0);
-  const occupancy = Math.round((totalBooked / totalSites) * 100);
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: dbSites } = await supabase.from('sites').select('*');
+  const sites = dbSites || [];
 
-  const mediaTypes = [
-    { name: "Hoarding", icon: "🔲", cities: ["Mumbai", "Pune", "Nagpur", "Delhi"], avail: 13, blocked: 5, booked: 8 },
-    { name: "LED Board", icon: "💠", cities: ["Mumbai"], avail: 2, blocked: 1, booked: 1 },
-    { name: "Metro Pillar", icon: "🟪", cities: ["Nagpur"], avail: 4, blocked: 1, booked: 1 },
-  ];
+  // Calculate cities breakdown
+  const cityMap: Record<string, { total: number, avail: number, blocked: number, booked: number }> = {};
+  
+  // Calculate media types breakdown
+  const mediaMap: Record<string, { total: number, avail: number, blocked: number, booked: number, cities: Set<string> }> = {};
+
+  sites.forEach((site: any) => {
+    // City Aggregation
+    if (!cityMap[site.city]) cityMap[site.city] = { total: 0, avail: 0, blocked: 0, booked: 0 };
+    cityMap[site.city].total += 1;
+    if (site.status === 'Available') cityMap[site.city].avail += 1;
+    else if (site.status === 'Blocked') cityMap[site.city].blocked += 1;
+    else if (site.status === 'Booked') cityMap[site.city].booked += 1;
+
+    // Media Type Aggregation
+    const mType = site.type || 'Other';
+    if (!mediaMap[mType]) mediaMap[mType] = { total: 0, avail: 0, blocked: 0, booked: 0, cities: new Set() };
+    mediaMap[mType].total += 1;
+    mediaMap[mType].cities.add(site.city);
+    if (site.status === 'Available') mediaMap[mType].avail += 1;
+    else if (site.status === 'Blocked') mediaMap[mType].blocked += 1;
+    else if (site.status === 'Booked') mediaMap[mType].booked += 1;
+  });
+
+  const cities = Object.keys(cityMap).map(name => ({
+    name,
+    ...cityMap[name]
+  })).sort((a, b) => b.total - a.total);
+
+  const mediaTypes = Object.keys(mediaMap).map(name => ({
+    name,
+    icon: name.includes('Digital') ? "💠" : name.includes('Kiosk') ? "🟪" : "🔲",
+    cities: Array.from(mediaMap[name].cities),
+    ...mediaMap[name]
+  })).sort((a, b) => b.total - a.total);
+
+  const totalSites = sites.length;
+  const totalAvail = sites.filter((s: any) => s.status === 'Available').length;
+  const totalBlocked = sites.filter((s: any) => s.status === 'Blocked').length;
+  const totalBooked = sites.filter((s: any) => s.status === 'Booked').length;
+  const occupancy = totalSites > 0 ? Math.round((totalBooked / totalSites) * 100) : 0;
 
   return (
     <div className="space-y-6 max-w-6xl">

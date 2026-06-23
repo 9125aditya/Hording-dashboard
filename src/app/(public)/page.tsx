@@ -3,8 +3,26 @@ import { ArrowRight, MapPin, Maximize2, Sparkles, Building2, TrendingUp, Users }
 import HomeMap from "@/components/HomeMap";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import TestimonialsMarquee from "@/components/TestimonialsMarquee";
+import { createClient } from "@/lib/supabase/server";
 
-export default function PublicHomePage() {
+export default async function PublicHomePage() {
+  const supabase = await createClient();
+  const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
+
+  const sites = dbSites?.map((s: any) => ({
+    id: s.site_id,
+    name: s.name,
+    size: s.size,
+    type: s.type,
+    lat: Number(s.lat),
+    lng: Number(s.lng),
+    status: s.status,
+    color: s.status === 'Available' ? 'bg-available' : s.status === 'Booked' ? 'bg-booked' : 'bg-blocked text-white',
+    img: s.photos?.[0] || 'https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80',
+    city: s.city
+  })) || [];
+
+  const featuredSites = sites.slice(0, 3);
   return (
     <div className="relative flex-1 flex flex-col">
       {/* Hero Section */}
@@ -84,15 +102,6 @@ export default function PublicHomePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
                 </div>
 
-                {/* Secondary Image overlapping */}
-                <div className="absolute bottom-12 left-0 w-[55%] aspect-square rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-8 border-white bg-slate-100 -rotate-3 group hover:rotate-0 transition-all duration-500 hover:scale-105 hover:z-20">
-                  <img 
-                    src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80" 
-                    alt="Outdoor Billboard" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
                 {/* Glassmorphism Stats Card */}
                 <div className="absolute top-24 -left-8 bg-white/90 backdrop-blur-md border border-white p-5 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex items-center gap-4 animate-float-slow hover:scale-105 transition-transform cursor-default">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
@@ -150,11 +159,7 @@ export default function PublicHomePage() {
           </AnimateOnScroll>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { id: 1, name: "Sitabuldi Main Road", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80", city: "Nagpur" },
-              { id: 2, name: "Rajapeth Market", size: "60 × 30 ft", type: "Digital", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80", city: "Amravati" },
-              { id: 3, name: "Hinjewadi Phase 1", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80", city: "Pune" },
-            ].map((site, i) => (
+            {featuredSites.map((site, i) => (
               <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 150}>
                 <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover-lift">
                   <div className="aspect-[4/3] bg-muted relative overflow-hidden">
@@ -282,7 +287,7 @@ export default function PublicHomePage() {
               <div className="relative aspect-square md:aspect-video lg:aspect-[4/3] w-full max-w-2xl mx-auto z-10">
                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-3xl animate-pulse-glow" />
                  <div className="w-full h-full relative z-10">
-                   <HomeMap />
+                   <HomeMap initialSites={sites} />
                  </div>
               </div>
             </AnimateOnScroll>

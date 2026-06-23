@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
-const ENQUIRIES = [
-  { id: 1, name: "Priya Sharma", company: "Reliance Retail", email: "priya@reliance.com", phone: "+91 98765 43210", site: "Cyber Hub", siteId: "S-1043", status: "New", date: "10 mins ago", message: "Hi team,\n\nWe are looking to launch a new festive campaign next quarter and the Cyber Hub digital hoarding fits our demographic perfectly.\n\nCould you please send over the rate card for Q3 and confirm if this site is available for a 4-week buy starting in July?\n\nThanks,\nPriya" },
-  { id: 2, name: "Rahul Desai", company: "Tata Motors", email: "rahul@tata.com", phone: "+91 98123 45678", site: "Bandra Kurla Complex", siteId: "S-1047", status: "New", date: "2 hours ago", message: "Hello,\n\nInterested in the BKC front-lit hoarding for an upcoming launch event. Please share availability and pricing for a 2-month booking.\n\nRegards,\nRahul" },
-  { id: 3, name: "Amit Singh", company: "HDFC Bank", email: "amit@hdfc.com", phone: "+91 99887 76655", site: "Sector 17", siteId: "S-1044", status: "Contacted", date: "Yesterday", message: "Following up on our call - can you send the updated quote for Sector 17 with the back-lit upgrade included?" },
-  { id: 4, name: "Neha Gupta", company: "FabIndia", email: "neha@fabindia.com", phone: "+91 97654 32109", site: "Sector 18", siteId: "S-1046", status: "Converted", date: "3 days ago", message: "Confirming our booking for Sector 18 starting next month. Please send the contract for signature." },
-  { id: 5, name: "Vikram Malhotra", company: "Zomato", email: "vikram@zomato.com", phone: "+91 96543 21098", site: "MI Road", siteId: "S-1045", status: "Lost", date: "Last week", message: "We've decided to go with another vendor for this quarter's campaign. Thanks for the detailed proposal." },
-];
+type Enquiry = {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  site: string; // we'll just mock this or join it if we want, but for now we'll say "Multiple Sites" if we don't have the join
+  siteId: string;
+  status: string;
+  date: string;
+  message: string;
+};
 
 const statusStyle = (status: string) => {
   switch (status) {
@@ -21,8 +27,34 @@ const statusStyle = (status: string) => {
 };
 
 export default function EnquiriesPage() {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const selected = ENQUIRIES.find((e) => e.id === selectedId) ?? null;
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchEnquiries() {
+      const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
+      if (data) {
+        setEnquiries(data.map((e: any) => ({
+          id: e.id,
+          name: e.name,
+          company: e.company || 'N/A',
+          email: e.email,
+          phone: e.phone || 'N/A',
+          site: 'Various',
+          siteId: 'Multiple',
+          status: e.status,
+          date: new Date(e.created_at).toLocaleDateString(),
+          message: e.message
+        })));
+      }
+      setLoading(false);
+    }
+    fetchEnquiries();
+  }, [supabase]);
+
+  const selected = enquiries.find((e) => e.id === selectedId) ?? null;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
@@ -54,10 +86,15 @@ export default function EnquiriesPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {ENQUIRIES.map((eq) => (
-              <button
-                key={eq.id}
-                onClick={() => setSelectedId(eq.id)}
+            {loading ? (
+              <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-primary" /></div>
+            ) : enquiries.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground text-sm">No enquiries found.</div>
+            ) : (
+              enquiries.map((eq) => (
+                <button
+                  key={eq.id}
+                  onClick={() => setSelectedId(eq.id)}
                 className={`w-full text-left p-4 border-b border-border cursor-pointer transition-colors ${eq.id === selectedId ? "bg-primary/5 border-l-2 border-l-primary" : "hover:bg-muted/50"}`}
               >
                 <div className="flex justify-between items-start mb-1">
@@ -148,8 +185,9 @@ export default function EnquiriesPage() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-              Select an enquiry to view details.
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
+              <Mail className="h-12 w-12 text-muted-foreground/30 mb-4" />
+              <p>Select an enquiry to view details</p>
             </div>
           )}
         </div>

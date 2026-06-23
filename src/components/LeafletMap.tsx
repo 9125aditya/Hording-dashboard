@@ -2,30 +2,23 @@
 
 import { useEffect, useRef } from "react";
 
-const LOCATIONS = [
-  { id: 1, name: "Sitabuldi Main Road", city: "Nagpur", lat: 21.1458, lng: 79.0882, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 2, name: "Dharampeth", city: "Nagpur", lat: 21.1384, lng: 79.0621, status: "Booked", size: "60 × 30 ft", type: "Digital" },
-  { id: 3, name: "Sadar", city: "Nagpur", lat: 21.1610, lng: 79.0833, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 4, name: "Shankar Nagar", city: "Nagpur", lat: 21.1332, lng: 79.0560, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 5, name: "Bajaj Nagar", city: "Nagpur", lat: 21.1275, lng: 79.0612, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 6, name: "Kamptee Road", city: "Nagpur", lat: 21.2167, lng: 79.1667, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
-  { id: 7, name: "Wardha Road", city: "Nagpur", lat: 21.0963, lng: 79.0634, status: "Available", size: "60 × 30 ft", type: "Digital" },
-  { id: 8, name: "Hingna", city: "Nagpur", lat: 21.0945, lng: 78.9882, status: "Booked", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 9, name: "Manewada", city: "Nagpur", lat: 21.1075, lng: 79.1022, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 10, name: "Pardi", city: "Nagpur", lat: 21.1541, lng: 79.1351, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 11, name: "Lakadganj", city: "Nagpur", lat: 21.1557, lng: 79.1158, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 12, name: "Itwari", city: "Nagpur", lat: 21.1524, lng: 79.1124, status: "Booked", size: "80 × 40 ft", type: "Front-lit" },
-  { id: 13, name: "Rajapeth Market", city: "Amravati", lat: 20.9258, lng: 77.7640, status: "Available", size: "100 × 40 ft", type: "Back-lit" },
-  { id: 14, name: "Camp Area", city: "Amravati", lat: 20.9320, lng: 77.7523, status: "Blocked", size: "30 × 15 ft", type: "Digital" },
-  { id: 15, name: "Super Market Complex", city: "Chandrapur", lat: 19.9501, lng: 79.2961, status: "Available", size: "40 × 20 ft", type: "Front-lit" },
-  { id: 16, name: "Hinjewadi Phase 1", city: "Pune", lat: 18.5913, lng: 73.7389, status: "Booked", size: "80 × 40 ft", type: "Digital" },
-];
-
-interface LeafletMapProps {
-  onMarkerClick?: (site: typeof LOCATIONS[0]) => void;
+export interface SiteData {
+  id: any;
+  name: string;
+  city: string;
+  lat: number;
+  lng: number;
+  status: string;
+  size: string;
+  type: string;
 }
 
-export default function LeafletMap({ onMarkerClick }: LeafletMapProps) {
+interface LeafletMapProps {
+  sites: SiteData[];
+  onMarkerClick?: (site: SiteData) => void;
+}
+
+export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
@@ -103,27 +96,38 @@ export default function LeafletMap({ onMarkerClick }: LeafletMapProps) {
       }).addTo(map);
 
       // Add markers
-      LOCATIONS.forEach((loc) => {
-        const marker = L.marker([loc.lat, loc.lng], {
-          icon: icons[loc.status] || icons.Available,
-        }).addTo(map);
+      const markers = sites.map(site => {
+        const marker = L.marker([site.lat, site.lng], {
+          icon: icons[site.status] || icons.Available,
+        });
 
         marker.on("click", () => {
-          if (onMarkerClickRef.current) onMarkerClickRef.current(loc);
+          if (onMarkerClickRef.current) onMarkerClickRef.current(site);
         });
 
         // Tooltip on hover
         marker.bindTooltip(
-          `<strong>${loc.name}</strong><br/><span style="opacity:0.7">${loc.city}</span>`,
+          `<strong>${site.name}</strong><br/><span style="opacity:0.7">${site.city}</span>`,
           { direction: "top", offset: [0, -28], className: "leaflet-tooltip-custom" }
         );
+        return marker;
       });
 
-      // Fix sizing after layout settles
-      requestAnimationFrame(() => {
-        setTimeout(() => map.invalidateSize(), 50);
-        setTimeout(() => map.invalidateSize(), 300);
-      });
+      // Add markers to layer group instead of directly to map
+      const markersLayer = L.layerGroup(markers);
+      markersLayer.addTo(map);
+
+      // Save markers and map instance
+      (map as any)._markers = markers;
+      mapInstanceRef.current = map;
+
+      // Ensure the markers are loaded fully
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+      
+    }).catch(err => {
+      console.error("Error loading Leaflet:", err);
     });
 
     return () => {
@@ -133,7 +137,7 @@ export default function LeafletMap({ onMarkerClick }: LeafletMapProps) {
         mapInstanceRef.current = null;
       }
     };
-  }, []);
+  }, [sites]);
 
   return (
     <>

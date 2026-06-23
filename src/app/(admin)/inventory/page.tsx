@@ -1,16 +1,22 @@
 import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
 
-const INVENTORY = [
-  { id: "S-1042", name: "Connaught Place", city: "Delhi", size: "40 × 20 ft", type: "Front-lit", price: "₹3,50,000/mo", status: "Available", statusColor: "bg-available text-primary-foreground" },
-  { id: "S-1043", name: "Cyber Hub", city: "Gurgaon", size: "60 × 30 ft", type: "Digital", price: "₹8,00,000/mo", status: "Booked", statusColor: "bg-booked text-primary-foreground" },
-  { id: "S-1044", name: "Sector 17", city: "Chandigarh", size: "100 × 40 ft", type: "Back-lit", price: "₹5,20,000/mo", status: "Available", statusColor: "bg-available text-primary-foreground" },
-  { id: "S-1045", name: "MI Road", city: "Jaipur", size: "30 × 15 ft", type: "Digital", price: "₹4,50,000/mo", status: "Blocked", statusColor: "bg-blocked text-white" },
-  { id: "S-1046", name: "Sector 18", city: "Noida", size: "40 × 20 ft", type: "Front-lit", price: "₹2,80,000/mo", status: "Available", statusColor: "bg-available text-primary-foreground" },
-  { id: "S-1047", name: "Bandra Kurla Complex", city: "Mumbai", size: "80 × 40 ft", type: "Front-lit", price: "₹12,00,000/mo", status: "Booked", statusColor: "bg-booked text-primary-foreground" },
-  { id: "S-1048", name: "MG Road", city: "Bangalore", size: "50 × 25 ft", type: "Digital", price: "₹10,50,000/mo", status: "Available", statusColor: "bg-available text-primary-foreground" },
-];
+import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export default function InventoryPage() {
+export default async function InventoryPage() {
+  const supabase = await createClient();
+  const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
+
+  const inventory = dbSites?.map((s: any) => ({
+    id: s.site_id.substring(0, 8),
+    name: s.name,
+    city: s.city,
+    size: s.size,
+    type: s.type,
+    price: s.internal_rate ? `₹${s.internal_rate.toLocaleString('en-IN')}/mo` : 'Contact for price',
+    status: s.status,
+    statusColor: s.status === 'Available' ? 'bg-available text-primary-foreground' : s.status === 'Booked' ? 'bg-booked text-primary-foreground' : 'bg-blocked text-white',
+  })) || [];
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -60,7 +66,7 @@ export default function InventoryPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {INVENTORY.map((item) => (
+              {inventory.map((item) => (
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground">{item.id}</td>
                   <td className="px-6 py-4 font-medium text-foreground">{item.name}</td>
@@ -90,7 +96,7 @@ export default function InventoryPage() {
 
         {/* Card List (below md) */}
         <div className="md:hidden divide-y divide-border">
-          {INVENTORY.map((item) => (
+          {inventory.map((item) => (
             <div key={item.id} className="p-4 flex flex-col gap-2">
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0">

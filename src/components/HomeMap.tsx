@@ -16,7 +16,13 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ),
 });
 
-export default function HomeMap() {
+import { SiteData } from "./LeafletMap";
+
+interface HomeMapProps {
+  initialSites: SiteData[];
+}
+
+export default function HomeMap({ initialSites }: HomeMapProps) {
   const router = useRouter();
 
   const handleMarkerClick = (site: any) => {
@@ -27,7 +33,7 @@ export default function HomeMap() {
     <div className="relative w-full h-full rounded-3xl overflow-hidden border-4 border-cloud/10 shadow-2xl bg-slate-950 group">
       {/* Map Container */}
       <div className="w-full h-full absolute inset-0 z-0">
-        <LeafletMap onMarkerClick={handleMarkerClick} />
+        <LeafletMap sites={initialSites} onMarkerClick={handleMarkerClick} />
       </div>
 
       {/* Floating Info Overlay (top right) */}

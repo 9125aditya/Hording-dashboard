@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, Clock, LogOut } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut } from "lucide-react";
 import AdminMobileMenu from "@/components/AdminMobileMenu";
 import { logout } from "@/lib/auth-actions";
 
@@ -19,17 +19,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-1 px-3 space-y-1">
-          <Link href="/dashboard" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-white transition-colors" style={{ backgroundColor: '#2a3a4e' }}>
-            <LayoutDashboard className="mr-3 h-4 w-4" style={{ color: '#60a5fa' }} />
+          <Link href="/dashboard" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+            <LayoutDashboard className="mr-3 h-4 w-4" />
             Dashboard
           </Link>
           <Link href="/inventory" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
             <Map className="mr-3 h-4 w-4" />
             Inventory
           </Link>
-          <Link href="/attendance" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <Clock className="mr-3 h-4 w-4" />
-            Attendance
+          <Link href="/enquiries" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+            <MessageSquare className="mr-3 h-4 w-4" />
+            Enquiries
+          </Link>
+          <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+            <Users className="mr-3 h-4 w-4" />
+            Staff
           </Link>
         </nav>
 

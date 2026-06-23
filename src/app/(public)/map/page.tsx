@@ -1,7 +1,23 @@
 import MapPageClient from "@/components/MapPageClient";
 import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/server";
 
-export default function MapPage() {
+export default async function MapPage() {
+  const supabase = await createClient();
+  const { data: dbSites } = await supabase.from('sites').select('*');
+
+  const sites = dbSites?.map((s: any) => ({
+    id: s.site_id,
+    name: s.name,
+    city: s.city,
+    lat: Number(s.lat),
+    lng: Number(s.lng),
+    status: s.status,
+    size: s.size,
+    type: s.type,
+    photos: s.photos
+  })) || [];
+
   return (
     <Suspense fallback={
       <div className="w-full h-screen bg-slate-50 flex items-center justify-center">
@@ -10,7 +26,7 @@ export default function MapPage() {
         </div>
       </div>
     }>
-      <MapPageClient />
+      <MapPageClient initialSites={sites} />
     </Suspense>
   );
 }
