@@ -36,7 +36,7 @@ export default function PublicMobileMenu() {
             style={{ backgroundColor: '#ffffff' }}
           >
             <div className="flex items-center justify-between mb-8">
-              <span className="font-heading font-bold text-xl text-primary">Menu</span>
+              <span className="font-heading font-bold text-xl text-primary">OUTREACH OOH</span>
               <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 text-slate-900 bg-slate-100 rounded-full hover:bg-slate-200" aria-label="Close menu">
                 <X className="h-5 w-5" />
               </button>

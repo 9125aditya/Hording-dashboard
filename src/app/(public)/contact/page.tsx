@@ -31,7 +31,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Email us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Our team usually responds within 2 hours.</p>
-                    <a href="mailto:hello@oohmedia.com" className="font-medium text-primary hover:underline">hello@oohmedia.com</a>
+                    <a href="mailto:hello@outreachooh.in" className="font-medium text-primary hover:underline">hello@outreachooh.in</a>
                   </div>
                 </div>
               </AnimateOnScroll>
@@ -44,7 +44,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Call us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Mon-Sat from 10am to 7pm IST.</p>
-                    <a href="tel:+919876543210" className="font-medium text-primary hover:underline">+91 98765 43210</a>
+                    <a href="tel:+919000000000" className="font-medium text-primary hover:underline">+91 90000 00000</a>
                   </div>
                 </div>
               </AnimateOnScroll>
@@ -57,9 +57,8 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Office</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      A-12, Connaught Place<br />
-                      2nd Floor, Block A<br />
-                      New Delhi, Delhi 110001
+                      12, Sitabuldi Main Road<br />
+                      Nagpur, Maharashtra 440012
                     </p>
                   </div>
                 </div>

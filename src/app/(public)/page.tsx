@@ -62,18 +62,17 @@ export default function PublicHomePage() {
       <section className="py-6 bg-card border-b border-border">
         <div className="container mx-auto px-4 max-w-7xl">
           <AnimateOnScroll animation="fade-up" duration={600}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               {[
-                { value: "248+", label: "Active Sites", icon: <MapPin className="h-5 w-5" /> },
-                { value: "12", label: "Cities", icon: <Building2 className="h-5 w-5" /> },
-                { value: "95%", label: "Uptime", icon: <TrendingUp className="h-5 w-5" /> },
-                { value: "500+", label: "Campaigns Run", icon: <Users className="h-5 w-5" /> },
+                { value: "500+", label: "Sites", icon: <MapPin className="h-5 w-5" /> },
+                { value: "4", label: "Cities", icon: <Building2 className="h-5 w-5" /> },
+                { value: "10,000+", label: "Campaigns Delivered", icon: <Users className="h-5 w-5" /> },
               ].map((stat, i) => (
                 <AnimateOnScroll key={i} animation="zoom-in" delay={i * 100}>
                   <div className="flex flex-col items-center gap-2 py-3">
                     <div className="text-primary mb-1">{stat.icon}</div>
-                    <div className="text-2xl md:text-3xl font-bold font-heading text-foreground">{stat.value}</div>
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{stat.label}</div>
+                    <div className="text-2xl md:text-4xl font-bold font-heading text-primary">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground font-semibold">{stat.label}</div>
                   </div>
                 </AnimateOnScroll>
               ))}
@@ -99,9 +98,9 @@ export default function PublicHomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { id: 1, name: "Connaught Place, Delhi", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80" },
-              { id: 2, name: "Cyber Hub, Gurgaon", size: "60 × 30 ft", type: "Digital", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80" },
-              { id: 3, name: "Sector 17, Chandigarh", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80" },
+              { id: 1, name: "Sitabuldi Main Road", size: "40 × 20 ft", type: "Front-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80", city: "Nagpur" },
+              { id: 2, name: "Rajapeth Market", size: "60 × 30 ft", type: "Digital", status: "Booked", color: "bg-booked", img: "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80", city: "Amravati" },
+              { id: 3, name: "Hinjewadi Phase 1", size: "100 × 40 ft", type: "Back-lit", status: "Available", color: "bg-available", img: "https://images.unsplash.com/photo-1699480114704-ac153307d2a0?w=800&q=80", city: "Pune" },
             ].map((site, i) => (
               <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 150}>
                 <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover-lift">
@@ -115,7 +114,10 @@ export default function PublicHomePage() {
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
                   </div>
                   <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-heading font-semibold text-xl mb-3 text-foreground line-clamp-1">{site.name}</h3>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-heading font-semibold text-xl text-foreground line-clamp-1">{site.name}</h3>
+                    </div>
+                    <div className="text-sm text-primary font-medium mb-4">{site.city}</div>
                     <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-6">
                       <span className="flex items-center"><Maximize2 className="mr-1.5 h-4 w-4" /> {site.size}</span>
                       <span className="flex items-center"><MapPin className="mr-1.5 h-4 w-4" /> {site.type}</span>
@@ -203,7 +205,7 @@ export default function PublicHomePage() {
                     </div>
                     <input 
                       type="text" 
-                      placeholder="Enter pincode, city, or landmark..." 
+                      placeholder="Search Nagpur, Amravati, Pune..." 
                       className="w-full h-14 pl-12 pr-4 rounded-xl border border-cloud/20 bg-ink/50 text-cloud placeholder:text-cloud/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
@@ -213,9 +215,9 @@ export default function PublicHomePage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className="text-xs text-cloud/60 mr-2 self-center uppercase tracking-wider font-semibold">Popular:</span>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Connaught Place</button>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Cyber Hub</button>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Bandra Kurla</button>
+                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Nagpur</button>
+                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Amravati</button>
+                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Pune</button>
                 </div>
               </div>
             </AnimateOnScroll>
