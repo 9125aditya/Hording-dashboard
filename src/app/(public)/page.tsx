@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, MapPin, Maximize2, Sparkles, Building2, TrendingUp, Users } from "lucide-react";
 import HomeMap from "@/components/HomeMap";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
+import TestimonialsMarquee from "@/components/TestimonialsMarquee";
 
 export default function PublicHomePage() {
   return (
@@ -168,6 +169,19 @@ export default function PublicHomePage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-24 bg-background overflow-hidden flex flex-col items-center">
+        <div className="container mx-auto px-4 max-w-7xl text-center mb-12">
+          <AnimateOnScroll animation="fade-up">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">Trusted by top brands in India</h2>
+            <p className="text-muted-foreground text-lg">Don't just take our word for it. Hear from marketing leaders who chose OOH Media.</p>
+          </AnimateOnScroll>
+        </div>
+        <AnimateOnScroll animation="fade-up" delay={200} className="w-full">
+          <TestimonialsMarquee />
+        </AnimateOnScroll>
       </section>
 
       {/* Interactive Map Search Section */}
