@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { Monitor, Columns3, RectangleHorizontal } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
     const { cities: mediaCities, ...rest } = mediaMap[name];
     return {
       name,
-      icon: name.includes('Digital') ? "💠" : name.includes('Kiosk') ? "🟪" : "🔲",
+      icon: name.includes('Digital') ? <Monitor className="h-6 w-6 text-primary" /> : name.includes('Kiosk') ? <Columns3 className="h-6 w-6 text-violet-500" /> : <RectangleHorizontal className="h-6 w-6 text-slate-500" />,
       cities: Array.from(mediaCities),
       ...rest
     };
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
       {/* KPI Row */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} color="#0f172a" />
-        <KpiCard label="AVAILABLE" value={totalAvail} sub={`${Math.round((totalAvail / totalSites) * 100)}%`} color="#10b981" />
+        <KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} color="#10b981" />
         <KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" color="#f59e0b" />
         <KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" color="#ef4444" />
         <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" color="#7c3aed" />
@@ -96,7 +97,7 @@ export default async function DashboardPage() {
                     ))}
                   </div>
                 </div>
-                <span className="text-2xl">{mt.icon}</span>
+                <span>{mt.icon}</span>
               </div>
               <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-100">
                 <div className="text-center">

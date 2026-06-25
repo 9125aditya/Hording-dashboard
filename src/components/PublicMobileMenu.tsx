@@ -51,10 +51,7 @@ export default function PublicMobileMenu() {
                 Contact for rates
               </Link>
               <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
-                Client Login
-              </Link>
-              <Link href="/admin/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-white">
-                Admin Portal
+                Staff Login
               </Link>
             </div>
           </div>

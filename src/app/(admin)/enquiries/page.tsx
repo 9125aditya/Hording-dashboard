@@ -92,9 +92,9 @@ export default function EnquiriesPage() {
               />
             </div>
             <div className="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
-              <button className="whitespace-nowrap px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">All (42)</button>
-              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">New (12)</button>
-              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">Contacted</button>
+              <button className="whitespace-nowrap px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">All ({enquiries.length})</button>
+              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">New ({enquiries.filter(e => e.status === 'New').length})</button>
+              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">Contacted ({enquiries.filter(e => e.status === 'Contacted').length})</button>
             </div>
           </div>
 

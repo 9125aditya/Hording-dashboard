@@ -118,12 +118,8 @@ export default async function InventoryPage() {
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-4 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <div>Showing 1 to 7 of 248 entries</div>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 border border-input rounded-md bg-background hover:bg-muted disabled:opacity-50">Prev</button>
-            <button className="px-3 py-1 border border-input rounded-md bg-background hover:bg-muted">Next</button>
-          </div>
+        <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-between text-sm text-muted-foreground">
+          <div>Showing {inventory.length} {inventory.length === 1 ? 'site' : 'sites'}</div>
         </div>
       </div>
     </div>

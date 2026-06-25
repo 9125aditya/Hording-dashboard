@@ -108,8 +108,8 @@ export default async function PublicHomePage() {
                     <TrendingUp className="h-6 w-6" />
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-slate-900">10k+</div>
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Campaigns Live</div>
+                    <div className="text-2xl font-black text-slate-900">{sites.length}+</div>
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sites Live</div>
                   </div>
                 </div>
 
