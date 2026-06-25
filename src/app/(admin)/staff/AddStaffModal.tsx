@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
-import { addStaff } from "@/lib/actions";
+import { addStaffMemberWithAuth } from "@/lib/admin-actions";
 
 export default function AddStaffModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ export default function AddStaffModal() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const res = await addStaff(formData);
+      const res = await addStaffMemberWithAuth(formData);
       if (res?.success) {
         setIsOpen(false);
       } else {
@@ -47,6 +47,16 @@ export default function AddStaffModal() {
                   <input required name="name" type="text" className="w-full h-10 px-3 rounded-md border border-input bg-background focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. John Doe" />
                 </div>
                 
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email Address</label>
+                  <input required name="email" type="email" className="w-full h-10 px-3 rounded-md border border-input bg-background focus:ring-1 focus:ring-primary outline-none" placeholder="john@estroc.com" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Temporary Password</label>
+                  <input required name="password" type="password" className="w-full h-10 px-3 rounded-md border border-input bg-background focus:ring-1 focus:ring-primary outline-none" placeholder="Minimum 6 characters" minLength={6} />
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Role</label>
                   <input required name="role" type="text" className="w-full h-10 px-3 rounded-md border border-input bg-background focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. Installer" />

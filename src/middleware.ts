@@ -38,10 +38,9 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
 
   if (isAdminRoute && !user) {
-    // TEMPORARILY DISABLED: Allow access to admin without login for now
-    // const url = request.nextUrl.clone()
-    // url.pathname = '/admin/login'
-    // return NextResponse.redirect(url)
+    const url = request.nextUrl.clone()
+    url.pathname = '/admin/login'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse

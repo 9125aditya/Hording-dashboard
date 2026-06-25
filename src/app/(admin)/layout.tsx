@@ -2,8 +2,19 @@ import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut } from "lucide-react";
 import AdminMobileMenu from "@/components/AdminMobileMenu";
 import { logout } from "@/lib/auth-actions";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let role = 'public';
+  if (user) {
+    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    if (data) role = data.role;
+  }
+
+  const isSuperAdmin = role === 'super_admin';
   return (
     <div className="min-h-full flex" style={{ backgroundColor: '#f0f2f5' }}>
       {/* Dark Sidebar */}
@@ -31,10 +42,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <MessageSquare className="mr-3 h-4 w-4" />
             Enquiries
           </Link>
-          <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <Users className="mr-3 h-4 w-4" />
-            Staff
-          </Link>
+          {isSuperAdmin && (
+            <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+              <Users className="mr-3 h-4 w-4" />
+              Staff
+            </Link>
+          )}
         </nav>
 
         <div className="p-3 mt-auto">
@@ -61,8 +74,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <AdminMobileMenu />
           </div>
           <div className="flex items-center gap-4">
-            <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-xs">
-              AD
+            <div className="flex flex-col items-end mr-2">
+              <span className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</span>
+              <span className="text-[10px] uppercase text-muted-foreground mt-1 tracking-wider">{role.replace('_', ' ')}</span>
+            </div>
+            <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-xs uppercase">
+              {(user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A')}
             </div>
           </div>
         </header>

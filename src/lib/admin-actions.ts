@@ -1,0 +1,76 @@
+"use server";
+
+import { createClient } from '@supabase/supabase-js';
+import { revalidatePath } from 'next/cache';
+
+// This client uses the Service Role Key to bypass RLS and Auth restrictions.
+// IT MUST ONLY BE USED ON THE SERVER.
+const getAdminSupabase = () => {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+}
+
+export async function addStaffMemberWithAuth(formData: FormData) {
+  const name = formData.get("name") as string;
+  const role = formData.get("role") as string;
+  const department = formData.get("department") as string;
+  const payType = formData.get("payType") as string;
+  const salary = formData.get("salary") as string;
+  const email = formData.get("email") as string; // We need an email for login
+  const password = formData.get("password") as string; // We need a temp password
+
+  if (!email || !password) {
+    return { error: "Email and password are required to create a staff account." };
+  }
+
+  const supabase = getAdminSupabase();
+
+  // 1. Create Auth User
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: name, role: 'admin' }
+  });
+
+  if (authError) {
+    return { error: authError.message };
+  }
+
+  const userId = authData.user.id;
+
+  // 2. Ensure Profile exists and is set to 'admin' 
+  // (Supabase triggers might do this, but let's be explicit)
+  await supabase.from('profiles').upsert({
+    id: userId,
+    email,
+    name,
+    role: 'admin'
+  });
+
+  // 3. Add to Staff Table
+  const { error: dbError } = await supabase.from("staff").insert([
+    {
+      name,
+      role,
+      department,
+      pay_type: payType,
+      salary: parseInt(salary) || 0,
+    }
+  ]);
+
+  if (dbError) {
+    return { error: dbError.message };
+  }
+
+  revalidatePath("/admin/staff");
+  return { success: true };
+}
