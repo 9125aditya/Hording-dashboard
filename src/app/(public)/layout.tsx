@@ -1,8 +1,12 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import PublicMobileMenu from "@/components/PublicMobileMenu";
+import { createClient } from "@/lib/supabase/server";
 
-export default function PublicLayout({ children }: { children: ReactNode }) {
+export default async function PublicLayout({ children }: { children: ReactNode }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="min-h-full flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
@@ -21,10 +25,16 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
              <Link href="/contact" className="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
               Contact for rates
             </Link>
-             <Link href="/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Staff Login
-             </Link>
-            <PublicMobileMenu />
+            {user ? (
+               <Link href="/dashboard" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Dashboard
+               </Link>
+            ) : (
+               <Link href="/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Login / Sign Up
+               </Link>
+            )}
+            <PublicMobileMenu hasUser={!!user} />
           </div>
         </div>
       </header>
