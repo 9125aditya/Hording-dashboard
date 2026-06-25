@@ -39,7 +39,7 @@ export default function ContactPage() {
           <div className="lg:col-span-2 space-y-10">
             <AnimateOnScroll animation="fade-right" duration={800}>
               <div>
-                <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">Let's talk.</h1>
+                <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">Let&apos;s talk.</h1>
                 <p className="text-lg text-muted-foreground">
                   Ready to make an impact? Get in touch with our team to discuss rates, availability, and campaign strategies.
                 </p>

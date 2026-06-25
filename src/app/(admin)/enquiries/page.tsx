@@ -49,6 +49,7 @@ export default function EnquiriesPage() {
     async function fetchEnquiries() {
       const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
       if (data) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setEnquiries(data.map((e: any) => ({
           id: e.id,
           name: e.name,

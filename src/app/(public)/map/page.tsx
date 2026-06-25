@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import MapPageClient from "@/components/MapPageClient";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";

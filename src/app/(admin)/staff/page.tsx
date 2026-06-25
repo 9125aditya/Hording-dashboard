@@ -1,4 +1,4 @@
-import { Search, Plus, UserCircle2, Briefcase, Phone, IndianRupee, ShieldAlert } from "lucide-react";
+import { Search, UserCircle2, Briefcase, Phone, IndianRupee, ShieldAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import AddStaffModal from "./AddStaffModal";
 import StaffActions from "./StaffActions";
@@ -59,7 +59,7 @@ export default async function StaffPage() {
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <UserCircle2 className="h-16 w-16 mb-4 opacity-20" />
               <p className="font-medium text-foreground">No staff members found</p>
-              <p className="text-sm">Click "Add Staff Member" to populate your directory.</p>
+              <p className="text-sm">Click &quot;Add Staff Member&quot; to populate your directory.</p>
             </div>
           ) : (
             <table className="w-full text-sm text-left">
@@ -74,6 +74,7 @@ export default async function StaffPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {staff.map((member: any) => (
                   <tr key={member.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4">

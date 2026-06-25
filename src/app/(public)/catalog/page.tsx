@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import { ArrowRight, MapPin, Maximize2, SlidersHorizontal, Search } from "lucide-react";
 import AnimateOnScroll from "@/components/AnimateOnScroll";

@@ -1,4 +1,4 @@
-import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
+import { Search, Filter, ArrowUpDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import AddSiteModal from "./AddSiteModal";
 import SiteActions from "./SiteActions";
@@ -7,6 +7,7 @@ export default async function InventoryPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inventory = dbSites?.map((s: any) => ({
     id: s.id, // Keep the real numeric ID for actions
     displayId: s.site_id?.substring(0, 8) || String(s.id),

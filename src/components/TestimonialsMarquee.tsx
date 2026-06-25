@@ -53,7 +53,7 @@ export default function TestimonialsMarquee() {
           >
             <Quote className="h-8 w-8 text-primary/20 mb-4" />
             <p className="text-foreground text-lg leading-relaxed mb-6 font-medium line-clamp-4">
-              "{t.quote}"
+              &quot;{t.quote}&quot;
             </p>
             <div className="flex items-center gap-4 border-t border-border pt-4 mt-auto">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
