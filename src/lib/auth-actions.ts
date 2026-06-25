@@ -1,22 +1,44 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { createClient } from "./supabase/server";
 import { redirect } from "next/navigation";
 
-export async function loginAsAdmin() {
-  const cookieStore = await cookies();
-  cookieStore.set("auth_role", "admin", { secure: true, httpOnly: true, path: "/" });
+export async function loginAsAdmin(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  
+  if (error) {
+    return { error: error.message };
+  }
+  
   redirect("/dashboard");
 }
 
-export async function loginAsClient() {
-  const cookieStore = await cookies();
-  cookieStore.set("auth_role", "client", { secure: true, httpOnly: true, path: "/" });
-  redirect("/catalog"); // Clients get redirected to catalog or a specific client portal
+export async function loginAsClient(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  
+  if (error) {
+    return { error: error.message };
+  }
+  
+  redirect("/catalog");
 }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth_role");
+  const supabase = await createClient();
+  await supabase.auth.signOut();
   redirect("/");
 }

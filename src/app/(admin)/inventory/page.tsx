@@ -1,12 +1,15 @@
 import { Search, Plus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import AddSiteModal from "./AddSiteModal";
+import SiteActions from "./SiteActions";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
 
   const inventory = dbSites?.map((s: any) => ({
-    id: s.site_id.substring(0, 8),
+    id: s.id, // Keep the real numeric ID for actions
+    displayId: s.site_id?.substring(0, 8) || String(s.id),
     name: s.name,
     city: s.city,
     size: s.size,
@@ -22,9 +25,7 @@ export default async function InventoryPage() {
           <h1 className="text-2xl font-bold tracking-tight font-heading">Inventory</h1>
           <p className="text-sm text-muted-foreground">Manage all your advertising sites and view their current statuses.</p>
         </div>
-        <button className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors">
-          <Plus className="mr-2 h-4 w-4" /> Add Site
-        </button>
+        <AddSiteModal />
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
@@ -66,7 +67,7 @@ export default async function InventoryPage() {
             <tbody className="divide-y divide-border">
               {inventory.map((item) => (
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground">{item.id}</td>
+                  <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground">{item.displayId}</td>
                   <td className="px-6 py-4 font-medium text-foreground">{item.name}</td>
                   <td className="px-6 py-4 text-muted-foreground">{item.city}</td>
                   <td className="px-6 py-4 text-muted-foreground">
@@ -82,9 +83,7 @@ export default async function InventoryPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </button>
+                    <SiteActions siteId={item.id} currentStatus={item.status} />
                   </td>
                 </tr>
               ))}
@@ -98,16 +97,14 @@ export default async function InventoryPage() {
             <div key={item.id} className="p-4 flex flex-col gap-2">
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0">
-                  <p className="font-medium text-foreground truncate">{item.name}</p>
-                  <p className="font-mono text-xs text-muted-foreground">{item.id}</p>
+                  <h4 className="font-semibold text-foreground">{item.name}</h4>
+                  <span className="font-mono text-xs text-muted-foreground">{item.displayId}</span>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${item.statusColor}`}>
                     {item.status}
                   </span>
-                  <button className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors -mr-1">
-                    <MoreHorizontal className="h-5 w-5" />
-                  </button>
+                  <SiteActions siteId={item.id} currentStatus={item.status} />
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">

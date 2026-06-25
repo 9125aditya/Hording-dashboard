@@ -1,5 +1,7 @@
 import { Search, Plus, UserCircle2, Briefcase, Phone, IndianRupee } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import AddStaffModal from "./AddStaffModal";
+import StaffActions from "./StaffActions";
 
 export default async function StaffPage() {
   const supabase = await createClient();
@@ -14,9 +16,7 @@ export default async function StaffPage() {
           <h1 className="text-2xl font-bold tracking-tight font-heading">Staff Directory</h1>
           <p className="text-sm text-muted-foreground">Manage your employees, roles, and payroll information.</p>
         </div>
-        <button className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors">
-          <Plus className="mr-2 h-4 w-4" /> Add Staff Member
-        </button>
+        <AddStaffModal />
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
@@ -49,6 +49,7 @@ export default async function StaffPage() {
                   <th className="px-6 py-3 font-medium">Contact</th>
                   <th className="px-6 py-3 font-medium">Pay Type</th>
                   <th className="px-6 py-3 font-medium text-right">Compensation</th>
+                  <th className="px-6 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -82,6 +83,9 @@ export default async function StaffPage() {
                         <IndianRupee className="h-3.5 w-3.5 text-muted-foreground" />
                         {member.salary ? member.salary.toLocaleString('en-IN') : 'N/A'}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <StaffActions staffId={member.id} />
                     </td>
                   </tr>
                 ))}

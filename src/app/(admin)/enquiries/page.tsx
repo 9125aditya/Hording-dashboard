@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { updateEnquiryStatus } from "@/lib/actions";
 
 type Enquiry = {
   id: string;
@@ -30,7 +31,19 @@ export default function EnquiriesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const supabase = createClient();
+
+  const handleStatusChange = (id: string, status: string) => {
+    startTransition(async () => {
+      const res = await updateEnquiryStatus(Number(id), status);
+      if (res.success) {
+        setEnquiries((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, status } : e))
+        );
+      }
+    });
+  };
 
   useEffect(() => {
     async function fetchEnquiries() {
@@ -134,13 +147,22 @@ export default function EnquiriesPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  <button className="inline-flex h-9 items-center justify-center rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground shadow-sm hover:bg-secondary/80 transition-colors">
+                  <button 
+                    onClick={() => handleStatusChange(selected.id, "Contacted")}
+                    disabled={isPending}
+                    className="inline-flex h-9 items-center justify-center rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground shadow-sm hover:bg-secondary/80 transition-colors disabled:opacity-50">
                     <Clock className="mr-2 h-4 w-4" /> <span className="hidden sm:inline">Mark</span> Contacted
                   </button>
-                  <button className="inline-flex h-9 items-center justify-center rounded-md bg-available px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-available/90 transition-colors">
+                  <button 
+                    onClick={() => handleStatusChange(selected.id, "Converted")}
+                    disabled={isPending}
+                    className="inline-flex h-9 items-center justify-center rounded-md bg-available px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-available/90 transition-colors disabled:opacity-50">
                     <CheckCircle2 className="mr-2 h-4 w-4" /> Convert
                   </button>
-                  <button className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-destructive/10 transition-colors">
+                  <button 
+                    onClick={() => handleStatusChange(selected.id, "Lost")}
+                    disabled={isPending}
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50">
                     <XCircle className="h-4 w-4" />
                   </button>
                 </div>

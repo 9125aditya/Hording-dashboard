@@ -1,7 +1,31 @@
-import { Mail, Phone, MapPin } from "lucide-react";
+"use client";
+
+import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
+import { useState, useTransition } from "react";
+import { addEnquiry } from "@/lib/actions";
 
 export default function ContactPage() {
+  const [isPending, startTransition] = useTransition();
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus("idle");
+    const formData = new FormData(e.currentTarget);
+    
+    startTransition(async () => {
+      const res = await addEnquiry(formData);
+      if (res?.error) {
+        setStatus("error");
+        setErrorMsg(res.error);
+      } else {
+        setStatus("success");
+        (e.target as HTMLFormElement).reset();
+      }
+    });
+  };
   return (
     <div className="flex-1 bg-background pt-10 pb-24 relative overflow-hidden">
       {/* Ambient glowing elements */}
@@ -75,36 +99,62 @@ export default function ContactPage() {
                 
                 <h2 className="font-heading text-2xl font-bold mb-8 relative z-10">Send an enquiry</h2>
                 
-                <form className="space-y-6 relative z-10">
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2 group/input">
                       <label htmlFor="firstName" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">First Name</label>
-                      <input type="text" id="firstName" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Rahul" />
+                      <input type="text" name="firstName" id="firstName" required className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Rahul" />
                     </div>
                     <div className="space-y-2 group/input">
                       <label htmlFor="lastName" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Last Name</label>
-                      <input type="text" id="lastName" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Sharma" />
+                      <input type="text" name="lastName" id="lastName" required className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Sharma" />
                     </div>
                   </div>
 
                   <div className="space-y-2 group/input">
                     <label htmlFor="email" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Work Email</label>
-                    <input type="email" id="email" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="rahul@company.in" />
+                    <input type="email" name="email" id="email" required className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="rahul@company.in" />
                   </div>
 
                   <div className="space-y-2 group/input">
                     <label htmlFor="company" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Company</label>
-                    <input type="text" id="company" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Tata Communications" />
+                    <input type="text" name="company" id="company" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="Tata Communications" />
                   </div>
 
                   <div className="space-y-2 group/input">
-                    <label htmlFor="message" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Message</label>
-                    <textarea id="message" rows={5} className="w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 resize-none" placeholder="Tell us about your campaign needs..."></textarea>
+                    <label htmlFor="phone" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="+91 98765 43210" />
                   </div>
 
-                  <button type="button" className="relative w-full h-14 rounded-xl bg-primary text-primary-foreground font-bold text-lg shadow-md hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] overflow-hidden group/btn">
-                    <span className="relative z-10">Submit Enquiry</span>
-                    <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] skew-x-12" />
+                  <div className="space-y-2 group/input">
+                    <label htmlFor="message" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Project Details</label>
+                    <textarea id="message" name="message" rows={4} required className="w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 resize-none" placeholder="Tell us about your campaign goals, target locations, and timeline..."></textarea>
+                  </div>
+
+                  {status === "error" && (
+                    <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-xl text-sm">
+                      {errorMsg || "Failed to submit enquiry. Please try again."}
+                    </div>
+                  )}
+
+                  {status === "success" && (
+                    <div className="p-4 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm font-medium text-center">
+                      Thank you! Your enquiry has been received. We will contact you shortly.
+                    </div>
+                  )}
+
+                  <button 
+                    type="submit" 
+                    disabled={isPending || status === "success"}
+                    className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-bold text-lg shadow-md hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+                  >
+                    {isPending ? (
+                      <span className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
+                      </span>
+                    ) : (
+                      "Submit Enquiry"
+                    )}
                   </button>
                   <p className="text-xs text-center text-muted-foreground mt-4">
                     By submitting this form, you agree to our privacy policy.

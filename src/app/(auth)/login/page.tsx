@@ -1,16 +1,22 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { loginAsClient } from "@/lib/auth-actions";
 import { LogIn, Mail } from "lucide-react";
 
 export default function ClientLoginPage() {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loginAsClient();
+      const res = await loginAsClient(formData);
+      if (res?.error) {
+        setError(res.error);
+      }
     });
   };
 
@@ -34,6 +40,7 @@ export default function ClientLoginPage() {
               </div>
               <input 
                 type="email" 
+                name="email"
                 defaultValue="brand@agency.com"
                 required
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-ink focus:border-transparent transition-all outline-none" 
@@ -48,6 +55,7 @@ export default function ClientLoginPage() {
               </div>
               <input 
                 type="password" 
+                name="password"
                 defaultValue="password123"
                 required
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-ink focus:border-transparent transition-all outline-none" 
@@ -56,6 +64,13 @@ export default function ClientLoginPage() {
           </div>
         </div>
         
+        
+        {error && (
+          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm text-center">
+            {error}
+          </div>
+        )}
+
         <button 
           type="submit" 
           disabled={isPending}
@@ -63,10 +78,6 @@ export default function ClientLoginPage() {
         >
           {isPending ? "Signing in..." : "Access Portal"}
         </button>
-        
-        <div className="text-center mt-4">
-           <span className="text-xs text-muted-foreground">Mock Authentication Enabled. Use any credentials.</span>
-        </div>
       </form>
     </div>
   );
