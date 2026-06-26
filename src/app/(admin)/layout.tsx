@@ -6,7 +6,8 @@ import { createClient } from "@/backend/db/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // BYPASS AUTH FOR DEVELOPMENT
-  const user = { email: 'superadmin@dev.com', id: '123' };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user: any = { email: 'superadmin@dev.com', id: '123' };
   const role = 'super_admin';
 
   const isSuperAdmin = role === 'super_admin';

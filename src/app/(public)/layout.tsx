@@ -6,7 +6,8 @@ import { logout } from "@/backend/actions/auth-actions";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   // BYPASS AUTH FOR DEVELOPMENT
-  const user = { email: 'superadmin@dev.com', id: '123' };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user: any = { email: 'superadmin@dev.com', id: '123' };
   const role = 'super_admin';
   const isAdmin = true;
 
