@@ -14,6 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
+    formData.append("loginMode", loginMode);
     startTransition(async () => {
       const res = await loginUser(formData);
       if (res?.error) {

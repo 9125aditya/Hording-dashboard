@@ -42,6 +42,8 @@ export async function loginUser(formData: FormData) {
     return { error: error.message };
   }
   
+  const loginMode = formData.get("loginMode") as string;
+  
   // Check user role from profiles to determine redirect
   const { data: profile } = await supabase
     .from('profiles')
@@ -49,10 +51,20 @@ export async function loginUser(formData: FormData) {
     .eq('id', authData.user.id)
     .single();
     
-  if (profile?.role === 'admin' || profile?.role === 'super_admin') {
-    redirect("/dashboard");
+  if (loginMode === 'admin') {
+    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      redirect("/dashboard");
+    } else {
+      await supabase.auth.signOut();
+      return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
+    }
   } else {
-    redirect("/catalog");
+    // Client login mode
+    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      redirect("/dashboard");
+    } else {
+      redirect("/catalog");
+    }
   }
 }
 
