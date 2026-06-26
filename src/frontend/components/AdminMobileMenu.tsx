@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LayoutDashboard, Map, Clock, LogOut, X, Menu } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
-export default function AdminMobileMenu() {
+export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -49,15 +49,20 @@ export default function AdminMobileMenu() {
             </div>
 
             <nav className="flex-1 px-3 space-y-1">
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-white" style={{ backgroundColor: '#2a3a4e' }}>
-                <LayoutDashboard className="mr-3 h-4 w-4" style={{ color: '#60a5fa' }} /> Dashboard
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                <LayoutDashboard className="mr-3 h-4 w-4" /> Dashboard
               </Link>
               <Link href="/inventory" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                 <Map className="mr-3 h-4 w-4" /> Inventory
               </Link>
-              <Link href="/attendance" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Clock className="mr-3 h-4 w-4" /> Attendance
+              <Link href="/enquiries" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                <Clock className="mr-3 h-4 w-4" /> Enquiries
               </Link>
+              {isSuperAdmin && (
+                <Link href="/staff" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                  <Clock className="mr-3 h-4 w-4" /> Staff
+                </Link>
+              )}
             </nav>
 
             <div className="p-3 mt-auto">

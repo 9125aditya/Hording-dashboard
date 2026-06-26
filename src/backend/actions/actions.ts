@@ -4,6 +4,22 @@ import { createClient } from "@/backend/db/server";
 import { revalidatePath } from "next/cache";
 
 // ==========================================
+// RBAC HELPER
+// ==========================================
+
+async function requireRole(supabase: any, allowedRoles: string[]) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+  
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const role = profile?.role || 'public';
+  
+  if (!allowedRoles.includes(role)) {
+    throw new Error("Insufficient permissions");
+  }
+}
+
+// ==========================================
 // PUBLIC ENQUIRIES ACTIONS
 // ==========================================
 
@@ -41,6 +57,8 @@ export async function addEnquiry(formData: FormData) {
 
 export async function updateEnquiryStatus(id: number, status: string) {
   const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
+
   const { error } = await supabase
     .from("enquiries")
     .update({ status })
@@ -64,6 +82,7 @@ export async function addSite(formData: FormData) {
   const price = formData.get("price") as string;
 
   const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
 
   const { error } = await supabase.from("sites").insert([
     {
@@ -86,6 +105,8 @@ export async function addSite(formData: FormData) {
 
 export async function updateSiteStatus(id: number, status: string) {
   const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
+
   const { error } = await supabase
     .from("sites")
     .update({ status })
@@ -98,6 +119,8 @@ export async function updateSiteStatus(id: number, status: string) {
 
 export async function deleteSite(id: number) {
   const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
+
   const { error } = await supabase
     .from("sites")
     .delete()
@@ -120,6 +143,7 @@ export async function addStaff(formData: FormData) {
   const salary = formData.get("salary") as string;
 
   const supabase = await createClient();
+  await requireRole(supabase, ['super_admin']);
 
   const { error } = await supabase.from("staff").insert([
     {
@@ -139,6 +163,8 @@ export async function addStaff(formData: FormData) {
 
 export async function deleteStaff(id: number) {
   const supabase = await createClient();
+  await requireRole(supabase, ['super_admin']);
+
   const { error } = await supabase
     .from("staff")
     .delete()
