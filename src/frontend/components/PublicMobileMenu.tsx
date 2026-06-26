@@ -45,9 +45,13 @@ export default function PublicMobileMenu({ hasUser }: { hasUser?: boolean }) {
               <Link href="/catalog" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Catalog</Link>
             </nav>
             <div className="mt-auto pt-6 flex flex-col gap-4 relative z-10">
-              {hasUser && (
+              {hasUser ? (
                 <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
                   Dashboard
+                </Link>
+              ) : (
+                <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
+                  Login
                 </Link>
               )}
             </div>

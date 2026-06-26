@@ -27,6 +27,13 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             </nav>
           </div>
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center space-x-4">
+              {user ? (
+                <Link href="/dashboard" className="text-sm font-medium text-foreground/60 hover:text-foreground">Dashboard</Link>
+              ) : (
+                <Link href="/login" className="text-sm font-medium text-foreground/60 hover:text-foreground">Login</Link>
+              )}
+            </div>
             <PublicMobileMenu hasUser={!!user} />
           </div>
         </div>
