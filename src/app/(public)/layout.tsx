@@ -17,23 +17,9 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             </Link>
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               <Link href="/catalog" className="transition-colors hover:text-foreground/80 text-foreground/60">Catalog</Link>
-              <Link href="/map" className="transition-colors hover:text-foreground/80 text-foreground/60">Map Search</Link>
-              <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">Contact</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
-             <Link href="/contact" className="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
-              Contact for rates
-            </Link>
-            {user ? (
-               <Link href="/dashboard" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Dashboard
-               </Link>
-            ) : (
-               <Link href="/login" className="hidden sm:inline-flex text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Login / Sign Up
-               </Link>
-            )}
             <PublicMobileMenu hasUser={!!user} />
           </div>
         </div>

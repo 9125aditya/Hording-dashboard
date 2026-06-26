@@ -43,20 +43,11 @@ export default function PublicMobileMenu({ hasUser }: { hasUser?: boolean }) {
             </div>
             <nav className="flex flex-col space-y-6 text-lg font-medium relative z-10 text-slate-900">
               <Link href="/catalog" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Catalog</Link>
-              <Link href="/map" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Map Search</Link>
-              <Link href="/contact" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Contact</Link>
             </nav>
             <div className="mt-auto pt-6 flex flex-col gap-4 relative z-10">
-              <Link href="/contact" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
-                Contact for rates
-              </Link>
-              {hasUser ? (
+              {hasUser && (
                 <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
                   Dashboard
-                </Link>
-              ) : (
-                <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
-                  Login / Sign Up
                 </Link>
               )}
             </div>
