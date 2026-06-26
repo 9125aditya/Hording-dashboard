@@ -4,8 +4,15 @@ import PublicMobileMenu from "@/frontend/components/PublicMobileMenu";
 import { createClient } from "@/backend/db/server";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+  } catch (error) {
+    console.error("Public Layout Supabase Error:", error);
+    // Ignore error, render as unauthenticated guest
+  }
 
   return (
     <div className="min-h-full flex flex-col bg-background text-foreground">

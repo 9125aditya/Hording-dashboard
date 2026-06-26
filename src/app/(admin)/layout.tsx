@@ -5,13 +5,20 @@ import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  let user = null;
   let role = 'public';
-  if (user) {
-    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (data) role = data.role;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+    
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      if (profile) role = profile.role;
+    }
+  } catch (error) {
+    console.error("Admin Layout Supabase Error:", error);
+    // Ignore error, render with default values
   }
 
   const isSuperAdmin = role === 'super_admin';
