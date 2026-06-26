@@ -45,6 +45,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
             </div>
             <nav className="flex flex-col space-y-6 text-lg font-medium relative z-10 text-slate-900">
               <Link href="/catalog" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Catalog</Link>
+              <Link href="/contact" onClick={() => setIsOpen(false)} className="transition-colors hover:text-primary border-b border-slate-200 pb-4">Contact</Link>
             </nav>
             <div className="mt-auto pt-6 flex flex-col gap-4 relative z-10">
               {hasUser ? (

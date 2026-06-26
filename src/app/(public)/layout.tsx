@@ -32,6 +32,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             </Link>
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               <Link href="/catalog" className="transition-colors hover:text-foreground/80 text-foreground/60">Catalog</Link>
+              <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">Contact</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -39,14 +40,14 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               {user ? (
                 <>
                   {isAdmin && (
-                    <Link href="/dashboard" className="text-sm font-medium text-foreground/60 hover:text-foreground">Dashboard</Link>
+                    <Link href="/dashboard" className="inline-flex h-9 items-center justify-center rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">Dashboard</Link>
                   )}
                   <form action={logout}>
-                    <button type="submit" className="text-sm font-medium text-foreground/60 hover:text-foreground">Logout</button>
+                    <button type="submit" className="inline-flex h-9 items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200 transition-colors">Logout</button>
                   </form>
                 </>
               ) : (
-                <Link href="/login" className="text-sm font-medium text-foreground/60 hover:text-foreground">Login</Link>
+                <Link href="/login" className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow">Login</Link>
               )}
             </div>
             <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} />

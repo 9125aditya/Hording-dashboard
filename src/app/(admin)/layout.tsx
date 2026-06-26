@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
@@ -57,7 +57,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           )}
         </nav>
 
-        <div className="p-3 mt-auto">
+        <div className="px-3 mt-4 mb-2">
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Public</p>
+        </div>
+        <nav className="px-3 mb-auto">
+          <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+            <ExternalLink className="mr-3 h-4 w-4" />
+            View Live Site
+          </Link>
+        </nav>
+
+        <div className="p-3 mt-4">
           <form action={logout}>
             <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg w-full transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
               <LogOut className="mr-3 h-4 w-4" />

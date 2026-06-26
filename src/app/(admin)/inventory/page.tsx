@@ -10,6 +10,7 @@ export default async function InventoryPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inventory = dbSites?.map((s: any) => ({
     id: s.id, // Keep the real numeric ID for actions
+    uuid: s.site_id, // Keep the UUID for public links
     displayId: s.site_id?.substring(0, 8) || String(s.id),
     name: s.name,
     city: s.city,
@@ -84,7 +85,7 @@ export default async function InventoryPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <SiteActions siteId={item.id} currentStatus={item.status} />
+                    <SiteActions siteId={item.id} currentStatus={item.status} uuid={item.uuid} />
                   </td>
                 </tr>
               ))}
@@ -105,7 +106,7 @@ export default async function InventoryPage() {
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${item.statusColor}`}>
                     {item.status}
                   </span>
-                  <SiteActions siteId={item.id} currentStatus={item.status} />
+                  <SiteActions siteId={item.id} currentStatus={item.status} uuid={item.uuid} />
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">

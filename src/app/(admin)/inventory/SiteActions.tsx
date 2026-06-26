@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { MoreHorizontal, Trash2, CheckCircle, Ban, AlertCircle } from "lucide-react";
+import { MoreHorizontal, Trash2, CheckCircle, Ban, AlertCircle, ExternalLink } from "lucide-react";
 import { deleteSite, updateSiteStatus } from "@/backend/actions/actions";
+import Link from "next/link";
 
-export default function SiteActions({ siteId, currentStatus }: { siteId: string, currentStatus: string }) {
+export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: string, currentStatus: string, uuid: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -39,6 +40,15 @@ export default function SiteActions({ siteId, currentStatus }: { siteId: string,
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border shadow-lg rounded-md z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95">
             
+            <Link 
+              href={`/catalog/${uuid}`}
+              target="_blank"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+            >
+              <ExternalLink className="mr-2 h-4 w-4 text-blue-500" /> View Live
+            </Link>
+
             {currentStatus !== "Available" && (
               <button 
                 onClick={() => handleStatusChange("Available")}

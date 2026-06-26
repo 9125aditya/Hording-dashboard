@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, Clock, LogOut, X, Menu } from "lucide-react";
+import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
@@ -65,7 +65,16 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               )}
             </nav>
 
-            <div className="p-3 mt-auto">
+            <div className="px-3 mt-4 mb-2">
+              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Public</p>
+            </div>
+            <nav className="px-3 mb-auto">
+              <Link href="/" target="_blank" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                <ExternalLink className="mr-3 h-4 w-4" /> View Live Site
+              </Link>
+            </nav>
+
+            <div className="p-3 mt-4">
               <form action={logout}>
                 <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg w-full hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                   <LogOut className="mr-3 h-4 w-4" /> Sign Out
