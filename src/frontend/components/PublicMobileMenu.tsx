@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
-export default function PublicMobileMenu({ hasUser }: { hasUser?: boolean }) {
+import { logout } from "@/backend/actions/auth-actions";
+
+export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser?: boolean, isAdmin?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Prevent body scroll when menu is open
@@ -46,9 +48,18 @@ export default function PublicMobileMenu({ hasUser }: { hasUser?: boolean }) {
             </nav>
             <div className="mt-auto pt-6 flex flex-col gap-4 relative z-10">
               {hasUser ? (
-                <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
-                  Dashboard
-                </Link>
+                <>
+                  {isAdmin && (
+                    <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
+                      Dashboard
+                    </Link>
+                  )}
+                  <form action={logout}>
+                    <button type="submit" onClick={() => setIsOpen(false)} className="flex w-full h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
+                      Logout
+                    </button>
+                  </form>
+                </>
               ) : (
                 <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
                   Login

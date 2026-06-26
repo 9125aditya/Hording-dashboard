@@ -2,17 +2,25 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import PublicMobileMenu from "@/frontend/components/PublicMobileMenu";
 import { createClient } from "@/backend/db/server";
+import { logout } from "@/backend/actions/auth-actions";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   let user = null;
+  let role = 'public';
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     user = data?.user || null;
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      if (profile) role = profile.role;
+    }
   } catch (error) {
     console.error("Public Layout Supabase Error:", error);
     // Ignore error, render as unauthenticated guest
   }
+
+  const isAdmin = role === 'admin' || role === 'super_admin';
 
   return (
     <div className="min-h-full flex flex-col bg-background text-foreground">
@@ -29,12 +37,19 @@ export default async function PublicLayout({ children }: { children: ReactNode }
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                <Link href="/dashboard" className="text-sm font-medium text-foreground/60 hover:text-foreground">Dashboard</Link>
+                <>
+                  {isAdmin && (
+                    <Link href="/dashboard" className="text-sm font-medium text-foreground/60 hover:text-foreground">Dashboard</Link>
+                  )}
+                  <form action={logout}>
+                    <button type="submit" className="text-sm font-medium text-foreground/60 hover:text-foreground">Logout</button>
+                  </form>
+                </>
               ) : (
                 <Link href="/login" className="text-sm font-medium text-foreground/60 hover:text-foreground">Login</Link>
               )}
             </div>
-            <PublicMobileMenu hasUser={!!user} />
+            <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} />
           </div>
         </div>
       </header>
