@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const isSuperAdmin = role === 'super_admin';
   return (
-    <div className="min-h-full flex" style={{ backgroundColor: '#f0f2f5' }}>
+    <div className="admin-theme min-h-full flex w-full" style={{ backgroundColor: 'var(--background)' }}>
       {/* Dark Sidebar */}
       <aside className="w-60 hidden md:flex flex-col" style={{ backgroundColor: '#1e2a3a' }}>
         <div className="px-5 py-6">
