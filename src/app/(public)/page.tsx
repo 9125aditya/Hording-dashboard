@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import { ArrowRight, MapPin, Maximize2, Sparkles, Building2, TrendingUp, Users } from "lucide-react";
-import HomeMap from "@/components/HomeMap";
-import AnimateOnScroll from "@/components/AnimateOnScroll";
-import TestimonialsMarquee from "@/components/TestimonialsMarquee";
-import { createClient } from "@/lib/supabase/server";
+import HomeMap from "@/frontend/components/HomeMap";
+import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
+import TestimonialsMarquee from "@/frontend/components/TestimonialsMarquee";
+import { createClient } from "@/backend/db/server";
 
 export default async function PublicHomePage() {
   const supabase = await createClient();

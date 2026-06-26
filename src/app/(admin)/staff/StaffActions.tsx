@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { MoreHorizontal, Trash2 } from "lucide-react";
-import { deleteStaff } from "@/lib/actions";
+import { deleteStaff } from "@/backend/actions/actions";
 
 export default function StaffActions({ staffId }: { staffId: string }) {
   const [isOpen, setIsOpen] = useState(false);

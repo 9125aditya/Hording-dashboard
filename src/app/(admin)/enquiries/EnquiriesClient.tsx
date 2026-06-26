@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { updateEnquiryStatus } from "@/lib/actions";
+import { createClient } from "@/backend/db/client";
+import { updateEnquiryStatus } from "@/backend/actions/actions";
 
 type Enquiry = {
   id: string;

@@ -1,9 +1,9 @@
 "use client";
 
 import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
-import AnimateOnScroll from "@/components/AnimateOnScroll";
+import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useState, useTransition } from "react";
-import { addEnquiry } from "@/lib/actions";
+import { addEnquiry } from "@/backend/actions/actions";
 
 export default function ContactPage() {
   const [isPending, startTransition] = useTransition();

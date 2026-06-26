@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/backend/db/server";
 import { Monitor, Columns3, RectangleHorizontal } from "lucide-react";
 
 export default async function DashboardPage() {

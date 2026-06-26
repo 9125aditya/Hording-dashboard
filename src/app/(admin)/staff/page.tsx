@@ -1,5 +1,5 @@
 import { Search, UserCircle2, Briefcase, Phone, IndianRupee, ShieldAlert } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/backend/db/server";
 import AddStaffModal from "./AddStaffModal";
 import StaffActions from "./StaffActions";
 import Link from "next/link";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import { signupUser } from "@/lib/auth-actions";
+import { signupUser } from "@/backend/actions/auth-actions";
 import { Lock, UserCircle, Building2, User } from "lucide-react";
 import Link from "next/link";
 

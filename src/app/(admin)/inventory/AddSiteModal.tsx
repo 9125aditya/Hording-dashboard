@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, X, Loader2, AlertCircle } from "lucide-react";
-import { addSite } from "@/lib/actions";
+import { addSite } from "@/backend/actions/actions";
 
 export default function AddSiteModal() {
   const [isOpen, setIsOpen] = useState(false);

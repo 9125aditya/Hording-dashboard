@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut } from "lucide-react";
-import AdminMobileMenu from "@/components/AdminMobileMenu";
-import { logout } from "@/lib/auth-actions";
-import { createClient } from "@/lib/supabase/server";
+import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
+import { logout } from "@/backend/actions/auth-actions";
+import { createClient } from "@/backend/db/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

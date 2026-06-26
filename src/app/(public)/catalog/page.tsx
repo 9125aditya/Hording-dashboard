@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import { ArrowRight, MapPin, Maximize2, SlidersHorizontal, Search } from "lucide-react";
-import AnimateOnScroll from "@/components/AnimateOnScroll";
+import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/backend/db/server";
 
 export default async function CatalogPage() {
   const supabase = await createClient();

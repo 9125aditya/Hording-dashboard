@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, X, Loader2, AlertCircle } from "lucide-react";
-import { addStaffMemberWithAuth } from "@/lib/admin-actions";
+import { addStaffMemberWithAuth } from "@/backend/actions/admin-actions";
 
 export default function AddStaffModal() {
   const [isOpen, setIsOpen] = useState(false);

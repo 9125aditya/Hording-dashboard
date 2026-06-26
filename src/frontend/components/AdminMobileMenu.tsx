@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LayoutDashboard, Map, Clock, LogOut, X, Menu } from "lucide-react";
-import { logout } from "@/lib/auth-actions";
+import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);

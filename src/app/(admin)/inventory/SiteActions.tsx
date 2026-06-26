@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { MoreHorizontal, Trash2, CheckCircle, Ban, AlertCircle } from "lucide-react";
-import { deleteSite, updateSiteStatus } from "@/lib/actions";
+import { deleteSite, updateSiteStatus } from "@/backend/actions/actions";
 
 export default function SiteActions({ siteId, currentStatus }: { siteId: string, currentStatus: string }) {
   const [isOpen, setIsOpen] = useState(false);

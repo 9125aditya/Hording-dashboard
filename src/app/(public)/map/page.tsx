@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import MapPageClient from "@/components/MapPageClient";
+import MapPageClient from "@/frontend/components/MapPageClient";
 import { Suspense } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/backend/db/server";
 
 export default async function MapPage() {
   const supabase = await createClient();

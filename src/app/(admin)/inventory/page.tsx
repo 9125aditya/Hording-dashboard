@@ -1,5 +1,5 @@
 import { Search, Filter, ArrowUpDown } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/backend/db/server";
 import AddSiteModal from "./AddSiteModal";
 import SiteActions from "./SiteActions";
 
