@@ -1,24 +1,36 @@
 import Link from "next/link";
 import { ArrowLeft, MapPin, Maximize2, Check, Share2, Printer, Map as MapIcon } from "lucide-react";
+import { createClient } from "@/backend/db/server";
+import { notFound } from "next/navigation";
 
-export default function SiteDetailsPage({ params }: { params: { id: string } }) {
-  // In a real app, fetch site by ID. Using mock data here.
+export default async function SiteDetailsPage({ params }: { params: { id: string } }) {
+  const supabase = await createClient();
+  const { data: dbSite, error } = await supabase
+    .from("sites")
+    .select("*")
+    .eq("site_id", params.id)
+    .single();
+
+  if (error || !dbSite) {
+    notFound();
+  }
+
   const site = {
-    id: params.id,
-    name: "Connaught Place",
-    city: "Delhi",
-    address: "Inner Circle, Connaught Place, Block A",
-    size: "40 × 20 ft",
-    type: "Front-lit",
-    status: "Available",
-    color: "bg-available text-primary-foreground",
-    images: [
+    id: dbSite.site_id,
+    name: dbSite.name,
+    city: dbSite.city,
+    address: dbSite.area,
+    size: dbSite.size,
+    type: dbSite.type,
+    status: dbSite.status,
+    color: dbSite.status === "Available" ? "bg-available text-primary-foreground" : dbSite.status === "Booked" ? "bg-booked text-primary-foreground" : "bg-blocked text-white",
+    images: dbSite.photos && dbSite.photos.length > 0 ? dbSite.photos : [
       "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=1600&q=80",
       "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80"
     ],
-    description: "A highly visible front-lit hoarding in the heart of Delhi's premier commercial hub. Captures premium footfall and slow-moving vehicular traffic navigating the Inner Circle. Excellent sightlines with no obstructions for 200 meters.",
+    description: `A highly visible ${dbSite.lit_type?.toLowerCase() || 'premium'} hoarding in ${dbSite.area}, ${dbSite.city}. Excellent sightlines with no obstructions, perfect for high-impact brand campaigns.`,
     dailyTraffic: "85,000",
-    illumination: "18:00 to 02:00",
+    illumination: dbSite.lit_type === 'Digital' ? '24/7' : '18:00 to 02:00',
   };
 
   return (

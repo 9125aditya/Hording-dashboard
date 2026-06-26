@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     const { pathname } = request.nextUrl
-    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries']
+    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff']
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
 
     if (isAdminRoute) {
@@ -55,9 +55,9 @@ export async function middleware(request: NextRequest) {
       }
       
       // Rule: Standard Admins cannot access Staff Management
-      if (role === 'admin' && pathname.startsWith('/admin/staff')) {
+      if (role === 'admin' && (pathname.startsWith('/admin/staff') || pathname.startsWith('/staff'))) {
         const url = request.nextUrl.clone()
-        url.pathname = '/admin/dashboard'
+        url.pathname = '/dashboard'
         return NextResponse.redirect(url)
       }
     }
@@ -69,7 +69,7 @@ export async function middleware(request: NextRequest) {
     console.error("Middleware Supabase Error:", error);
     
     const { pathname } = request.nextUrl
-    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries']
+    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff']
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
     
     if (isAdminRoute) {
