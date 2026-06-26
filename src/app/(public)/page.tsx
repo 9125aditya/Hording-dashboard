@@ -28,12 +28,8 @@ export default async function PublicHomePage() {
     <div className="relative flex-1 flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center bg-slate-50 text-slate-900 overflow-hidden pt-20 pb-24 border-b border-border">
-        {/* Subtle background patterns */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
-        </div>
+        {/* Clean minimal background */}
+        <div className="absolute inset-0 z-0 bg-slate-50"></div>
         
         <div className="container relative z-20 px-4 mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
@@ -41,8 +37,8 @@ export default async function PublicHomePage() {
             {/* Left Column: Content */}
             <div className="flex flex-col items-start text-left max-w-2xl relative z-10">
               <AnimateOnScroll animation="fade-right" duration={800}>
-                <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 mb-8 text-xs font-bold text-primary uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse"></span>
+                <div className="inline-flex items-center rounded-sm border border-slate-200 bg-white px-4 py-1.5 mb-8 text-xs font-bold text-slate-600 uppercase tracking-widest shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-primary mr-2"></span>
                   Outdoor Media • OOH Advertising
                 </div>
               </AnimateOnScroll>
@@ -50,9 +46,8 @@ export default async function PublicHomePage() {
               <AnimateOnScroll animation="fade-right" delay={100} duration={800}>
                 <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.15] text-slate-900">
                   Your Brand.<br />
-                  <span className="text-primary relative inline-block">
+                  <span className="text-primary">
                     Every Street.
-                    <div className="absolute bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 -rotate-1"></div>
                   </span><br />
                   Every City.
                 </h1>
@@ -89,31 +84,12 @@ export default async function PublicHomePage() {
               </AnimateOnScroll>
             </div>
 
-            {/* Right Column: Professional Image Composition */}
-            <div className="relative w-full h-[500px] lg:h-[600px] flex items-center justify-center lg:justify-end z-10 hidden md:flex mt-10 lg:mt-0">
-              <AnimateOnScroll animation="zoom-in" delay={200} duration={1000} className="relative w-full h-full max-w-[550px]">
-                
-                {/* Main Image */}
-                <div className="absolute top-1/2 right-4 -translate-y-1/2 w-[85%] aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white bg-slate-100 rotate-2 group hover:rotate-0 transition-all duration-500 hover:scale-105">
-                  <img 
-                    src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80" 
-                    alt="Premium Billboard" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+            {/* Right Column: Imagery */}
+            <div className="relative h-[500px] lg:h-[600px] w-full z-10 hidden md:block">
+              <AnimateOnScroll animation="fade-left" duration={1000}>
+                <div className="absolute top-1/2 right-0 -translate-y-1/2 w-full max-w-lg aspect-square bg-slate-100 rounded-sm border border-border shadow-md overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1517502758552-87f5df599f50?w=1200&q=80" alt="Billboard" className="w-full h-full object-cover grayscale opacity-80" />
                 </div>
-
-                {/* Glassmorphism Stats Card */}
-                <div className="absolute top-24 -left-8 bg-white/90 backdrop-blur-md border border-white p-5 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex items-center gap-4 animate-float-slow hover:scale-105 transition-transform cursor-default">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                    <TrendingUp className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-black text-slate-900">{sites.length}+</div>
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sites Live</div>
-                  </div>
-                </div>
-
               </AnimateOnScroll>
             </div>
             
@@ -160,34 +136,37 @@ export default async function PublicHomePage() {
           </AnimateOnScroll>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredSites.map((site, i) => (
-              <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 150}>
-                <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover-lift">
-                  <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                    <div className={`absolute top-4 left-4 z-10 text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-sm ${site.color}`}>
-                      {site.status}
+            {featuredSites.map((site: any, i: number) => (
+              <AnimateOnScroll key={site.id} animation="fade-up" delay={i * 100}>
+                <Link href={`/catalog/${site.id}`} className="group block h-full">
+                  <div className="bg-card rounded-sm overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+                    <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                      <div className={`absolute top-4 left-4 z-10 text-xs font-semibold uppercase px-3 py-1 rounded-sm shadow-sm ${site.color}`}>
+                        {site.status}
+                      </div>
+                      <img src={site.img} alt={site.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>
-                    <img src={site.img} alt={site.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent opacity-60" />
-                    {/* Shimmer overlay on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="font-heading text-xl font-bold text-foreground mb-2 line-clamp-1">{site.name}</h3>
+                      <p className="text-sm text-muted-foreground flex items-center mb-4">
+                        <MapPin className="mr-1.5 h-4 w-4" /> {site.city}
+                      </p>
+                      
+                      <div className="mt-auto pt-4 border-t border-border grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Format</p>
+                          <p className="text-sm font-semibold">{site.type}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Size</p>
+                          <p className="text-sm font-semibold flex items-center">
+                            <Maximize2 className="mr-1 h-3 w-3" /> {site.size}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-heading font-semibold text-xl text-foreground line-clamp-1">{site.name}</h3>
-                    </div>
-                    <div className="text-sm text-primary font-medium mb-4">{site.city}</div>
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-6">
-                      <span className="flex items-center"><Maximize2 className="mr-1.5 h-4 w-4" /> {site.size}</span>
-                      <span className="flex items-center"><MapPin className="mr-1.5 h-4 w-4" /> {site.type}</span>
-                    </div>
-                    <div className="mt-auto pt-4 border-t border-border flex justify-between items-center">
-                       <span className="text-sm font-semibold text-primary group-hover:underline flex items-center">
-                         View details <ArrowRight className="ml-1 h-3 w-3 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
-                       </span>
-                    </div>
-                  </div>
-                </div>
+                </Link>
               </AnimateOnScroll>
             ))}
           </div>
@@ -198,8 +177,6 @@ export default async function PublicHomePage() {
           </div>
         </div>
       </section>
-
-
 
       {/* Testimonials Section */}
       <section className="py-24 bg-background overflow-hidden flex flex-col items-center">
@@ -215,68 +192,39 @@ export default async function PublicHomePage() {
       </section>
 
       {/* Interactive Map Search Section */}
-      <section className="py-24 bg-ink relative overflow-hidden flex-1">
-        {/* Artistic Background Map */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-ink/80 z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=2000&q=80" 
-            alt="Map background" 
-            className="w-full h-full object-cover mix-blend-overlay opacity-50"
-          />
-          {/* Animated radar rings */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/20 rounded-full animate-[spin_60s_linear_infinite] z-10" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/20 rounded-full animate-[spin_40s_linear_infinite_reverse] z-10" />
-          
-          {/* Orbiting dots */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 z-20">
-            <div className="animate-orbit">
-              <div className="w-3 h-3 bg-primary rounded-full shadow-lg shadow-primary/50" />
-            </div>
-          </div>
-
-          {/* Floating ambient pins */}
-          <div className="absolute top-[40%] left-[30%] z-20 animate-float text-primary"><MapPin className="h-8 w-8" fill="currentColor"/></div>
-          <div className="absolute top-[60%] left-[55%] z-20 animate-float-slow text-available"><MapPin className="h-6 w-6" fill="currentColor"/></div>
-          <div className="absolute top-[35%] left-[65%] z-20 animate-drift text-booked"><MapPin className="h-10 w-10" fill="currentColor"/></div>
-        </div>
-
+      <section className="py-24 bg-slate-900 relative overflow-hidden flex-1">
         <div className="container relative z-30 mx-auto px-4 max-w-7xl flex flex-col lg:flex-row items-center gap-16">
           
-          <div className="lg:w-1/2 text-cloud">
+          <div className="lg:w-1/2 text-white">
             <AnimateOnScroll animation="fade-right" duration={800}>
               <h2 className="font-heading text-4xl md:text-5xl font-bold mb-6 tracking-tight">Locate your next big impact.</h2>
             </AnimateOnScroll>
             <AnimateOnScroll animation="fade-right" delay={150} duration={800}>
-              <p className="text-lg text-sky-tint mb-8 font-light leading-relaxed">
+              <p className="text-lg text-slate-300 mb-8 font-light leading-relaxed">
                 Use our interactive mapping tool to find premium hoarding inventory near specific landmarks, competitors, or high-traffic intersections.
               </p>
             </AnimateOnScroll>
             
             <AnimateOnScroll animation="fade-up" delay={300} duration={800}>
               {/* Search Box */}
-              <div className="bg-card/10 backdrop-blur-md border border-cloud/10 rounded-2xl p-6 shadow-2xl">
-                <h3 className="font-semibold text-lg mb-4 text-cloud">Search Area</h3>
-                <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl">
+                <h3 className="font-semibold text-lg mb-4 text-white">Search Area</h3>
+                <div className="flex flex-col gap-3 w-full">
                   <div className="relative flex-1">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <MapPin className="h-5 w-5 text-cloud/50" />
-                    </div>
                     <input 
                       type="text" 
                       placeholder="Search Nagpur, Amravati, Pune..." 
-                      className="w-full h-14 pl-12 pr-4 rounded-xl border border-cloud/20 bg-ink/50 text-cloud placeholder:text-cloud/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      className="w-full h-14 pl-4 pr-4 rounded-xl border border-white/10 bg-slate-800 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
-                  <Link href="/map" className="w-full sm:w-auto inline-flex h-14 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:scale-105 hover:shadow-primary/25 hover:shadow-2xl active:scale-95 whitespace-nowrap">
-                    Explore Map
-                  </Link>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="text-xs text-cloud/60 mr-2 self-center uppercase tracking-wider font-semibold">Popular:</span>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Nagpur</button>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Amravati</button>
-                  <button className="px-3 py-1 rounded-full border border-cloud/20 bg-transparent hover:bg-cloud/10 text-xs text-cloud transition-colors hover:scale-105 active:scale-95">Pune</button>
+                  <div className="flex gap-4">
+                    <Link href="/catalog" className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-white shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                      Explore Catalog <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                    <Link href="/contact" className="inline-flex h-12 items-center justify-center rounded-md border border-white/20 bg-transparent px-8 text-sm font-medium text-white shadow-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                      Contact Sales
+                    </Link>
+                  </div>
                 </div>
               </div>
             </AnimateOnScroll>
@@ -286,7 +234,7 @@ export default async function PublicHomePage() {
           <div className="lg:w-1/2 w-full">
             <AnimateOnScroll animation="zoom-in" delay={200} duration={1000}>
               <div className="relative aspect-square md:aspect-video lg:aspect-[4/3] w-full max-w-2xl mx-auto z-10">
-                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full blur-3xl animate-pulse-glow" />
+                 <div className="absolute inset-0 bg-slate-800 rounded-xl" />
                  <div className="w-full h-full relative z-10">
                    <HomeMap initialSites={sites} />
                  </div>
