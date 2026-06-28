@@ -34,6 +34,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Map className="mr-3 h-4 w-4" />
             Inventory
           </Link>
+          <Link href="/map" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+            <Map className="mr-3 h-4 w-4" />
+            Map View
+          </Link>
           <Link href="/enquiries" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
             <MessageSquare className="mr-3 h-4 w-4" />
             Enquiries
