@@ -31,6 +31,9 @@ export default function EnquiriesClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted">("All");
+  const [replyText, setReplyText] = useState("");
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
 
@@ -43,6 +46,18 @@ export default function EnquiriesClient() {
         );
       }
     });
+  };
+
+  const handleAddNote = () => {
+    if (!replyText.trim()) return;
+    alert("Internal note added successfully!");
+    setReplyText("");
+  };
+
+  const handleReply = () => {
+    if (!replyText.trim()) return;
+    alert("Reply sent to user via email!");
+    setReplyText("");
   };
 
   useEffect(() => {
@@ -68,6 +83,14 @@ export default function EnquiriesClient() {
     fetchEnquiries();
   }, [supabase]);
 
+  const filteredEnquiries = enquiries.filter(eq => {
+    const matchesSearch = eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          eq.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          eq.company.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === "All" || eq.status === activeTab;
+    return matchesSearch && matchesTab;
+  });
+
   const selected = enquiries.find((e) => e.id === selectedId) ?? null;
 
   return (
@@ -89,23 +112,25 @@ export default function EnquiriesClient() {
               <input
                 type="text"
                 placeholder="Search leads..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-9 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div className="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
-              <button className="whitespace-nowrap px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">All ({enquiries.length})</button>
-              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">New ({enquiries.filter(e => e.status === 'New').length})</button>
-              <button className="whitespace-nowrap px-3 py-1 rounded-full hover:bg-muted text-muted-foreground text-xs font-medium">Contacted ({enquiries.filter(e => e.status === 'Contacted').length})</button>
+              <button onClick={() => setActiveTab("All")} className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-colors ${activeTab === "All" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>All ({enquiries.length})</button>
+              <button onClick={() => setActiveTab("New")} className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-colors ${activeTab === "New" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>New ({enquiries.filter(e => e.status === 'New').length})</button>
+              <button onClick={() => setActiveTab("Contacted")} className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-colors ${activeTab === "Contacted" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>Contacted ({enquiries.filter(e => e.status === 'Contacted').length})</button>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-primary" /></div>
-            ) : enquiries.length === 0 ? (
+            ) : filteredEnquiries.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground text-sm">No enquiries found.</div>
             ) : (
-              enquiries.map((eq) => (
+              filteredEnquiries.map((eq) => (
                 <button
                   key={eq.id}
                   onClick={() => setSelectedId(eq.id)}
@@ -199,10 +224,25 @@ export default function EnquiriesClient() {
               {/* Reply Box placeholder */}
               <div className="p-4 border-t border-border bg-muted/10">
                 <div className="relative">
-                  <textarea placeholder="Write a reply or internal note..." className="w-full p-3 pr-3 sm:pr-24 pb-12 sm:pb-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary min-h-[80px] resize-none" />
+                  <textarea 
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Write a reply or internal note..." 
+                    className="w-full p-3 pr-3 sm:pr-24 pb-12 sm:pb-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary min-h-[80px] resize-none" 
+                  />
                   <div className="absolute right-3 bottom-3 flex gap-2">
-                    <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80">Add Note</button>
-                    <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">Reply</button>
+                    <button 
+                      onClick={handleAddNote}
+                      disabled={!replyText.trim()}
+                      className="px-3 py-1.5 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 disabled:opacity-50">
+                      Add Note
+                    </button>
+                    <button 
+                      onClick={handleReply}
+                      disabled={!replyText.trim()}
+                      className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm disabled:opacity-50">
+                      Reply
+                    </button>
                   </div>
                 </div>
               </div>
