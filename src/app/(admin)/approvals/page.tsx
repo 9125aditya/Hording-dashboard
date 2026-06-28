@@ -29,10 +29,26 @@ export default async function ApprovalsPage() {
 
   const { data: dbRequests } = await supabase
     .from('admin_requests')
-    .select('*, profiles!admin_requests_requested_by_fkey(name, email)')
+    .select('*')
     .order('created_at', { ascending: false });
 
-  const requests = dbRequests || [];
+  let requests = dbRequests || [];
+
+  if (requests.length > 0) {
+    const userIds = Array.from(new Set(requests.map(r => r.requested_by)));
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', userIds);
+      
+    if (profiles) {
+      const profileMap = new Map(profiles.map(p => [p.id, p]));
+      requests = requests.map(req => ({
+        ...req,
+        profiles: profileMap.get(req.requested_by) || null
+      }));
+    }
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-8">
