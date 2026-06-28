@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink, CheckCircle } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
@@ -58,6 +58,11 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/map" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                 <Map className="mr-3 h-4 w-4" /> Map View
               </Link>
+              {isSuperAdmin && (
+                <Link href="/approvals" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                  <CheckCircle className="mr-3 h-4 w-4" /> Approvals
+                </Link>
+              )}
               <Link href="/enquiries" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                 <Clock className="mr-3 h-4 w-4" /> Enquiries
               </Link>

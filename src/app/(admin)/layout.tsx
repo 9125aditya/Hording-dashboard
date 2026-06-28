@@ -1,14 +1,25 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // BYPASS AUTH FOR DEVELOPMENT
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user: any = { email: 'superadmin@dev.com', id: '123' };
-  const role = 'super_admin';
+  let user = null;
+  let role = 'public';
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+    
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      if (profile) role = profile.role;
+    }
+  } catch (error) {
+    console.error("Admin Layout Supabase Error:", error);
+    // Ignore error, render with default values
+  }
 
   const isSuperAdmin = role === 'super_admin';
   return (
@@ -38,6 +49,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Map className="mr-3 h-4 w-4" />
             Map View
           </Link>
+          {isSuperAdmin && (
+            <Link href="/approvals" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+              <CheckCircle className="mr-3 h-4 w-4" />
+              Approvals
+            </Link>
+          )}
           <Link href="/enquiries" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
             <MessageSquare className="mr-3 h-4 w-4" />
             Enquiries

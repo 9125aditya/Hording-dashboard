@@ -12,7 +12,10 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
   const handleStatusChange = (status: string) => {
     setIsOpen(false);
     startTransition(async () => {
-      await updateSiteStatus(Number(siteId), status);
+      const res = await updateSiteStatus(Number(siteId), status);
+      if (res?.isPending) {
+        alert("Status update request sent for approval to Super Admin.");
+      }
     });
   };
 
@@ -20,7 +23,10 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
     if (confirm("Are you sure you want to delete this site?")) {
       setIsOpen(false);
       startTransition(async () => {
-        await deleteSite(Number(siteId));
+        const res = await deleteSite(Number(siteId));
+        if (res?.isPending) {
+          alert("Deletion request sent for approval to Super Admin.");
+        }
       });
     }
   };

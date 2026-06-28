@@ -7,16 +7,23 @@ import { addSite } from "@/backend/actions/actions";
 export default function AddSiteModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       const res = await addSite(formData);
       if (res?.success) {
-        setIsOpen(false);
+        if (res.isPending) {
+          setSuccessMsg("Request sent for approval to Super Admin.");
+          setTimeout(() => setIsOpen(false), 3000);
+        } else {
+          setIsOpen(false);
+        }
         setError(null);
       } else {
         setError(res?.error || "Failed to add site. Please try again.");
@@ -44,6 +51,12 @@ export default function AddSiteModal() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              {successMsg && (
+                <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5" />
+                  <span>{successMsg}</span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 col-span-2">
                   <label className="text-sm font-medium">Site Name</label>

@@ -7,12 +7,17 @@ import { revalidatePath } from "next/cache";
 // RBAC HELPER
 // ==========================================
 
-async function requireRole(supabase: any, allowedRoles: string[]) {
+async function getUserAndRole(supabase: any) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   const role = profile?.role || 'public';
+  return { user, role };
+}
+
+async function requireRole(supabase: any, allowedRoles: string[]) {
+  const { role } = await getUserAndRole(supabase);
   
   if (!allowedRoles.includes(role)) {
     throw new Error("Insufficient permissions");
@@ -82,21 +87,37 @@ export async function addSite(formData: FormData) {
   const price = formData.get("price") as string;
 
   const supabase = await createClient();
-  await requireRole(supabase, ['admin', 'super_admin']);
+  const { user, role } = await getUserAndRole(supabase);
+  
+  if (!['admin', 'super_admin'].includes(role)) {
+    throw new Error("Insufficient permissions");
+  }
 
-  const { error } = await supabase.from("sites").insert([
-    {
-      name,
-      type,
-      size,
-      city,
-      status,
-      price: parseInt(price) || 0,
-      image_url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80",
-      lat: 21.1458,
-      lng: 79.0882
-    }
-  ]);
+  const payload = {
+    name,
+    type,
+    size,
+    city,
+    status,
+    price: parseInt(price) || 0,
+    image_url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80",
+    lat: 21.1458,
+    lng: 79.0882
+  };
+
+  if (role === 'admin') {
+    const { error } = await supabase.from("admin_requests").insert([
+      {
+        action_type: 'ADD_SITE',
+        payload,
+        requested_by: user.id
+      }
+    ]);
+    if (error) return { error: error.message };
+    return { success: true, isPending: true };
+  }
+
+  const { error } = await supabase.from("sites").insert([payload]);
 
   if (error) return { error: error.message };
   revalidatePath("/admin/inventory");
@@ -105,7 +126,24 @@ export async function addSite(formData: FormData) {
 
 export async function updateSiteStatus(id: number, status: string) {
   const supabase = await createClient();
-  await requireRole(supabase, ['admin', 'super_admin']);
+  const { user, role } = await getUserAndRole(supabase);
+  
+  if (!['admin', 'super_admin'].includes(role)) {
+    throw new Error("Insufficient permissions");
+  }
+
+  if (role === 'admin') {
+    const { error } = await supabase.from("admin_requests").insert([
+      {
+        action_type: 'UPDATE_STATUS',
+        entity_id: id,
+        payload: { status },
+        requested_by: user.id
+      }
+    ]);
+    if (error) return { error: error.message };
+    return { success: true, isPending: true };
+  }
 
   const { error } = await supabase
     .from("sites")
@@ -119,7 +157,23 @@ export async function updateSiteStatus(id: number, status: string) {
 
 export async function deleteSite(id: number) {
   const supabase = await createClient();
-  await requireRole(supabase, ['admin', 'super_admin']);
+  const { user, role } = await getUserAndRole(supabase);
+  
+  if (!['admin', 'super_admin'].includes(role)) {
+    throw new Error("Insufficient permissions");
+  }
+
+  if (role === 'admin') {
+    const { error } = await supabase.from("admin_requests").insert([
+      {
+        action_type: 'DELETE_SITE',
+        entity_id: id,
+        requested_by: user.id
+      }
+    ]);
+    if (error) return { error: error.message };
+    return { success: true, isPending: true };
+  }
 
   const { error } = await supabase
     .from("sites")

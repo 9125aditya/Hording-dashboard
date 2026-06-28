@@ -34,10 +34,34 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl
 
-    // BYPASS AUTHENTICATION FOR DEVELOPMENT
-    // const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff']
-    // const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
-    
+    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff', '/map']
+    const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
+
+    if (isAdminRoute) {
+      if (!user) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        return NextResponse.redirect(url)
+      }
+      
+      // Fetch user role
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+      const role = profile?.role || 'public';
+      
+      // Rule: Public users cannot access ANY admin routes
+      if (role === 'public') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
+      }
+      
+      // Rule: Standard Admins cannot access Staff Management
+      if (role === 'admin' && (pathname.startsWith('/admin/staff') || pathname.startsWith('/staff'))) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    }
     return supabaseResponse
   } catch (error) {
     // If Supabase throws an error (e.g. missing env variables), we shouldn't crash the whole site.
