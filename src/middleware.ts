@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl
 
-    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff', '/map']
+    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map']
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
 
     if (isAdminRoute) {

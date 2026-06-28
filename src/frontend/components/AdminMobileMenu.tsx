@@ -55,7 +55,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/inventory" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                 <Map className="mr-3 h-4 w-4" /> Inventory
               </Link>
-              <Link href="/map" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+              <Link href="/admin-map" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
                 <Map className="mr-3 h-4 w-4" /> Map View
               </Link>
               {isSuperAdmin && (
