@@ -81,8 +81,8 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Office</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      12, Sitabuldi Main Road<br />
-                      Nagpur, Maharashtra 440012
+                      123, Bhagwaghar Layout, Dharampeth<br />
+                      Nagpur, Maharashtra 440010
                     </p>
                   </div>
                 </div>

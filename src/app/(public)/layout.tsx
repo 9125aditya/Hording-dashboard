@@ -103,7 +103,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 border border-border rounded-xl bg-background/50">
                   <h4 className="font-semibold text-sm mb-1 text-foreground">Nagpur</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">12, Sitabuldi Main Road, Nagpur 440012</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">123, Bhagwaghar Layout, Dharampeth, Nagpur 440010</p>
                 </div>
                 <div className="p-4 border border-border rounded-xl bg-background/50">
                   <h4 className="font-semibold text-sm mb-1 text-foreground">Amravati</h4>
