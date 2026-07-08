@@ -54,7 +54,8 @@ export async function loginUser(formData: FormData) {
       .single();
       
     if (loginMode === 'admin') {
-      if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+      if (adminRoles.includes(profile?.role)) {
         redirectPath = "/dashboard";
       } else {
         await supabase.auth.signOut();
@@ -62,7 +63,8 @@ export async function loginUser(formData: FormData) {
       }
     } else {
       // Client login mode
-      if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+      if (adminRoles.includes(profile?.role)) {
         redirectPath = "/dashboard";
       } else {
         redirectPath = "/catalog";
