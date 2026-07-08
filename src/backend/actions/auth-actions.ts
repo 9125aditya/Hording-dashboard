@@ -31,40 +31,50 @@ export async function signupUser(formData: FormData) {
 export async function loginUser(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  
-  const supabase = await createClient();
-  const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  
-  if (error) {
-    return { error: error.message };
-  }
-  
   const loginMode = formData.get("loginMode") as string;
   
-  // Check user role from profiles to determine redirect
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', authData.user.id)
-    .single();
+  let redirectPath: string | null = null;
+
+  try {
+    const supabase = await createClient();
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     
-  if (loginMode === 'admin') {
-    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
-      redirect("/dashboard");
-    } else {
-      await supabase.auth.signOut();
-      return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
+    if (error) {
+      return { error: error.message };
     }
-  } else {
-    // Client login mode
-    if (profile?.role === 'admin' || profile?.role === 'super_admin') {
-      redirect("/dashboard");
+    
+    // Check user role from profiles to determine redirect
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single();
+      
+    if (loginMode === 'admin') {
+      if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+        redirectPath = "/dashboard";
+      } else {
+        await supabase.auth.signOut();
+        return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
+      }
     } else {
-      redirect("/catalog");
+      // Client login mode
+      if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+        redirectPath = "/dashboard";
+      } else {
+        redirectPath = "/catalog";
+      }
     }
+  } catch (err: any) {
+    console.error("Login Exception:", err);
+    return { error: "Authentication service is unreachable. Please check your connection or contact support." };
+  }
+
+  if (redirectPath) {
+    redirect(redirectPath);
   }
 }
 
