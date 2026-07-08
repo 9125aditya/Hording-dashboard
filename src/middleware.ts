@@ -34,7 +34,10 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl
 
-    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map']
+    const adminRoutes = [
+      '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance',
+      '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance'
+    ];
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
 
     if (isAdminRoute) {
@@ -55,8 +58,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
       }
       
-      // Rule: Standard Admins cannot access Staff Management
-      if (role === 'admin' && (pathname.startsWith('/admin/staff') || pathname.startsWith('/staff'))) {
+      // Rule: Only super_admin can access Staff Management and Approvals
+      const isSuperAdminRoute = pathname.startsWith('/admin/staff') || pathname.startsWith('/staff') || pathname.startsWith('/admin/approvals') || pathname.startsWith('/approvals');
+      if (isSuperAdminRoute && role !== 'super_admin') {
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
         return NextResponse.redirect(url)
@@ -69,7 +73,10 @@ export async function middleware(request: NextRequest) {
     console.error("Middleware Supabase Error:", error);
     
     const { pathname } = request.nextUrl
-    const adminRoutes = ['/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/dashboard', '/inventory', '/enquiries', '/staff']
+    const adminRoutes = [
+      '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance',
+      '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance'
+    ];
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
     
     if (isAdminRoute) {
