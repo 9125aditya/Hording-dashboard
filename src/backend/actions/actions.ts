@@ -11,9 +11,10 @@ async function getUserAndRole(supabase: any) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const { data: profile } = await supabase.from('profiles').select('role, permissions').eq('id', user.id).single();
   const role = profile?.role || 'public';
-  return { user, role };
+  const permissions = profile?.permissions || [];
+  return { user, role, permissions };
 }
 
 async function requireRole(supabase: any, allowedRoles: string[]) {
@@ -22,6 +23,16 @@ async function requireRole(supabase: any, allowedRoles: string[]) {
   if (!allowedRoles.includes(role)) {
     throw new Error("Insufficient permissions");
   }
+}
+
+export async function requirePermission(supabase: any, permission: string) {
+  const { role, permissions } = await getUserAndRole(supabase);
+  if (role === 'super_admin') return true;
+  
+  if (!permissions.includes(permission)) {
+    throw new Error(`Insufficient permissions: requires ${permission}`);
+  }
+  return true;
 }
 
 // ==========================================
@@ -87,10 +98,11 @@ export async function addSite(formData: FormData) {
   const price = formData.get("price") as string;
 
   const supabase = await createClient();
-  const { user, role } = await getUserAndRole(supabase);
+  const { user, role, permissions } = await getUserAndRole(supabase);
   
-  if (!['admin', 'super_admin'].includes(role)) {
-    throw new Error("Insufficient permissions");
+  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+  if (!hasEditPermission && role !== 'admin') {
+    throw new Error("Insufficient permissions: requires edit_site_details");
   }
 
   const payload = {
@@ -105,7 +117,7 @@ export async function addSite(formData: FormData) {
     lng: 79.0882
   };
 
-  if (role === 'admin') {
+  if (!hasEditPermission && role === 'admin') {
     const { error } = await supabase.from("admin_requests").insert([
       {
         action_type: 'ADD_SITE',
@@ -126,13 +138,14 @@ export async function addSite(formData: FormData) {
 
 export async function updateSiteStatus(id: number, status: string) {
   const supabase = await createClient();
-  const { user, role } = await getUserAndRole(supabase);
+  const { user, role, permissions } = await getUserAndRole(supabase);
   
-  if (!['admin', 'super_admin'].includes(role)) {
-    throw new Error("Insufficient permissions");
+  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+  if (!hasEditPermission && role !== 'admin') {
+    throw new Error("Insufficient permissions: requires edit_site_details");
   }
 
-  if (role === 'admin') {
+  if (!hasEditPermission && role === 'admin') {
     const { error } = await supabase.from("admin_requests").insert([
       {
         action_type: 'UPDATE_STATUS',
@@ -157,13 +170,14 @@ export async function updateSiteStatus(id: number, status: string) {
 
 export async function deleteSite(id: number) {
   const supabase = await createClient();
-  const { user, role } = await getUserAndRole(supabase);
+  const { user, role, permissions } = await getUserAndRole(supabase);
   
-  if (!['admin', 'super_admin'].includes(role)) {
-    throw new Error("Insufficient permissions");
+  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+  if (!hasEditPermission && role !== 'admin') {
+    throw new Error("Insufficient permissions: requires edit_site_details");
   }
 
-  if (role === 'admin') {
+  if (!hasEditPermission && role === 'admin') {
     const { error } = await supabase.from("admin_requests").insert([
       {
         action_type: 'DELETE_SITE',

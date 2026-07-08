@@ -74,3 +74,27 @@ export async function addStaffMemberWithAuth(formData: FormData) {
   revalidatePath("/admin/staff");
   return { success: true };
 }
+
+import { createClient as createServerClient } from "@/backend/db/server";
+
+export async function updateUserPermissions(targetUserId: string, permissions: string[]) {
+  const normalClient = await createServerClient();
+  const { data: { user } } = await normalClient.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+  
+  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'super_admin') {
+    return { error: "Insufficient permissions" };
+  }
+
+  const adminClient = getAdminSupabase();
+  const { error } = await adminClient
+    .from('profiles')
+    .update({ permissions })
+    .eq('id', targetUserId);
+
+  if (error) return { error: error.message };
+  
+  revalidatePath('/admin/permissions');
+  return { success: true };
+}

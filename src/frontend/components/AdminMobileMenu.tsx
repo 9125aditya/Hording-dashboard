@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink, CheckCircle } from "lucide-react";
+import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink, CheckCircle, Shield } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
@@ -67,9 +67,14 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
                 <Clock className="mr-3 h-4 w-4" /> Enquiries
               </Link>
               {isSuperAdmin && (
-                <Link href="/staff" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                  <Clock className="mr-3 h-4 w-4" /> Staff
-                </Link>
+                <>
+                  <Link href="/permissions" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                    <Shield className="mr-3 h-4 w-4" /> Access Control
+                  </Link>
+                  <Link href="/staff" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                    <Clock className="mr-3 h-4 w-4" /> Staff
+                  </Link>
+                </>
               )}
             </nav>
 

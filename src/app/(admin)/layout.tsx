@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
@@ -60,10 +60,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Enquiries
           </Link>
           {isSuperAdmin && (
-            <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-              <Users className="mr-3 h-4 w-4" />
-              Staff
-            </Link>
+            <>
+              <Link href="/permissions" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                <Shield className="mr-3 h-4 w-4" />
+                Access Control
+              </Link>
+              <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
+                <Users className="mr-3 h-4 w-4" />
+                Staff
+              </Link>
+            </>
           )}
         </nav>
 
