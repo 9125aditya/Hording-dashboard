@@ -107,6 +107,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <AdminMobileMenu isSuperAdmin={isSuperAdmin} />
           </div>
           <div className="flex items-center gap-4">
+            {/* Company Logo */}
+            <div className="mr-2 hidden sm:block border-r pr-4 border-gray-200">
+               <img src="/logo.png" alt="SellAds & Truesign Media" className="h-8 w-auto object-contain" />
+            </div>
+            
             <div className="flex flex-col items-end mr-2">
               <span className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</span>
               <span className="text-[10px] uppercase text-muted-foreground mt-1 tracking-wider">{role.replace('_', ' ')}</span>
