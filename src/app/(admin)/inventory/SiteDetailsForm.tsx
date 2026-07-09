@@ -22,10 +22,13 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
     const res = await saveSiteDetails(site?.id ? String(site.id) : null, formData);
 
-    if (res.error) {
+    if (res?.error) {
       setError(res.error);
       setIsPending(false);
     } else {
+      if (res?.isPending) {
+        alert("Success! Your request has been sent to the Super Admin for approval and will appear once approved.");
+      }
       router.push("/admin/inventory");
     }
   };

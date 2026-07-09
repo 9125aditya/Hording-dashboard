@@ -248,87 +248,92 @@ export async function deleteStaff(id: number) {
 // ==========================================
 
 export async function saveSiteDetails(siteId: string | null, formData: FormData) {
-  const supabase = await createClient();
-  const { user, role, permissions } = await getUserAndRole(supabase);
-  
-  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-  if (!hasEditPermission && role !== 'admin') {
-    return { error: "Insufficient permissions: requires edit_site_details" };
+  try {
+    const supabase = await createClient();
+    const { user, role, permissions } = await getUserAndRole(supabase);
+    
+    const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+    if (!hasEditPermission && role !== 'admin') {
+      return { error: "Insufficient permissions: requires edit_site_details" };
+    }
+
+    const payload = {
+      name: formData.get("name") as string,
+      city: formData.get("city") as string,
+      area: formData.get("area") as string || '',
+      address: formData.get("address") as string || null,
+      maps_link: formData.get("maps_link") as string || null,
+      lat: parseFloat(formData.get("lat") as string) || null,
+      lng: parseFloat(formData.get("lng") as string) || null,
+      size: formData.get("size") as string,
+      type: formData.get("type") as string,
+      lit_type: formData.get("lit_type") as string,
+      status: (formData.get("status") as string) || 'Available',
+      
+      // Additional metrics
+      is_metro: formData.get("is_metro") === "true",
+      qty: parseInt(formData.get("qty") as string) || 1,
+      total_sq_ft: parseFloat(formData.get("total_sq_ft") as string) || 0,
+      printable_size: formData.get("printable_size") as string || null,
+      
+      // Metro specific
+      metro_line: formData.get("metro_line") as string || null,
+      metro_pillars: formData.get("metro_pillars") as string || null,
+      no_of_pillars: parseInt(formData.get("no_of_pillars") as string) || null,
+      no_of_displays: parseInt(formData.get("no_of_displays") as string) || null,
+      
+      // Electricity
+      electricity_consumer_no: formData.get("electricity_consumer_no") as string || null,
+      electricity_consumer_name: formData.get("electricity_consumer_name") as string || null,
+      electricity_bill_date: formData.get("electricity_bill_date") as string || null,
+      electricity_due_date: formData.get("electricity_due_date") as string || null,
+      
+      // Landlord
+      landlord: formData.get("landlord") as string || null,
+      landlord_contact: formData.get("landlord_contact") as string || null,
+      rent: parseFloat(formData.get("rent") as string) || 0,
+      
+      // Rationale
+      rationale: formData.get("rationale") as string || null,
+      
+      // Rates
+      net_rate: parseFloat(formData.get("net_rate") as string) || 0,
+      dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
+      agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
+      
+      // Photos
+      day_long_photo: formData.get("day_long_photo") as string || null,
+      day_mid_photo: formData.get("day_mid_photo") as string || null,
+      night_mid_photo: formData.get("night_mid_photo") as string || null,
+    };
+
+    if (!hasEditPermission && role === 'admin') {
+      // Send to approvals
+      const { error } = await supabase.from("admin_requests").insert([
+        {
+          action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
+          entity_id: siteId ? parseInt(siteId) : null,
+          payload,
+          requested_by: user.id
+        }
+      ]);
+      if (error) return { error: error.message };
+      return { success: true, isPending: true };
+    }
+
+    // Direct save
+    if (siteId) {
+      const { error } = await supabase.from("sites").update(payload).eq("id", parseInt(siteId));
+      if (error) return { error: error.message };
+    } else {
+      const { error } = await supabase.from("sites").insert([payload]);
+      if (error) return { error: error.message };
+    }
+
+    revalidatePath("/admin/inventory");
+    return { success: true };
+  } catch (err: any) {
+    console.error("saveSiteDetails Error:", err);
+    return { error: err.message || "An unexpected error occurred" };
   }
-
-  const payload = {
-    name: formData.get("name") as string,
-    city: formData.get("city") as string,
-    area: formData.get("area") as string || '',
-    address: formData.get("address") as string || null,
-    maps_link: formData.get("maps_link") as string || null,
-    lat: parseFloat(formData.get("lat") as string) || null,
-    lng: parseFloat(formData.get("lng") as string) || null,
-    size: formData.get("size") as string,
-    type: formData.get("type") as string,
-    lit_type: formData.get("lit_type") as string,
-    status: (formData.get("status") as string) || 'Available',
-    
-    // Additional metrics
-    is_metro: formData.get("is_metro") === "true",
-    qty: parseInt(formData.get("qty") as string) || 1,
-    total_sq_ft: parseFloat(formData.get("total_sq_ft") as string) || 0,
-    printable_size: formData.get("printable_size") as string || null,
-    
-    // Metro specific
-    metro_line: formData.get("metro_line") as string || null,
-    metro_pillars: formData.get("metro_pillars") as string || null,
-    no_of_pillars: parseInt(formData.get("no_of_pillars") as string) || null,
-    no_of_displays: parseInt(formData.get("no_of_displays") as string) || null,
-    
-    // Electricity
-    electricity_consumer_no: formData.get("electricity_consumer_no") as string || null,
-    electricity_consumer_name: formData.get("electricity_consumer_name") as string || null,
-    electricity_bill_date: formData.get("electricity_bill_date") as string || null,
-    electricity_due_date: formData.get("electricity_due_date") as string || null,
-    
-    // Landlord
-    landlord: formData.get("landlord") as string || null,
-    landlord_contact: formData.get("landlord_contact") as string || null,
-    rent: parseFloat(formData.get("rent") as string) || 0,
-    
-    // Rationale
-    rationale: formData.get("rationale") as string || null,
-    
-    // Rates
-    net_rate: parseFloat(formData.get("net_rate") as string) || 0,
-    dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
-    agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
-    
-    // Photos
-    day_long_photo: formData.get("day_long_photo") as string || null,
-    day_mid_photo: formData.get("day_mid_photo") as string || null,
-    night_mid_photo: formData.get("night_mid_photo") as string || null,
-  };
-
-  if (!hasEditPermission && role === 'admin') {
-    // Send to approvals
-    const { error } = await supabase.from("admin_requests").insert([
-      {
-        action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
-        entity_id: siteId ? parseInt(siteId) : null,
-        payload,
-        requested_by: user.id
-      }
-    ]);
-    if (error) return { error: error.message };
-    return { success: true, isPending: true };
-  }
-
-  // Direct save
-  if (siteId) {
-    const { error } = await supabase.from("sites").update(payload).eq("id", parseInt(siteId));
-    if (error) return { error: error.message };
-  } else {
-    const { error } = await supabase.from("sites").insert([payload]);
-    if (error) return { error: error.message };
-  }
-
-  revalidatePath("/admin/inventory");
-  return { success: true };
 }
