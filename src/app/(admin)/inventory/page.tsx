@@ -1,5 +1,5 @@
 import { createClient } from "@/backend/db/server";
-import AddSiteModal from "./AddSiteModal";
+import Link from "next/link";
 import InventoryClient from "./InventoryClient";
 
 export default async function InventoryPage() {
@@ -27,7 +27,12 @@ export default async function InventoryPage() {
           <h1 className="text-2xl font-bold tracking-tight font-heading">Inventory</h1>
           <p className="text-sm text-muted-foreground">Manage all your advertising sites and view their current statuses.</p>
         </div>
-        <AddSiteModal />
+        <Link 
+          href="/admin/inventory/add"
+          className="h-10 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center justify-center transition-colors"
+        >
+          Add New Site
+        </Link>
       </div>
       <InventoryClient initialInventory={inventory} />
     </div>
