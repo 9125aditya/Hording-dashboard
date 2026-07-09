@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { saveSiteDetails } from "@/backend/actions/actions";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon } from "lucide-react";
+import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train } from "lucide-react";
 import Link from "next/link";
 
 export default function SiteDetailsForm({ site = null }: { site?: any }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
+  const [isMetro, setIsMetro] = useState(site?.is_metro || false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,6 +18,8 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
     setError("");
 
     const formData = new FormData(e.currentTarget);
+    formData.append("is_metro", isMetro.toString());
+
     const res = await saveSiteDetails(site?.id ? String(site.id) : null, formData);
 
     if (res.error) {
@@ -45,6 +48,24 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
         </div>
       )}
 
+      {/* Metro Toggle */}
+      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Train className="w-5 h-5 text-blue-600" />
+            Is this a Metro Station or Metro Pillar?
+          </h2>
+          <p className="text-sm text-muted-foreground">Toggle this to show specific fields like Lines and Pillars.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsMetro(!isMetro)}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isMetro ? 'bg-blue-600' : 'bg-gray-200'}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isMetro ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-8">
         
         {/* SECTION 1: BASIC INFO */}
@@ -54,9 +75,9 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <h2 className="text-lg font-semibold">Basic Information</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Site Name / Code *</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">Site Name / Code / Location *</label>
               <input required name="name" defaultValue={site?.name} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Shankar Nagar Sq." />
             </div>
             
@@ -80,11 +101,55 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Size (W x H) *</label>
-              <input required name="size" defaultValue={site?.size} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 40x20" />
+              <label className="text-sm font-medium">Size (W x H)</label>
+              <input name="size" defaultValue={site?.size} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 40x20" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Printable Size</label>
+              <input name="printable_size" defaultValue={site?.printable_size} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 39x19" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Qty (Faces/Displays)</label>
+              <input type="number" name="qty" defaultValue={site?.qty || 1} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Total Sq Ft</label>
+              <input type="number" step="any" name="total_sq_ft" defaultValue={site?.total_sq_ft} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
           </div>
         </div>
+
+        {/* METRO SPECIFIC */}
+        {isMetro && (
+          <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 shadow-sm space-y-6">
+            <div className="flex items-center gap-2 border-b border-indigo-200 pb-3">
+              <Train className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-lg font-semibold text-indigo-900">Metro Specific Details</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-indigo-900">Metro Line</label>
+                <input name="metro_line" defaultValue={site?.metro_line} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Orange Line, Aqua Line" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-indigo-900">From Pillar To Pillar</label>
+                <input name="metro_pillars" defaultValue={site?.metro_pillars} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. P1 to P10" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-indigo-900">No. of Pillars</label>
+                <input type="number" name="no_of_pillars" defaultValue={site?.no_of_pillars} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-indigo-900">No. of Displays Back To Back</label>
+                <input type="number" name="no_of_displays" defaultValue={site?.no_of_displays} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SECTION 2: LOCATION */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">

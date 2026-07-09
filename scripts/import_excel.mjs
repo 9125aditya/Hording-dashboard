@@ -11,22 +11,13 @@ global.WebSocket = WebSocket;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables
 const envPath = path.resolve(__dirname, '../.env.local');
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
-} else {
-  console.log("No .env.local found, hoping env vars are set");
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing Supabase credentials in .env.local");
-  process.exit(1);
-}
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
@@ -41,7 +32,6 @@ async function run() {
   const wb = xlsx.readFile(filePath);
   const rowsToInsert = [];
 
-  // Fetch existing sites to prevent duplicates
   const { data: existingSites } = await supabase.from('sites').select('name');
   const existingNames = new Set(existingSites?.map(s => s.name) || []);
 
@@ -49,15 +39,14 @@ async function run() {
     if (sheetName !== 'Nagpur') continue;
     
     console.log(`Processing sheet: ${sheetName}`);
+    const isMetroSheet = sheetName.toLowerCase().includes('metro');
     const ws = wb.Sheets[sheetName];
-    // Read as array of arrays to find the actual header row
     const rawData = xlsx.utils.sheet_to_json(ws, { header: 1 });
 
     let headerRowIndex = -1;
     let headers = [];
 
-    // Find the header row (look for typical columns)
-    for (let i = 0; i < Math.min(15, rawData.length); i++) {
+    for (let i = 0; i < Math.min(20, rawData.length); i++) {
       const row = rawData[i];
       if (!Array.isArray(row)) continue;
       
@@ -81,7 +70,6 @@ async function run() {
       continue;
     }
 
-    // Helper to find column index
     const findCol = (...possibilities) => {
       for (const p of possibilities) {
         const idx = headers.findIndex(h => h && h.includes(p.toLowerCase()));
@@ -90,19 +78,30 @@ async function run() {
       return -1;
     };
 
+    // Shared
     const locIdx = findCol('hoarding location', 'locations', 'location', 'hoardng locations', 'site');
     const cityIdx = findCol('city');
     const areaIdx = findCol('region', 'area');
-    const wIdx = findCol('w', 'width');
-    const hIdx = findCol('h', 'height');
     const typeIdx = findCol('media', 'type');
     const litIdx = findCol('lit', 'lit/ n.lit');
-    const latIdx = findCol('lattitude', 'lat');
-    const lngIdx = findCol('longitude', 'lng');
     const ratIdx = findCol('rational', 'rationale');
-    const netIdx = findCol('net rate', 'net');
-    const dcpmIdx = findCol('dcpm');
+    const netIdx = findCol('net rate', 'net', 'rate per pillars (net)');
+    const dcpmIdx = findCol('dcpm', 'rate per pillars (dcpm)');
     const agencyIdx = findCol('agency');
+
+    // Normal Specific
+    const wIdx = findCol('w', 'width');
+    const hIdx = findCol('h', 'height');
+    const printSizeIdx = findCol('printable size');
+    const qtyIdx = findCol('qty.', 'qty');
+    const totalSqFtIdx = findCol('total sq. ft.', 'total sq ft');
+    
+    // Metro Specific
+    const lineIdx = findCol('line');
+    const designSizeIdx = findCol('design size wxh', 'design size');
+    const fromPillarsIdx = findCol('from pillars to pillars', 'pillars');
+    const noPillarsIdx = findCol('no\'s of pillars', 'no of pillars');
+    const noDisplaysIdx = findCol('no\'s of display', 'no of display');
 
     for (let i = headerRowIndex + 1; i < rawData.length; i++) {
       const row = rawData[i];
@@ -111,15 +110,14 @@ async function run() {
       const getVal = (idx) => idx !== -1 ? row[idx] : null;
 
       const name = getVal(locIdx);
-      const city = getVal(cityIdx);
       const width = getVal(wIdx);
-      const height = getVal(hIdx);
+      const designSize = getVal(designSizeIdx);
       
-      if (!name && !city && !width) continue; // Empty or irrelevant row
+      if (!name) continue; 
 
-      let siteName = (name ? String(name).trim() : `Unknown Site - ${sheetName} - Row ${i}`);
+      let siteName = String(name).trim();
 
-      // Handle duplicate names on the same sheet by appending a number
+      // Handle duplicate names
       let originalName = siteName;
       let counter = 1;
       while (existingNames.has(siteName)) {
@@ -127,19 +125,40 @@ async function run() {
         counter++;
       }
 
+      const getNumeric = (val) => {
+        if (!val) return 0;
+        return parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0;
+      };
+
+      const h = getVal(hIdx);
+      let sizeStr = designSize ? String(designSize) : (width && h ? `${width}x${h}` : (width ? String(width) : 'Unknown'));
+
       const site = {
         name: siteName,
-        city: city ? String(city).trim() : (sheetName.toLowerCase().includes('metro') || sheetName.toLowerCase().includes('ngp') ? 'Nagpur' : sheetName),
+        is_metro: isMetroSheet,
+        city: getVal(cityIdx) ? String(getVal(cityIdx)).trim() : (isMetroSheet || sheetName.toLowerCase().includes('ngp') ? 'Nagpur' : sheetName),
         area: getVal(areaIdx) ? String(getVal(areaIdx)).trim() : sheetName,
-        size: width && height ? `${width}x${height}` : (width ? String(width) : 'Unknown'),
-        type: getVal(typeIdx) ? String(getVal(typeIdx)).trim() : 'Billboard',
+        size: sizeStr,
+        type: getVal(typeIdx) ? String(getVal(typeIdx)).trim() : (isMetroSheet ? 'Metro Pillar' : 'Billboard'),
         lit_type: getVal(litIdx) ? String(getVal(litIdx)).trim() : 'Non-Lit',
-        lat: parseFloat(getVal(latIdx)) || null,
-        lng: parseFloat(getVal(lngIdx)) || null,
         rationale: getVal(ratIdx) ? String(getVal(ratIdx)).trim() : null,
-        net_rate: parseInt(String(getVal(netIdx)).replace(/[^0-9]/g, '')) || 0,
-        dcpm_rate: parseInt(String(getVal(dcpmIdx)).replace(/[^0-9]/g, '')) || 0,
-        agency_rate: parseInt(String(getVal(agencyIdx)).replace(/[^0-9]/g, '')) || 0,
+        
+        // Exact metrics
+        qty: getNumeric(getVal(qtyIdx)) || 1,
+        total_sq_ft: getNumeric(getVal(totalSqFtIdx)),
+        printable_size: getVal(printSizeIdx) ? String(getVal(printSizeIdx)).trim() : null,
+        
+        // Metro metrics
+        metro_line: getVal(lineIdx) ? String(getVal(lineIdx)).trim() : null,
+        metro_pillars: getVal(fromPillarsIdx) ? String(getVal(fromPillarsIdx)).trim() : null,
+        no_of_pillars: getNumeric(getVal(noPillarsIdx)) || null,
+        no_of_displays: getNumeric(getVal(noDisplaysIdx)) || null,
+
+        // Rates
+        net_rate: getNumeric(getVal(netIdx)),
+        dcpm_rate: getNumeric(getVal(dcpmIdx)),
+        agency_rate: getNumeric(getVal(agencyIdx)),
+        
         status: 'Available'
       };
 
@@ -155,7 +174,6 @@ async function run() {
     return;
   }
 
-  // Insert in batches of 100 to avoid request limits
   const batchSize = 100;
   let totalInserted = 0;
   

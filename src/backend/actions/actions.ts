@@ -269,6 +269,18 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
     lit_type: formData.get("lit_type") as string,
     status: (formData.get("status") as string) || 'Available',
     
+    // Additional metrics
+    is_metro: formData.get("is_metro") === "true",
+    qty: parseInt(formData.get("qty") as string) || 1,
+    total_sq_ft: parseFloat(formData.get("total_sq_ft") as string) || 0,
+    printable_size: formData.get("printable_size") as string || null,
+    
+    // Metro specific
+    metro_line: formData.get("metro_line") as string || null,
+    metro_pillars: formData.get("metro_pillars") as string || null,
+    no_of_pillars: parseInt(formData.get("no_of_pillars") as string) || null,
+    no_of_displays: parseInt(formData.get("no_of_displays") as string) || null,
+    
     // Electricity
     electricity_consumer_no: formData.get("electricity_consumer_no") as string || null,
     electricity_consumer_name: formData.get("electricity_consumer_name") as string || null,

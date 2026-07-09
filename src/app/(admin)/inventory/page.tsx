@@ -6,16 +6,28 @@ export default async function InventoryPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inventory = dbSites?.map((s: any) => ({
-    id: s.id, // Keep the real numeric ID for actions
-    uuid: s.site_id, // Keep the UUID for public links
+    id: s.id,
+    uuid: s.site_id,
     displayId: s.site_id?.substring(0, 8) || String(s.id),
+    is_metro: !!s.is_metro,
     name: s.name,
     city: s.city,
+    area: s.area || '',
     size: s.size,
     type: s.type,
-    price: s.net_rate ? `₹${s.net_rate.toLocaleString('en-IN')}` : 'Contact for price',
+    lit_type: s.lit_type || '',
+    qty: s.qty || 1,
+    total_sq_ft: s.total_sq_ft || 0,
+    printable_size: s.printable_size || '',
+    metro_line: s.metro_line || '',
+    metro_pillars: s.metro_pillars || '',
+    no_of_pillars: s.no_of_pillars || null,
+    no_of_displays: s.no_of_displays || null,
+    rationale: s.rationale || '',
+    net_rate: s.net_rate || 0,
+    dcpm_rate: s.dcpm_rate || 0,
+    agency_rate: s.agency_rate || 0,
     status: s.status,
     statusColor: s.status === 'Available' ? 'bg-available text-primary-foreground' : s.status === 'Booked' ? 'bg-booked text-primary-foreground' : 'bg-blocked text-white',
   })) || [];
