@@ -45,7 +45,9 @@ async function run() {
     "Bhandara Hoarding ",
     "Metro Median Signages New",
     "Metro Pillar Signages CURRENT",
-    "NGP KIOSK"
+    "NGP KIOSK",
+    "Jhansi Rani Metro Station ",
+    "sitabuldi ichange metro Station"
   ].map(s => s.toLowerCase().trim());
 
   for (const sheetName of wb.SheetNames) {
@@ -172,6 +174,7 @@ async function run() {
         type: getVal(typeIdx) ? String(getVal(typeIdx)).trim() : (isMetroSheet ? 'Metro Pillar' : 'Billboard'),
         lit_type: getVal(litIdx) ? String(getVal(litIdx)).trim() : 'Non-Lit',
         rationale: getVal(ratIdx) ? String(getVal(ratIdx)).trim() : null,
+        sheet_name: sheetName.trim(),
         
         lat: parseFloat(getVal(latIdx)) || null,
         lng: parseFloat(getVal(lngIdx)) || null,

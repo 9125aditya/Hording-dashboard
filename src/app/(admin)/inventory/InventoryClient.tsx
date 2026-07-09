@@ -7,6 +7,7 @@ import SiteActions from "./SiteActions";
 type SiteItem = {
   id: number;
   uuid: string;
+  sheet_name: string;
   is_metro: boolean;
   name: string;
   city: string;
@@ -31,8 +32,21 @@ type SiteItem = {
 
 export default function InventoryClient({ initialInventory }: { initialInventory: SiteItem[] }) {
   const [activeTab, setActiveTab] = useState<"normal" | "metro">("normal");
+  const [activeSubTab, setActiveSubTab] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  
+  const subTabs = useMemo(() => {
+    const sheets = Array.from(new Set(
+      initialInventory
+        .filter(item => (activeTab === 'metro' ? item.is_metro : !item.is_metro))
+        .map(item => item.sheet_name)
+        .filter(Boolean)
+    ));
+    // Sort alphabetically
+    sheets.sort((a, b) => a.localeCompare(b));
+    return ['All', ...sheets];
+  }, [initialInventory, activeTab]);
   
   const filteredSites = useMemo(() => {
     return initialInventory.filter(item => {
@@ -43,27 +57,45 @@ export default function InventoryClient({ initialInventory }: { initialInventory
       
       const matchesStatus = statusFilter === "All" || item.status === statusFilter;
       const matchesTab = activeTab === "metro" ? item.is_metro : !item.is_metro;
+      const matchesSubTab = activeSubTab === "All" || item.sheet_name === activeSubTab;
       
-      return matchesSearch && matchesStatus && matchesTab;
+      return matchesSearch && matchesStatus && matchesTab && matchesSubTab;
     });
-  }, [initialInventory, search, statusFilter, activeTab]);
+  }, [initialInventory, search, statusFilter, activeTab, activeSubTab]);
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
       {/* Tabs */}
       <div className="flex border-b border-border">
         <button 
-          onClick={() => setActiveTab("normal")} 
+          onClick={() => { setActiveTab("normal"); setActiveSubTab("All"); }} 
           className={`flex-1 py-3 text-sm font-semibold transition-colors ${activeTab === 'normal' ? 'bg-background border-b-2 border-primary text-primary' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
         >
           Normal Hoardings
         </button>
         <button 
-          onClick={() => setActiveTab("metro")} 
+          onClick={() => { setActiveTab("metro"); setActiveSubTab("All"); }} 
           className={`flex-1 py-3 text-sm font-semibold transition-colors ${activeTab === 'metro' ? 'bg-background border-b-2 border-primary text-primary' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
         >
           Metro Stations / Pillars
         </button>
+      </div>
+
+      {/* Sub Tabs */}
+      <div className="bg-muted/30 border-b border-border p-3 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
+        {subTabs.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveSubTab(tab)}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+              activeSubTab === tab 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
+                : 'bg-background text-muted-foreground border border-border hover:bg-muted/80'
+            }`}
+          >
+            {tab === "Metro Pillar Signages CURRENT" ? "Metro Pillar Signages Current" : tab}
+          </button>
+        ))}
       </div>
 
       {/* Toolbar */}
