@@ -104,7 +104,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-4 py-3 font-medium whitespace-nowrap">LIT/ N.LIT</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">Media</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">Size (WxH)</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Printable Size</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">Qty.</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">Total Sq. ft.</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">Region</th>
@@ -128,7 +127,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-4 py-3 whitespace-nowrap">{item.lit_type}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{item.type}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{item.size}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.printable_size || '-'}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{item.qty}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{item.total_sq_ft}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{item.area}</td>
