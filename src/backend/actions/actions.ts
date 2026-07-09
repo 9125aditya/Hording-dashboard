@@ -132,7 +132,7 @@ export async function addSite(formData: FormData) {
   const { error } = await supabase.from("sites").insert([payload]);
 
   if (error) return { error: error.message };
-  revalidatePath("/admin/inventory");
+  revalidatePath("/inventory");
   return { success: true };
 }
 
@@ -164,7 +164,7 @@ export async function updateSiteStatus(id: number, status: string) {
     .eq("id", id);
     
   if (error) return { error: error.message };
-  revalidatePath("/admin/inventory");
+  revalidatePath("/inventory");
   return { success: true };
 }
 
@@ -195,7 +195,7 @@ export async function deleteSite(id: number) {
     .eq("id", id);
     
   if (error) return { error: error.message };
-  revalidatePath("/admin/inventory");
+  revalidatePath("/inventory");
   return { success: true };
 }
 
@@ -330,7 +330,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       if (error) return { error: error.message };
     }
 
-    revalidatePath("/admin/inventory");
+    revalidatePath("/inventory");
     return { success: true };
   } catch (err: any) {
     console.error("saveSiteDetails Error:", err);
