@@ -107,21 +107,21 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         <table className="w-full text-sm text-left">
           <thead className="bg-muted/50 border-b border-border text-muted-foreground">
             <tr>
-              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground" onClick={() => handleSort('displayId')}>
+              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground whitespace-nowrap" onClick={() => handleSort('displayId')}>
                 <div className="flex items-center">Site ID <ArrowUpDown className="ml-1 h-3 w-3" /></div>
               </th>
-              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground" onClick={() => handleSort('name')}>
+              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground whitespace-nowrap min-w-[200px]" onClick={() => handleSort('name')}>
                 <div className="flex items-center">Name <ArrowUpDown className="ml-1 h-3 w-3" /></div>
               </th>
-              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground" onClick={() => handleSort('city')}>
+              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground whitespace-nowrap" onClick={() => handleSort('city')}>
                 <div className="flex items-center">Location <ArrowUpDown className="ml-1 h-3 w-3" /></div>
               </th>
-              <th className="px-6 py-3 font-medium">Details</th>
-              <th className="px-6 py-3 font-medium">Internal Rate</th>
-              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground" onClick={() => handleSort('status')}>
+              <th className="px-6 py-3 font-medium whitespace-nowrap">Details</th>
+              <th className="px-6 py-3 font-medium whitespace-nowrap">Internal Rate</th>
+              <th className="px-6 py-3 font-medium cursor-pointer hover:text-foreground whitespace-nowrap" onClick={() => handleSort('status')}>
                 <div className="flex items-center">Status <ArrowUpDown className="ml-1 h-3 w-3" /></div>
               </th>
-              <th className="px-6 py-3 font-medium text-right">Actions</th>
+              <th className="px-6 py-3 font-medium text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -134,22 +134,22 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             ) : (
               filteredAndSorted.map((item) => (
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground">{item.displayId}</td>
-                  <td className="px-6 py-4 font-medium text-foreground">{item.name}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{item.city}</td>
-                  <td className="px-6 py-4 text-muted-foreground">
+                  <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground whitespace-nowrap">{item.displayId}</td>
+                  <td className="px-6 py-4 font-medium text-foreground min-w-[200px]">{item.name}</td>
+                  <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">{item.city}</td>
+                  <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
                     <div className="flex flex-col">
                       <span>{item.size}</span>
                       <span className="text-xs">{item.type}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-foreground font-medium">{item.price}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-foreground font-medium whitespace-nowrap">{item.price}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${item.statusColor}`}>
                       {item.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                   </td>
                 </tr>

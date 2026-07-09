@@ -46,6 +46,8 @@ async function run() {
   const existingNames = new Set(existingSites?.map(s => s.name) || []);
 
   for (const sheetName of wb.SheetNames) {
+    if (sheetName !== 'Nagpur') continue;
+    
     console.log(`Processing sheet: ${sheetName}`);
     const ws = wb.Sheets[sheetName];
     // Read as array of arrays to find the actual header row
@@ -115,10 +117,14 @@ async function run() {
       
       if (!name && !city && !width) continue; // Empty or irrelevant row
 
-      const siteName = (name ? String(name).trim() : `Unknown Site - ${sheetName} - Row ${i}`);
+      let siteName = (name ? String(name).trim() : `Unknown Site - ${sheetName} - Row ${i}`);
 
-      if (existingNames.has(siteName)) {
-        continue;
+      // Handle duplicate names on the same sheet by appending a number
+      let originalName = siteName;
+      let counter = 1;
+      while (existingNames.has(siteName)) {
+        siteName = `${originalName} (${counter})`;
+        counter++;
       }
 
       const site = {
