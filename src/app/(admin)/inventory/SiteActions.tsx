@@ -47,7 +47,14 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
           <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border shadow-lg rounded-md z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95">
             
             <Link 
-              href={`/admin/inventory/${siteId}`}
+              href={`/inventory/${siteId}/view`}
+              className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+            >
+              <ExternalLink className="mr-2 h-4 w-4 text-emerald-600" /> View Details
+            </Link>
+
+            <Link 
+              href={`/inventory/${siteId}`}
               className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
             >
               <Pencil className="mr-2 h-4 w-4 text-blue-600" /> Edit Details
