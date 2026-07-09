@@ -12,7 +12,7 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
   const handleStatusChange = (status: string) => {
     setIsOpen(false);
     startTransition(async () => {
-      const res = await updateSiteStatus(Number(siteId), status);
+      const res = await updateSiteStatus(uuid, status);
       if (res?.isPending) {
         alert("Status update request sent for approval to Super Admin.");
       }
@@ -23,7 +23,7 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
     if (confirm("Are you sure you want to delete this site?")) {
       setIsOpen(false);
       startTransition(async () => {
-        const res = await deleteSite(Number(siteId));
+        const res = await deleteSite(uuid);
         if (res?.isPending) {
           alert("Deletion request sent for approval to Super Admin.");
         }
@@ -47,14 +47,14 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
           <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border shadow-lg rounded-md z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95">
             
             <Link 
-              href={`/inventory/${siteId}/view`}
+              href={`/inventory/${uuid}/view`}
               className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
             >
               <ExternalLink className="mr-2 h-4 w-4 text-emerald-600" /> View Details
             </Link>
 
             <Link 
-              href={`/inventory/${siteId}`}
+              href={`/inventory/${uuid}`}
               className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
             >
               <Pencil className="mr-2 h-4 w-4 text-blue-600" /> Edit Details

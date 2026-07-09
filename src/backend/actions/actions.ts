@@ -136,7 +136,7 @@ export async function addSite(formData: FormData) {
   return { success: true };
 }
 
-export async function updateSiteStatus(id: number, status: string) {
+export async function updateSiteStatus(id: string, status: string) {
   const supabase = await createClient();
   const { user, role, permissions } = await getUserAndRole(supabase);
   
@@ -149,8 +149,8 @@ export async function updateSiteStatus(id: number, status: string) {
     const { error } = await supabase.from("admin_requests").insert([
       {
         action_type: 'UPDATE_STATUS',
-        entity_id: id,
-        payload: { status },
+        entity_id: null,
+        payload: { site_id: id, status },
         requested_by: user.id
       }
     ]);
@@ -161,14 +161,14 @@ export async function updateSiteStatus(id: number, status: string) {
   const { error } = await supabase
     .from("sites")
     .update({ status })
-    .eq("id", id);
+    .eq("site_id", id);
     
   if (error) return { error: error.message };
   revalidatePath("/inventory");
   return { success: true };
 }
 
-export async function deleteSite(id: number) {
+export async function deleteSite(id: string) {
   const supabase = await createClient();
   const { user, role, permissions } = await getUserAndRole(supabase);
   
@@ -181,7 +181,8 @@ export async function deleteSite(id: number) {
     const { error } = await supabase.from("admin_requests").insert([
       {
         action_type: 'DELETE_SITE',
-        entity_id: id,
+        entity_id: null,
+        payload: { site_id: id },
         requested_by: user.id
       }
     ]);
@@ -192,7 +193,7 @@ export async function deleteSite(id: number) {
   const { error } = await supabase
     .from("sites")
     .delete()
-    .eq("id", id);
+    .eq("site_id", id);
     
   if (error) return { error: error.message };
   revalidatePath("/inventory");
@@ -312,8 +313,8 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       const { error } = await supabase.from("admin_requests").insert([
         {
           action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
-          entity_id: siteId ? parseInt(siteId) : null,
-          payload,
+          entity_id: null,
+          payload: { ...payload, site_id: siteId },
           requested_by: user.id
         }
       ]);
@@ -323,7 +324,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
 
     // Direct save
     if (siteId) {
-      const { error } = await supabase.from("sites").update(payload).eq("id", parseInt(siteId));
+      const { error } = await supabase.from("sites").update(payload).eq("site_id", siteId);
       if (error) return { error: error.message };
     } else {
       const { error } = await supabase.from("sites").insert([payload]);
