@@ -72,8 +72,16 @@ async function run() {
 
     const findCol = (...possibilities) => {
       for (const p of possibilities) {
-        const idx = headers.findIndex(h => h && h.includes(p.toLowerCase()));
+        const lowerP = p.toLowerCase();
+        // First try exact match
+        let idx = headers.findIndex(h => h && h === lowerP);
         if (idx !== -1) return idx;
+        
+        // Then try loose match for longer strings (avoid matching 'h' inside 'hoarding')
+        if (lowerP.length > 2) {
+          idx = headers.findIndex(h => h && h.includes(lowerP));
+          if (idx !== -1) return idx;
+        }
       }
       return -1;
     };
