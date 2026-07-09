@@ -2,6 +2,8 @@ import { createClient } from "@/backend/db/server";
 import Link from "next/link";
 import InventoryClient from "./InventoryClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function InventoryPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });

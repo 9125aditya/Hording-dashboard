@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Tag, Info, Ruler, Zap, User, DollarSign, Image as ImageIcon } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ViewSiteDetailsPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
   

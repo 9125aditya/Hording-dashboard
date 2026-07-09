@@ -2,6 +2,8 @@ import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 import SiteDetailsForm from "../SiteDetailsForm";
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditSitePage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
   
