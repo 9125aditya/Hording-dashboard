@@ -39,47 +39,71 @@ async function run() {
   }
 
   const wb = xlsx.readFile(filePath);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const data = xlsx.utils.sheet_to_json(ws);
-
-  console.log(`Found ${data.length} rows.`);
-
   const rowsToInsert = [];
 
-  for (const row of data) {
-    // Skip empty rows
-    if (!row['Hoarding Location'] && !row['City']) continue;
+  // Fetch existing sites to prevent duplicates
+  const { data: existingSites } = await supabase.from('sites').select('name');
+  const existingNames = new Set(existingSites?.map(s => s.name) || []);
 
-    // Map Excel to DB Schema
-    const site = {
-      name: row['Hoarding Location'] || 'Unknown Site',
-      city: row['City'] || 'Unknown',
-      area: row['Re+L:Ogion'] || 'Unknown',
-      size: `${row['W'] || 0}x${row['H'] || 0}`,
-      type: row['Media'] || 'Billboard',
-      lit_type: row[' LIT/ N.LIT'] || 'Non-Lit',
-      lat: parseFloat(row['Lattitude']) || null,
-      lng: parseFloat(row['Longitude']) || null,
-      rationale: row['Rational'] || null,
-      net_rate: parseInt(row['Net Rate']) || 0,
-      dcpm_rate: parseInt(row['DCPM']) || 0,
-      agency_rate: parseInt(row['Agency Rate']) || 0,
-      status: 'Available'
-    };
+  for (const sheetName of wb.SheetNames) {
+    console.log(`Processing sheet: ${sheetName}`);
+    const ws = wb.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(ws);
 
-    rowsToInsert.push(site);
+    for (const row of data) {
+      if (!row['Hoarding Location'] && !row['City']) continue;
+
+      const name = row['Hoarding Location'] || 'Unknown Site';
+      
+      // Skip if already exists
+      if (existingNames.has(name)) {
+        continue;
+      }
+
+      const site = {
+        name: name,
+        city: row['City'] || 'Unknown',
+        area: row['Re+L:Ogion'] || sheetName, // Use sheet name as fallback area if missing
+        size: `${row['W'] || 0}x${row['H'] || 0}`,
+        type: row['Media'] || 'Billboard',
+        lit_type: row[' LIT/ N.LIT'] || 'Non-Lit',
+        lat: parseFloat(row['Lattitude']) || null,
+        lng: parseFloat(row['Longitude']) || null,
+        rationale: row['Rational'] || null,
+        net_rate: parseInt(row['Net Rate']) || 0,
+        dcpm_rate: parseInt(row['DCPM']) || 0,
+        agency_rate: parseInt(row['Agency Rate']) || 0,
+        status: 'Available'
+      };
+
+      rowsToInsert.push(site);
+      existingNames.add(name); // Mark as added to prevent duplicates within the file itself
+    }
   }
 
-  console.log(`Prepared ${rowsToInsert.length} records for insertion. Sample:`);
-  console.dir(rowsToInsert[0]);
-
-  const { data: result, error } = await supabase.from('sites').insert(rowsToInsert).select();
-
-  if (error) {
-    console.error("Error inserting data into Supabase:", error);
-  } else {
-    console.log(`Successfully inserted ${result?.length} sites!`);
+  console.log(`Prepared ${rowsToInsert.length} NEW records for insertion across all sheets.`);
+  
+  if (rowsToInsert.length === 0) {
+    console.log("No new records to insert.");
+    return;
   }
+
+  // Insert in batches of 100 to avoid request limits
+  const batchSize = 100;
+  let totalInserted = 0;
+  
+  for (let i = 0; i < rowsToInsert.length; i += batchSize) {
+    const batch = rowsToInsert.slice(i, i + batchSize);
+    const { data: result, error } = await supabase.from('sites').insert(batch).select();
+    
+    if (error) {
+      console.error("Error inserting batch:", error);
+    } else {
+      totalInserted += result?.length || 0;
+    }
+  }
+
+  console.log(`Successfully inserted ${totalInserted} new sites across ${wb.SheetNames.length} sheets!`);
 }
 
 run();
