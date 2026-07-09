@@ -27,8 +27,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Dark Sidebar */}
       <aside className="w-60 hidden md:flex flex-col" style={{ backgroundColor: '#1e2a3a' }}>
         <div className="px-5 py-6">
-          <Link href="/dashboard" className="font-heading font-bold text-xl tracking-tight text-white">
-            OOH
+          <Link href="/dashboard" className="flex items-center">
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
           </Link>
         </div>
 

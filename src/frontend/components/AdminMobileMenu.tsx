@@ -36,8 +36,8 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
             style={{ backgroundColor: '#1e2a3a' }}
           >
             <div className="px-5 py-6 flex items-center justify-between">
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="font-heading font-bold text-xl tracking-tight text-white">
-                OOH
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center">
+                <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
               </Link>
               <button onClick={() => setIsOpen(false)} className="p-1.5 rounded text-gray-400 hover:text-white">
                 <X className="h-5 w-5" />
