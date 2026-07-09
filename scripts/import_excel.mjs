@@ -35,8 +35,24 @@ async function run() {
   const { data: existingSites } = await supabase.from('sites').select('name');
   const existingNames = new Set(existingSites?.map(s => s.name) || []);
 
+  const ALLOWED_SHEETS = [
+    "Nagpur",
+    "Amravati Hoarding",
+    "Akola Hoarding",
+    "Chandrapur Hoarding",
+    "Gondia",
+    "Wardha",
+    "Bhandara Hoarding ",
+    "Metro Median Signages New",
+    "Metro Pillar Signages CURRENT",
+    "NGP KIOSK"
+  ].map(s => s.toLowerCase().trim());
+
   for (const sheetName of wb.SheetNames) {
-    if (sheetName !== 'Nagpur') continue;
+    if (!ALLOWED_SHEETS.includes(sheetName.toLowerCase().trim())) {
+      console.log(`Skipping: ${sheetName}`);
+      continue;
+    }
     
     console.log(`Processing sheet: ${sheetName}`);
     const isMetroSheet = sheetName.toLowerCase().includes('metro');
@@ -139,6 +155,10 @@ async function run() {
         if (!val) return 0;
         return parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0;
       };
+      
+      const getInt = (val) => {
+        return Math.round(getNumeric(val));
+      };
 
       const h = getVal(hIdx);
       let sizeStr = designSize ? String(designSize) : (width && h ? `${width}x${h}` : (width ? String(width) : 'Unknown'));
@@ -157,20 +177,20 @@ async function run() {
         lng: parseFloat(getVal(lngIdx)) || null,
         
         // Exact metrics
-        qty: getNumeric(getVal(qtyIdx)) || 1,
+        qty: getInt(getVal(qtyIdx)) || 1,
         total_sq_ft: getNumeric(getVal(totalSqFtIdx)),
         printable_size: getVal(printSizeIdx) ? String(getVal(printSizeIdx)).trim() : null,
         
         // Metro metrics
         metro_line: getVal(lineIdx) ? String(getVal(lineIdx)).trim() : null,
         metro_pillars: getVal(fromPillarsIdx) ? String(getVal(fromPillarsIdx)).trim() : null,
-        no_of_pillars: getNumeric(getVal(noPillarsIdx)) || null,
-        no_of_displays: getNumeric(getVal(noDisplaysIdx)) || null,
+        no_of_pillars: getInt(getVal(noPillarsIdx)) || null,
+        no_of_displays: getInt(getVal(noDisplaysIdx)) || null,
 
         // Rates
-        net_rate: getNumeric(getVal(netIdx)),
-        dcpm_rate: getNumeric(getVal(dcpmIdx)),
-        agency_rate: getNumeric(getVal(agencyIdx)),
+        net_rate: getInt(getVal(netIdx)),
+        dcpm_rate: getInt(getVal(dcpmIdx)),
+        agency_rate: getInt(getVal(agencyIdx)),
         
         status: 'Available'
       };
