@@ -96,6 +96,8 @@ async function run() {
     const netIdx = findCol('net rate', 'net', 'rate per pillars (net)');
     const dcpmIdx = findCol('dcpm', 'rate per pillars (dcpm)');
     const agencyIdx = findCol('agency');
+    const latIdx = findCol('lattitude', 'lat', 'latitude');
+    const lngIdx = findCol('longitude', 'lng', 'long');
 
     // Normal Specific
     const wIdx = findCol('w', 'width');
@@ -150,6 +152,9 @@ async function run() {
         type: getVal(typeIdx) ? String(getVal(typeIdx)).trim() : (isMetroSheet ? 'Metro Pillar' : 'Billboard'),
         lit_type: getVal(litIdx) ? String(getVal(litIdx)).trim() : 'Non-Lit',
         rationale: getVal(ratIdx) ? String(getVal(ratIdx)).trim() : null,
+        
+        lat: parseFloat(getVal(latIdx)) || null,
+        lng: parseFloat(getVal(lngIdx)) || null,
         
         // Exact metrics
         qty: getNumeric(getVal(qtyIdx)) || 1,
