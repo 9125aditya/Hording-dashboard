@@ -15,7 +15,7 @@ export default async function InventoryPage() {
     city: s.city,
     size: s.size,
     type: s.type,
-    price: s.internal_rate ? `₹${s.internal_rate.toLocaleString('en-IN')}/mo` : 'Contact for price',
+    price: s.net_rate ? `₹${s.net_rate.toLocaleString('en-IN')}` : 'Contact for price',
     status: s.status,
     statusColor: s.status === 'Available' ? 'bg-available text-primary-foreground' : s.status === 'Booked' ? 'bg-booked text-primary-foreground' : 'bg-blocked text-white',
   })) || [];

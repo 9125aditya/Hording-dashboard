@@ -48,36 +48,97 @@ async function run() {
   for (const sheetName of wb.SheetNames) {
     console.log(`Processing sheet: ${sheetName}`);
     const ws = wb.Sheets[sheetName];
-    const data = xlsx.utils.sheet_to_json(ws);
+    // Read as array of arrays to find the actual header row
+    const rawData = xlsx.utils.sheet_to_json(ws, { header: 1 });
 
-    for (const row of data) {
-      if (!row['Hoarding Location'] && !row['City']) continue;
+    let headerRowIndex = -1;
+    let headers = [];
 
-      const name = row['Hoarding Location'] || 'Unknown Site';
+    // Find the header row (look for typical columns)
+    for (let i = 0; i < Math.min(15, rawData.length); i++) {
+      const row = rawData[i];
+      if (!Array.isArray(row)) continue;
       
-      // Skip if already exists
-      if (existingNames.has(name)) {
+      const rowStr = row.map(c => String(c || '').toLowerCase().trim());
+      if (
+        rowStr.includes('location') || 
+        rowStr.includes('hoarding location') || 
+        rowStr.includes('locations') || 
+        rowStr.includes('hoardng locations') ||
+        rowStr.includes('w') ||
+        rowStr.includes('city')
+      ) {
+        headerRowIndex = i;
+        headers = rowStr;
+        break;
+      }
+    }
+
+    if (headerRowIndex === -1) {
+      console.log(`  -> Skipping ${sheetName}: Could not identify a header row.`);
+      continue;
+    }
+
+    // Helper to find column index
+    const findCol = (...possibilities) => {
+      for (const p of possibilities) {
+        const idx = headers.findIndex(h => h && h.includes(p.toLowerCase()));
+        if (idx !== -1) return idx;
+      }
+      return -1;
+    };
+
+    const locIdx = findCol('hoarding location', 'locations', 'location', 'hoardng locations', 'site');
+    const cityIdx = findCol('city');
+    const areaIdx = findCol('region', 'area');
+    const wIdx = findCol('w', 'width');
+    const hIdx = findCol('h', 'height');
+    const typeIdx = findCol('media', 'type');
+    const litIdx = findCol('lit', 'lit/ n.lit');
+    const latIdx = findCol('lattitude', 'lat');
+    const lngIdx = findCol('longitude', 'lng');
+    const ratIdx = findCol('rational', 'rationale');
+    const netIdx = findCol('net rate', 'net');
+    const dcpmIdx = findCol('dcpm');
+    const agencyIdx = findCol('agency');
+
+    for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+      const row = rawData[i];
+      if (!row || row.length === 0) continue;
+
+      const getVal = (idx) => idx !== -1 ? row[idx] : null;
+
+      const name = getVal(locIdx);
+      const city = getVal(cityIdx);
+      const width = getVal(wIdx);
+      const height = getVal(hIdx);
+      
+      if (!name && !city && !width) continue; // Empty or irrelevant row
+
+      const siteName = (name ? String(name).trim() : `Unknown Site - ${sheetName} - Row ${i}`);
+
+      if (existingNames.has(siteName)) {
         continue;
       }
 
       const site = {
-        name: name,
-        city: row['City'] || 'Unknown',
-        area: row['Re+L:Ogion'] || sheetName, // Use sheet name as fallback area if missing
-        size: `${row['W'] || 0}x${row['H'] || 0}`,
-        type: row['Media'] || 'Billboard',
-        lit_type: row[' LIT/ N.LIT'] || 'Non-Lit',
-        lat: parseFloat(row['Lattitude']) || null,
-        lng: parseFloat(row['Longitude']) || null,
-        rationale: row['Rational'] || null,
-        net_rate: parseInt(row['Net Rate']) || 0,
-        dcpm_rate: parseInt(row['DCPM']) || 0,
-        agency_rate: parseInt(row['Agency Rate']) || 0,
+        name: siteName,
+        city: city ? String(city).trim() : (sheetName.toLowerCase().includes('metro') || sheetName.toLowerCase().includes('ngp') ? 'Nagpur' : sheetName),
+        area: getVal(areaIdx) ? String(getVal(areaIdx)).trim() : sheetName,
+        size: width && height ? `${width}x${height}` : (width ? String(width) : 'Unknown'),
+        type: getVal(typeIdx) ? String(getVal(typeIdx)).trim() : 'Billboard',
+        lit_type: getVal(litIdx) ? String(getVal(litIdx)).trim() : 'Non-Lit',
+        lat: parseFloat(getVal(latIdx)) || null,
+        lng: parseFloat(getVal(lngIdx)) || null,
+        rationale: getVal(ratIdx) ? String(getVal(ratIdx)).trim() : null,
+        net_rate: parseInt(String(getVal(netIdx)).replace(/[^0-9]/g, '')) || 0,
+        dcpm_rate: parseInt(String(getVal(dcpmIdx)).replace(/[^0-9]/g, '')) || 0,
+        agency_rate: parseInt(String(getVal(agencyIdx)).replace(/[^0-9]/g, '')) || 0,
         status: 'Available'
       };
 
       rowsToInsert.push(site);
-      existingNames.add(name); // Mark as added to prevent duplicates within the file itself
+      existingNames.add(siteName);
     }
   }
 
