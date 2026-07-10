@@ -4,13 +4,13 @@ Welcome to the **OOH Media Platform** repository! 👋
 
 This is a modern, premium web application built to make finding and booking Out-of-Home (OOH) advertising spaces—like billboards, unipolar displays, and digital hoardings—visual, seamless, and secure. We focus on premium locations across North India (Delhi, Gurgaon, Noida, Chandigarh, Jaipur, etc.).
 
-🟢 **Live Demo:** [https://estroc-ooh-dashboard.vercel.app](https://estroc-ooh-dashboard.vercel.app)
+🟢 **Live Demo:** [https://sellads advertising-ooh-dashboard.vercel.app](https://sellads advertising-ooh-dashboard.vercel.app)
 
 ---
 
 ## 🌟 What's Inside?
 
-We built this platform with a dual-focus: an incredible public-facing catalog for brands, and a secure, powerful management backend for the ESTROC team.
+We built this platform with a dual-focus: an incredible public-facing catalog for brands, and a secure, powerful management backend for the Sellads Advertising team.
 
 - **Public Features:**
   - **Interactive Map Search:** A smooth, live Leaflet map to visually hunt down the best hoarding locations by city or landmark.

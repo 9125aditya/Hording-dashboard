@@ -28,7 +28,7 @@ export default function SignupPage() {
           <User className="h-8 w-8 text-primary" />
         </div>
         <h1 className="font-heading text-2xl font-bold text-foreground">Create an Account</h1>
-        <p className="text-muted-foreground mt-2">Join ESTROC to book premium OOH media.</p>
+        <p className="text-muted-foreground mt-2">Join Sellads Advertising to book premium OOH media.</p>
       </div>
       
       <form onSubmit={handleSignup} className="p-8 space-y-6">

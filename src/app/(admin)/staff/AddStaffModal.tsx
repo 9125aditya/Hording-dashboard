@@ -52,7 +52,7 @@ export default function AddStaffModal() {
                 
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Email Address</label>
-                  <input required name="email" type="email" className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="john@estroc.com" />
+                  <input required name="email" type="email" className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="john@sellads advertising.com" />
                 </div>
 
                 <div className="space-y-1.5">
