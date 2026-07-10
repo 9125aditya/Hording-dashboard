@@ -1,6 +1,7 @@
 import { createClient } from "@/backend/db/server";
 import Link from "next/link";
 import InventoryClient from "./InventoryClient";
+import { Plus } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -32,21 +33,22 @@ export default async function InventoryPage() {
     dcpm_rate: s.dcpm_rate || 0,
     agency_rate: s.agency_rate || 0,
     status: s.status,
-    statusColor: s.status === 'Available' ? 'bg-available text-primary-foreground' : s.status === 'Booked' ? 'bg-booked text-primary-foreground' : 'bg-blocked text-white',
+    statusColor: s.status === 'Available' ? 'bg-emerald-100 text-emerald-700' : s.status === 'Booked' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700',
   })) || [];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-[1100px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight font-heading">Inventory</h1>
-          <p className="text-sm text-muted-foreground">Manage all your advertising sites and view their current statuses.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Inventory</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage all your advertising sites</p>
         </div>
         <Link 
           href="/inventory/add"
-          className="h-10 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center justify-center transition-colors"
+          className="h-10 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
         >
-          Add New Site
+          <Plus className="h-4 w-4" />
+          Add Site
         </Link>
       </div>
       <InventoryClient initialInventory={inventory} />

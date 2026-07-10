@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@/backend/db/server";
-import { Monitor, Columns3, RectangleHorizontal } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -40,7 +39,6 @@ export default async function DashboardPage() {
     const { cities: mediaCities, ...rest } = mediaMap[name];
     return {
       name,
-      icon: name.includes('Digital') ? <Monitor className="h-6 w-6 text-primary" /> : name.includes('Kiosk') ? <Columns3 className="h-6 w-6 text-violet-500" /> : <RectangleHorizontal className="h-6 w-6 text-slate-500" />,
       cities: Array.from(mediaCities),
       ...rest
     };
@@ -53,54 +51,96 @@ export default async function DashboardPage() {
   const occupancy = totalSites > 0 ? Math.round((totalBooked / totalSites) * 100) : 0;
 
   return (
-    <div className="space-y-6 max-w-6xl">
-      {/* KPI Row */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        <KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} color="#0f172a" />
-        <KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} color="#10b981" />
-        <KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" color="#f59e0b" />
-        <KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" color="#ef4444" />
-        <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" color="#7c3aed" />
+    <div className="space-y-8 max-w-[1100px]">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Overview</h1>
+        <p className="text-sm text-gray-500 mt-1">Key performance metrics and inventory summary</p>
       </div>
 
-      {/* City Breakdown */}
-      <div>
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">City Breakdown</h2>
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {cities.map((city) => (
-            <div key={city.name} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-gray-900">{city.name}</h3>
-                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{city.total}</span>
-              </div>
-              <div className="space-y-3">
-                <BarRow label="Avail" value={city.avail} max={city.total} color="#10b981" />
-                <BarRow label="Blocked" value={city.blocked} max={city.total} color="#f59e0b" />
-                <BarRow label="Booked" value={city.booked} max={city.total} color="#ef4444" />
-              </div>
-            </div>
-          ))}
+      {/* KPI Row */}
+      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} accent="indigo" />
+        <KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} accent="emerald" />
+        <KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" accent="amber" />
+        <KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" accent="rose" />
+        <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" accent="violet" />
+      </div>
+
+      {/* Status Distribution - Horizontal Bar */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Status Distribution</h2>
+        <div className="flex rounded-full overflow-hidden h-3 bg-gray-100">
+          {totalAvail > 0 && <div className="bg-emerald-500 transition-all" style={{ width: `${(totalAvail/totalSites)*100}%` }} />}
+          {totalBooked > 0 && <div className="bg-indigo-500 transition-all" style={{ width: `${(totalBooked/totalSites)*100}%` }} />}
+          {totalBlocked > 0 && <div className="bg-amber-400 transition-all" style={{ width: `${(totalBlocked/totalSites)*100}%` }} />}
         </div>
+        <div className="flex gap-6 mt-3">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Available: {totalAvail}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Booked: {totalBooked}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> Blocked: {totalBlocked}
+          </div>
+        </div>
+      </div>
+
+      {/* Cities Table */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-gray-900">Cities</h2>
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">City</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Sites</th>
+              <th className="px-6 py-3 w-8"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {cities.map((city) => (
+              <tr key={city.name} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-6 py-4 font-medium text-gray-900">{city.name}</td>
+                <td className="px-6 py-4">
+                  <div className="flex h-2.5 rounded-full overflow-hidden bg-gray-100 w-40">
+                    {city.avail > 0 && <div className="bg-emerald-500" style={{ width: `${(city.avail/city.total)*100}%` }} />}
+                    {city.booked > 0 && <div className="bg-indigo-500" style={{ width: `${(city.booked/city.total)*100}%` }} />}
+                    {city.blocked > 0 && <div className="bg-amber-400" style={{ width: `${(city.blocked/city.total)*100}%` }} />}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-right font-semibold text-gray-700">{city.total}</td>
+                <td className="px-6 py-4 text-gray-400">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Media Types */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Media Types</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Media Types</h2>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {mediaTypes.map((mt) => (
-            <div key={mt.name} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
+            <div key={mt.name} className="bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-200 transition-colors">
+              <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">{mt.name}</h3>
-                  <div className="flex gap-1.5 mt-1.5">
+                  <h3 className="text-[15px] font-semibold text-gray-900">{mt.name}</h3>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
                     {mt.cities.map((c) => (
-                      <span key={c} className="text-[11px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{c}</span>
+                      <span key={c} className="text-[11px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md">{c}</span>
                     ))}
                   </div>
                 </div>
-                <span>{mt.icon}</span>
+                <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{mt.total}</span>
               </div>
-              <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-5 mt-4 pt-3 border-t border-gray-100">
                 <div className="text-center">
                   <div className="text-lg font-bold text-emerald-600">{mt.avail}</div>
                   <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Avail</div>
@@ -110,7 +150,7 @@ export default async function DashboardPage() {
                   <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Blocked</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-red-500">{mt.booked}</div>
+                  <div className="text-lg font-bold text-rose-500">{mt.booked}</div>
                   <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Booked</div>
                 </div>
               </div>
@@ -122,25 +162,22 @@ export default async function DashboardPage() {
   );
 }
 
-function KpiCard({ label, value, sub, color }: { label: string; value: string | number; sub: string; color: string }) {
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-      <p className="text-[11px] text-gray-500 uppercase font-semibold tracking-wider">{label}</p>
-      <p className="text-3xl font-bold mt-1" style={{ color }}>{value}</p>
-      <p className="text-xs text-gray-400 mt-1">{sub}</p>
-    </div>
-  );
-}
+function KpiCard({ label, value, sub, accent }: { label: string; value: string | number; sub: string; accent: string }) {
+  const colorMap: Record<string, { text: string; bg: string; line: string }> = {
+    indigo: { text: 'text-indigo-700', bg: 'bg-indigo-50', line: 'bg-indigo-500' },
+    emerald: { text: 'text-emerald-700', bg: 'bg-emerald-50', line: 'bg-emerald-500' },
+    amber: { text: 'text-amber-700', bg: 'bg-amber-50', line: 'bg-amber-500' },
+    rose: { text: 'text-rose-700', bg: 'bg-rose-50', line: 'bg-rose-500' },
+    violet: { text: 'text-violet-700', bg: 'bg-violet-50', line: 'bg-violet-500' },
+  };
+  const c = colorMap[accent] || colorMap.indigo;
 
-function BarRow({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
-  const pct = Math.round((value / max) * 100);
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-500 w-14">{label}</span>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
-      </div>
-      <span className="text-xs font-semibold text-gray-700 w-5 text-right">{value}</span>
+    <div className="bg-white rounded-xl border border-gray-200 p-5 relative overflow-hidden">
+      <div className={`absolute top-0 left-0 right-0 h-1 ${c.line}`} />
+      <p className="text-[11px] text-gray-500 uppercase font-semibold tracking-wider">{label}</p>
+      <p className={`text-3xl font-bold mt-1.5 ${c.text}`}>{value}</p>
+      <p className="text-xs text-gray-400 mt-1">{sub}</p>
     </div>
   );
 }

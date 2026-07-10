@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { MoreHorizontal, Trash2, CheckCircle, Ban, AlertCircle, ExternalLink, Pencil } from "lucide-react";
+import { MoreHorizontal, Trash2, CheckCircle, Ban, AlertCircle, ExternalLink, Pencil, Eye } from "lucide-react";
 import { deleteSite, updateSiteStatus } from "@/backend/actions/actions";
 import Link from "next/link";
 
@@ -31,12 +31,14 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
     }
   };
 
+  const menuItemClass = "w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center transition-colors";
+
   return (
     <div className="relative">
       <button 
         disabled={isPending}
         onClick={() => setIsOpen(!isOpen)}
-        className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors disabled:opacity-50"
+        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
       >
         <MoreHorizontal className="h-5 w-5" />
       </button>
@@ -44,65 +46,67 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border shadow-lg rounded-md z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95">
+          <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 shadow-lg rounded-xl z-50 overflow-hidden py-1.5">
             
             <Link 
               href={`/inventory/${uuid}/view`}
-              className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+              className={menuItemClass}
             >
-              <ExternalLink className="mr-2 h-4 w-4 text-emerald-600" /> View Details
+              <Eye className="mr-2.5 h-4 w-4 text-indigo-500" /> View Details
             </Link>
 
             <Link 
               href={`/inventory/${uuid}`}
-              className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+              className={menuItemClass}
             >
-              <Pencil className="mr-2 h-4 w-4 text-blue-600" /> Edit Details
+              <Pencil className="mr-2.5 h-4 w-4 text-blue-500" /> Edit Details
             </Link>
 
             <Link 
               href={`/catalog/${uuid}`}
               target="_blank"
               onClick={() => setIsOpen(false)}
-              className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+              className={menuItemClass}
             >
-              <ExternalLink className="mr-2 h-4 w-4 text-blue-500" /> View Live
+              <ExternalLink className="mr-2.5 h-4 w-4 text-gray-400" /> View Live
             </Link>
+
+            <div className="h-px bg-gray-100 my-1" />
 
             {currentStatus !== "Available" && (
               <button 
                 onClick={() => handleStatusChange("Available")}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+                className={menuItemClass}
               >
-                <CheckCircle className="mr-2 h-4 w-4 text-emerald-500" /> Mark Available
+                <CheckCircle className="mr-2.5 h-4 w-4 text-emerald-500" /> Mark Available
               </button>
             )}
             
             {currentStatus !== "Booked" && (
               <button 
                 onClick={() => handleStatusChange("Booked")}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+                className={menuItemClass}
               >
-                <AlertCircle className="mr-2 h-4 w-4 text-red-500" /> Mark Booked
+                <AlertCircle className="mr-2.5 h-4 w-4 text-rose-500" /> Mark Booked
               </button>
             )}
 
             {currentStatus !== "Blocked" && (
               <button 
                 onClick={() => handleStatusChange("Blocked")}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center"
+                className={menuItemClass}
               >
-                <Ban className="mr-2 h-4 w-4 text-amber-500" /> Mark Blocked
+                <Ban className="mr-2.5 h-4 w-4 text-amber-500" /> Mark Blocked
               </button>
             )}
 
-            <div className="h-px bg-border my-1" />
+            <div className="h-px bg-gray-100 my-1" />
 
             <button 
               onClick={handleDelete}
-              className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 flex items-center"
+              className="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 flex items-center transition-colors"
             >
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Site
+              <Trash2 className="mr-2.5 h-4 w-4" /> Delete Site
             </button>
           </div>
         </>

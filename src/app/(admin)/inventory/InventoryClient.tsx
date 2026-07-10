@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Filter, ArrowUpDown } from "lucide-react";
+import { Search } from "lucide-react";
 import SiteActions from "./SiteActions";
 
 type SiteItem = {
@@ -64,33 +64,43 @@ export default function InventoryClient({ initialInventory }: { initialInventory
   }, [initialInventory, search, statusFilter, activeTab, activeSubTab]);
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
-      {/* Tabs */}
-      <div className="flex border-b border-border">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
+      {/* Main Tabs */}
+      <div className="flex border-b border-gray-200">
         <button 
           onClick={() => { setActiveTab("normal"); setActiveSubTab("All"); }} 
-          className={`flex-1 py-3 text-sm font-semibold transition-colors ${activeTab === 'normal' ? 'bg-background border-b-2 border-primary text-primary' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+          className={`px-6 py-3.5 text-sm font-semibold transition-all relative ${
+            activeTab === 'normal' 
+              ? 'text-indigo-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
           Normal Hoardings
+          {activeTab === 'normal' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t" />}
         </button>
         <button 
           onClick={() => { setActiveTab("metro"); setActiveSubTab("All"); }} 
-          className={`flex-1 py-3 text-sm font-semibold transition-colors ${activeTab === 'metro' ? 'bg-background border-b-2 border-primary text-primary' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+          className={`px-6 py-3.5 text-sm font-semibold transition-all relative ${
+            activeTab === 'metro' 
+              ? 'text-indigo-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
-          Metro Stations / Pillars
+          Metro Stations &amp; Pillars
+          {activeTab === 'metro' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t" />}
         </button>
       </div>
 
       {/* Sub Tabs */}
-      <div className="bg-muted/30 border-b border-border p-3 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
+      <div className="bg-gray-50/60 border-b border-gray-200 px-4 py-3 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
         {subTabs.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveSubTab(tab)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
               activeSubTab === tab 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'bg-background text-muted-foreground border border-border hover:bg-muted/80'
+                ? 'bg-indigo-600 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-200 hover:text-indigo-600'
             }`}
           >
             {tab === "Metro Pillar Signages CURRENT" ? "Metro Pillar Signages Current" : tab}
@@ -99,28 +109,32 @@ export default function InventoryClient({ initialInventory }: { initialInventory
       </div>
 
       {/* Toolbar */}
-      <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-background">
+      <div className="px-5 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-3 justify-between items-center bg-white">
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search by name, city, area..." 
+            placeholder="Search by name or ID" 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full h-9 pl-10 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 appearance-none pr-8 cursor-pointer"
+            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
           >
-            <option value="All">All Statuses</option>
+            <option value="All">Status: All</option>
             <option value="Available">Available</option>
             <option value="Booked">Booked</option>
             <option value="Blocked">Blocked</option>
           </select>
+          <span className="text-xs text-gray-500 hidden sm:block">
+            {filteredSites.length} site{filteredSites.length !== 1 ? 's' : ''}
+          </span>
         </div>
       </div>
 
@@ -128,50 +142,50 @@ export default function InventoryClient({ initialInventory }: { initialInventory
       <div className="overflow-x-auto min-h-[400px]">
         {activeTab === "normal" ? (
           <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 border-b border-border text-muted-foreground">
+            <thead className="bg-gray-50/80 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Sr. No</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">City</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap min-w-[200px]">Hoarding Location</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">LIT/ N.LIT</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Media</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Size (WxH)</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Qty.</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Total Sq. ft.</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Region</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Rational</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Net Rate</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">DCPM</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Agency Rate</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 font-medium text-right whitespace-nowrap sticky right-0 bg-muted/50">Actions</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Sr.</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">City</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Hoarding Location</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">LIT/ N.LIT</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Size (WxH)</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Qty.</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Total Sq. ft.</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Region</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rational</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Net Rate</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DCPM</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-gray-50/80"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-gray-100">
               {filteredSites.length === 0 ? (
-                <tr><td colSpan={16} className="px-6 py-8 text-center text-muted-foreground">No sites found.</td></tr>
+                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 filteredSites.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 whitespace-nowrap">{index + 1}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.city}</td>
-                    <td className="px-4 py-3 whitespace-nowrap font-medium text-foreground min-w-[200px]">{item.name}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.lit_type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.size}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.qty}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.total_sq_ft}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.area}</td>
-                    <td className="px-4 py-3 whitespace-nowrap max-w-[150px] truncate" title={item.rationale}>{item.rationale || '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${item.statusColor}`}>
+                  <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{index + 1}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.city}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.qty}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.total_sq_ft}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.area}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap max-w-[150px] truncate text-gray-600" title={item.rationale}>{item.rationale || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${item.statusColor}`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-background border-l border-border/50 shadow-sm">
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white border-l border-gray-100">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
                   </tr>
@@ -181,50 +195,50 @@ export default function InventoryClient({ initialInventory }: { initialInventory
           </table>
         ) : (
           <table className="w-full text-sm text-left">
-            <thead className="bg-indigo-50/50 border-b border-border text-muted-foreground">
+            <thead className="bg-indigo-50/40 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Sr. No</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Line</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap min-w-[200px]">Locations</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">TYPE</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Media</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">DESIGN SIZE WXH</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">From Pillars To Pillars</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">No's of Pillars</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">No's of Display Back To Back</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Total sq ft</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Rate per Pillars (NET)</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Rate per Pillars (DCPM)</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Agency Rate</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 font-medium text-right whitespace-nowrap sticky right-0 bg-indigo-50/50">Actions</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Sr.</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Line</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Locations</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">TYPE</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DESIGN SIZE WXH</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">From Pillars To Pillars</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">No&apos;s of Pillars</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">No&apos;s of Display Back To Back</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Total sq ft</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (NET)</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (DCPM)</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-indigo-50/40"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-gray-100">
               {filteredSites.length === 0 ? (
-                <tr><td colSpan={15} className="px-6 py-8 text-center text-muted-foreground">No sites found.</td></tr>
+                <tr><td colSpan={15} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 filteredSites.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 whitespace-nowrap">{index + 1}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.metro_line || '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap font-medium text-foreground min-w-[200px]">{item.name}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.lit_type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.type}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.size}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.metro_pillars || '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.no_of_pillars || '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.no_of_displays || '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.total_sq_ft}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${item.statusColor}`}>
+                  <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{index + 1}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.metro_line || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.metro_pillars || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.no_of_pillars || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.no_of_displays || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.total_sq_ft}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${item.statusColor}`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-background border-l border-border/50 shadow-sm">
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white border-l border-gray-100">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
                   </tr>

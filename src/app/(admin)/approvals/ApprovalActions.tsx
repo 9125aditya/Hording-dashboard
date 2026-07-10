@@ -26,14 +26,14 @@ export default function ApprovalActions({ requestId }: { requestId: string }) {
       <button 
         disabled={isPending}
         onClick={handleApprove}
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 h-8 px-3 py-1"
+        className="inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 h-9 px-4"
       >
         <Check className="mr-1.5 h-3.5 w-3.5" /> Approve
       </button>
       <button 
         disabled={isPending}
         onClick={handleReject}
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-red-100 text-red-700 hover:bg-red-200 h-8 px-3 py-1"
+        className="inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 h-9 px-4"
       >
         <X className="mr-1.5 h-3.5 w-3.5" /> Reject
       </button>

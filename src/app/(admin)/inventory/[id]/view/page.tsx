@@ -1,7 +1,7 @@
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Tag, Info, Ruler, Zap, User, DollarSign, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Info, Ruler, Zap, DollarSign } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,75 +22,71 @@ export default async function ViewSiteDetailsPage({ params }: { params: { id: st
     notFound();
   }
 
-  const renderSection = (title: string, icon: React.ReactNode, children: React.ReactNode) => (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-      <h3 className="text-lg font-bold text-gray-900 flex items-center mb-4">
-        {icon}
-        <span className="ml-2">{title}</span>
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {children}
-      </div>
-    </div>
-  );
-
   const renderField = (label: string, value: any) => (
     <div>
-      <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
-      <p className="text-base text-gray-900 font-medium bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{label}</p>
+      <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-100">
         {value || <span className="text-gray-400 italic">Not specified</span>}
       </p>
     </div>
   );
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pb-20">
+    <div className="max-w-[900px] mx-auto space-y-6 pb-20">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/inventory" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          <Link href="/inventory" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-gray-500" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">{site.name}</h1>
-            <p className="text-sm text-gray-500">Site ID: {site.site_id}</p>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900">{site.name}</h1>
+            <p className="text-xs text-gray-500 font-mono mt-0.5">{site.site_id}</p>
           </div>
         </div>
-        <div>
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
-            site.status === 'Available' ? 'bg-emerald-100 text-emerald-800' :
-            site.status === 'Booked' ? 'bg-red-100 text-red-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
-            {site.status}
-          </span>
-        </div>
+        <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${
+          site.status === 'Available' ? 'bg-emerald-100 text-emerald-700' :
+          site.status === 'Booked' ? 'bg-rose-100 text-rose-700' :
+          'bg-amber-100 text-amber-700'
+        }`}>
+          {site.status}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        
+      {/* Sections */}
+      <div className="space-y-5">
         {/* Basic Info */}
-        {renderSection("Basic Information", <Info className="w-5 h-5 text-blue-500" />, (
-          <>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+            <Info className="w-4 h-4 text-indigo-500" /> Basic Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderField("Site Name", site.name)}
             {renderField("Type", site.type)}
             {renderField("Lit Type", site.lit_type)}
             {renderField("Is Metro?", site.is_metro ? "Yes" : "No")}
-          </>
-        ))}
+          </div>
+        </div>
 
-        {/* Location Info */}
-        {renderSection("Location Details", <MapPin className="w-5 h-5 text-red-500" />, (
-          <>
+        {/* Location */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+            <MapPin className="w-4 h-4 text-rose-500" /> Location Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderField("City", site.city)}
             {renderField("Area / Region", site.area)}
             {renderField("Address", site.address)}
             {renderField("Coordinates", site.lat && site.lng ? `${site.lat}, ${site.lng}` : null)}
-          </>
-        ))}
+          </div>
+        </div>
 
         {/* Metrics */}
-        {renderSection("Metrics & Dimensions", <Ruler className="w-5 h-5 text-amber-500" />, (
-          <>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+            <Ruler className="w-4 h-4 text-amber-500" /> Metrics &amp; Dimensions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderField("Size (WxH)", site.size)}
             {renderField("Quantity", site.qty)}
             {renderField("Total Sq Ft", site.total_sq_ft)}
@@ -103,30 +99,36 @@ export default async function ViewSiteDetailsPage({ params }: { params: { id: st
                 {renderField("No. of Displays", site.no_of_displays)}
               </>
             )}
-          </>
-        ))}
+          </div>
+        </div>
 
         {/* Electricity */}
-        {renderSection("Electricity", <Zap className="w-5 h-5 text-yellow-500" />, (
-          <>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+            <Zap className="w-4 h-4 text-yellow-500" /> Electricity
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderField("Consumer No.", site.electricity_consumer_no)}
             {renderField("Consumer Name", site.electricity_consumer_name)}
             {renderField("Bill Date", site.electricity_bill_date)}
             {renderField("Due Date", site.electricity_due_date)}
-          </>
-        ))}
+          </div>
+        </div>
 
-        {/* Financials & Ownership */}
-        {renderSection("Financials & Landlord", <DollarSign className="w-5 h-5 text-emerald-500" />, (
-          <>
+        {/* Financials */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+            <DollarSign className="w-4 h-4 text-emerald-500" /> Financials &amp; Landlord
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderField("Landlord Name", site.landlord)}
             {renderField("Landlord Contact", site.landlord_contact)}
             {renderField("Rent Amount", site.rent ? `₹${site.rent}` : null)}
             {renderField("Net Rate", site.net_rate ? `₹${site.net_rate}` : null)}
             {renderField("DCPM Rate", site.dcpm_rate ? `₹${site.dcpm_rate}` : null)}
             {renderField("Agency Rate", site.agency_rate ? `₹${site.agency_rate}` : null)}
-          </>
-        ))}
+          </div>
+        </div>
       </div>
     </div>
   );

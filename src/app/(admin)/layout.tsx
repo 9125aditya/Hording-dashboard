@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
@@ -22,102 +22,101 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   const isSuperAdmin = role === 'super_admin';
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const userInitial = (user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A').toUpperCase();
+
+  const navLinkClass = "flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700";
+
   return (
-    <div className="admin-theme min-h-full flex w-full" style={{ backgroundColor: 'var(--background)' }}>
-      {/* Dark Sidebar */}
-      <aside className="w-60 hidden md:flex flex-col" style={{ backgroundColor: '#1e2a3a' }}>
-        <div className="px-5 py-6">
+    <div className="min-h-full flex w-full bg-gray-50/80">
+      {/* Light Sidebar */}
+      <aside className="w-[220px] hidden md:flex flex-col bg-white border-r border-gray-200 fixed inset-y-0 left-0 z-40">
+        <div className="px-5 pt-6 pb-5">
           <Link href="/dashboard" className="flex items-center">
-            <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
+            <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain" />
           </Link>
         </div>
 
-        <div className="px-3 mb-2">
-          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Main</p>
-        </div>
-
-        <nav className="flex-1 px-3 space-y-1">
-          <Link href="/dashboard" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <LayoutDashboard className="mr-3 h-4 w-4" />
+        <nav className="flex-1 px-3 space-y-0.5">
+          <Link href="/dashboard" className={navLinkClass}>
+            <LayoutDashboard className="mr-3 h-[18px] w-[18px]" />
             Dashboard
           </Link>
-          <Link href="/inventory" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <Map className="mr-3 h-4 w-4" />
+          <Link href="/inventory" className={navLinkClass}>
+            <MapPin className="mr-3 h-[18px] w-[18px]" />
             Inventory
           </Link>
-          <Link href="/admin-map" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <Map className="mr-3 h-4 w-4" />
+          <Link href="/admin-map" className={navLinkClass}>
+            <Map className="mr-3 h-[18px] w-[18px]" />
             Map View
           </Link>
           {isSuperAdmin && (
-            <Link href="/approvals" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-              <CheckCircle className="mr-3 h-4 w-4" />
+            <Link href="/approvals" className={navLinkClass}>
+              <CheckCircle className="mr-3 h-[18px] w-[18px]" />
               Approvals
             </Link>
           )}
-          <Link href="/enquiries" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <MessageSquare className="mr-3 h-4 w-4" />
+          <Link href="/enquiries" className={navLinkClass}>
+            <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
           </Link>
           {isSuperAdmin && (
             <>
-              <Link href="/permissions" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Shield className="mr-3 h-4 w-4" />
+              <Link href="/permissions" className={navLinkClass}>
+                <Shield className="mr-3 h-[18px] w-[18px]" />
                 Access Control
               </Link>
-              <Link href="/staff" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Users className="mr-3 h-4 w-4" />
+              <Link href="/staff" className={navLinkClass}>
+                <Users className="mr-3 h-[18px] w-[18px]" />
                 Staff
               </Link>
             </>
           )}
         </nav>
 
-        <div className="px-3 mt-4 mb-2">
-          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Public</p>
-        </div>
-        <nav className="px-3 mb-auto">
-          <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-            <ExternalLink className="mr-3 h-4 w-4" />
+        <div className="px-3 mb-2">
+          <Link href="/" target="_blank" className={navLinkClass}>
+            <ExternalLink className="mr-3 h-[18px] w-[18px]" />
             View Live Site
           </Link>
-        </nav>
+        </div>
 
-        <div className="p-3 mt-4">
+        <div className="px-3 mb-2">
           <form action={logout}>
-            <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg w-full transition-colors hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-              <LogOut className="mr-3 h-4 w-4" />
+            <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full transition-all duration-200 text-slate-500 hover:bg-red-50 hover:text-red-600">
+              <LogOut className="mr-3 h-[18px] w-[18px]" />
               Sign Out
             </button>
           </form>
         </div>
 
-        {/* Date at bottom */}
-        <div className="px-5 pb-4">
-          <p className="text-xs" style={{ color: '#5a6b7f' }}>
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
-          </p>
+        {/* User Profile at bottom */}
+        <div className="px-4 py-4 border-t border-gray-100 mt-auto">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
+              {userInitial}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
+              <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
+            </div>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 md:ml-[220px]">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 md:px-6 justify-between sticky top-0 z-30">
           <div className="flex items-center">
             <AdminMobileMenu isSuperAdmin={isSuperAdmin} />
           </div>
-          <div className="flex items-center gap-4">
-            {/* Company Logo */}
-            <div className="mr-2 hidden sm:block border-r pr-4 border-gray-200">
-               <img src="/logo.png" alt="SellAds & Truesign Media" className="h-8 w-auto object-contain" />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex flex-col items-end mr-1">
+              <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
+              <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
             </div>
-            
-            <div className="flex flex-col items-end mr-2">
-              <span className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</span>
-              <span className="text-[10px] uppercase text-muted-foreground mt-1 tracking-wider">{role.replace('_', ' ')}</span>
-            </div>
-            <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-xs uppercase">
-              {(user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A')}
+            <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
+              {userInitial}
             </div>
           </div>
         </header>

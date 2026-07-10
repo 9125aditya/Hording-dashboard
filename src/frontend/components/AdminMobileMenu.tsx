@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, Clock, LogOut, X, Menu, ExternalLink, CheckCircle, Shield } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, LogOut, X, Menu, ExternalLink, CheckCircle, Shield, Users, MapPin } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
@@ -19,6 +19,8 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
     };
   }, [isOpen]);
 
+  const navLinkClass = "flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700";
+
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="md:hidden mr-4 text-gray-500 hover:text-gray-900" aria-label="Open sidebar">
@@ -28,77 +30,63 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
       {isOpen && (
         <div className="fixed inset-0 z-[100] md:hidden">
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50 animate-in fade-in duration-200" onClick={() => setIsOpen(false)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsOpen(false)} />
           
           {/* Drawer */}
           <div
-            className="absolute inset-y-0 left-0 w-64 flex flex-col animate-in slide-in-from-left-full duration-300"
-            style={{ backgroundColor: '#1e2a3a' }}
+            className="absolute inset-y-0 left-0 w-[260px] flex flex-col bg-white shadow-2xl animate-in slide-in-from-left-full duration-300"
           >
-            <div className="px-5 py-6 flex items-center justify-between">
+            <div className="px-5 py-5 flex items-center justify-between border-b border-gray-100">
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center">
-                <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
+                <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain" />
               </Link>
-              <button onClick={() => setIsOpen(false)} className="p-1.5 rounded text-gray-400 hover:text-white">
+              <button onClick={() => setIsOpen(false)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="px-3 mb-2">
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Main</p>
-            </div>
-
-            <nav className="flex-1 px-3 space-y-1">
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <LayoutDashboard className="mr-3 h-4 w-4" /> Dashboard
+            <nav className="flex-1 px-3 py-3 space-y-0.5">
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <LayoutDashboard className="mr-3 h-[18px] w-[18px]" /> Dashboard
               </Link>
-              <Link href="/inventory" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Map className="mr-3 h-4 w-4" /> Inventory
+              <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <MapPin className="mr-3 h-[18px] w-[18px]" /> Inventory
               </Link>
-              <Link href="/admin-map" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Map className="mr-3 h-4 w-4" /> Map View
+              <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <Map className="mr-3 h-[18px] w-[18px]" /> Map View
               </Link>
               {isSuperAdmin && (
-                <Link href="/approvals" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                  <CheckCircle className="mr-3 h-4 w-4" /> Approvals
+                <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                  <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Approvals
                 </Link>
               )}
-              <Link href="/enquiries" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <Clock className="mr-3 h-4 w-4" /> Enquiries
+              <Link href="/enquiries" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <MessageSquare className="mr-3 h-[18px] w-[18px]" /> Enquiries
               </Link>
               {isSuperAdmin && (
                 <>
-                  <Link href="/permissions" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                    <Shield className="mr-3 h-4 w-4" /> Access Control
+                  <Link href="/permissions" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                    <Shield className="mr-3 h-[18px] w-[18px]" /> Access Control
                   </Link>
-                  <Link href="/staff" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                    <Clock className="mr-3 h-4 w-4" /> Staff
+                  <Link href="/staff" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                    <Users className="mr-3 h-[18px] w-[18px]" /> Staff
                   </Link>
                 </>
               )}
             </nav>
 
-            <div className="px-3 mt-4 mb-2">
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#5a6b7f' }}>Public</p>
-            </div>
-            <nav className="px-3 mb-auto">
-              <Link href="/" target="_blank" onClick={() => setIsOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                <ExternalLink className="mr-3 h-4 w-4" /> View Live Site
+            <div className="px-3 mb-2">
+              <Link href="/" target="_blank" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <ExternalLink className="mr-3 h-[18px] w-[18px]" /> View Live Site
               </Link>
-            </nav>
+            </div>
 
-            <div className="p-3 mt-4">
+            <div className="p-3 border-t border-gray-100">
               <form action={logout}>
-                <button type="submit" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg w-full hover:bg-white/5" style={{ color: '#8a9bb0' }}>
-                  <LogOut className="mr-3 h-4 w-4" /> Sign Out
+                <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                  <LogOut className="mr-3 h-[18px] w-[18px]" /> Sign Out
                 </button>
               </form>
-            </div>
-
-            <div className="px-5 pb-4">
-              <p className="text-xs" style={{ color: '#5a6b7f' }}>
-                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
-              </p>
             </div>
           </div>
         </div>
