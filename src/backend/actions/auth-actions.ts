@@ -85,3 +85,29 @@ export async function logout() {
   await supabase.auth.signOut();
   redirect("/");
 }
+
+export async function updateProfile(name: string) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Update profile in database
+  const { error } = await supabase
+    .from('profiles')
+    .update({ name })
+    .eq('id', user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+  
+  // Try to update auth metadata too (best effort)
+  await supabase.auth.updateUser({
+    data: { full_name: name }
+  });
+
+  return { success: true };
+}

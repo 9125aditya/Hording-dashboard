@@ -89,16 +89,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         {/* User Profile at bottom */}
-        <div className="px-4 py-4 border-t border-gray-100 mt-auto">
-          <div className="flex items-center gap-3">
+        <div className="px-4 py-4 border-t border-gray-100 mt-auto hover:bg-gray-50 transition-colors">
+          <Link href="/profile" className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
               {userInitial}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
+              <p className="text-sm font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{userName}</p>
               <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
             </div>
-          </div>
+          </Link>
         </div>
       </aside>
 
@@ -108,7 +108,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex items-center">
             <AdminMobileMenu isSuperAdmin={isSuperAdmin} />
           </div>
-          <div className="flex items-center gap-3">
+          <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="hidden sm:flex flex-col items-end mr-1">
               <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
               <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
@@ -116,7 +116,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
               {userInitial}
             </div>
-          </div>
+          </Link>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
           {children}
