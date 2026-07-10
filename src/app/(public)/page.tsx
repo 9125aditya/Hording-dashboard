@@ -3,7 +3,7 @@ import { MapPin, Megaphone, Globe, Calendar, ArrowRight } from "lucide-react";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 
 export default function PublicHomePage() {
-  const clients = ["Skyline Group", "Vogue Mart", "Freshly", "MotoEdge", "BrightPath", "CareWell", "Urban Nest", "Threadworks", "Velocity Auto", "EduForge", "Pulsecare", "DailyDrop"];
+  const clients = ["Suzuki", "TVS", "Punjab National Bank", "ESAF Bank", "Kalpataru", "Godrej Properties", "Krims Hospital", "HCG Hospital", "UltraTech Cement", "Ambuja Cement", "PNG Jewellers", "Tanishq Jewellers", "Polycab Wires", "Blinkit", "IGM", "SDPL", "Priyadarshini", "Aakash Institute", "Allen"];
 
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb]">
