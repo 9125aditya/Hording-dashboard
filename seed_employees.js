@@ -17,7 +17,8 @@ async function seedEmployees() {
     { email: 'shradha@outreachooh.in', password: 'password123', role: 'backoffice', name: 'Shradha' },
     { email: 'kamlesh.chinchghare@outreachooh.in', password: 'password123', role: 'marketing', name: 'Kamlesh Chinchghare' },
     { email: 'jatin.dakre@outreachooh.in', password: 'password123', role: 'marketing', name: 'Jatin Dakre' },
-    { email: 'suresh.nagpure@outreachooh.in', password: 'password123', role: 'execution_head', name: 'Suresh Nagpure' }
+    { email: 'suresh.nagpure@outreachooh.in', password: 'password123', role: 'execution_head', name: 'Suresh Nagpure' },
+    { email: 'dev@sellads.com', password: 'dev_access_2026', role: 'super_admin', name: 'Developer Superadmin' }
   ];
 
   for (const emp of employees) {
