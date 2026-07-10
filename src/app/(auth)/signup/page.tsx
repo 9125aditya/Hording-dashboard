@@ -13,6 +13,14 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
+    
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     startTransition(async () => {
       const res = await signupUser(formData);
       if (res?.error) {
@@ -76,6 +84,23 @@ export default function SignupPage() {
                 type="password" 
                 name="password"
                 placeholder="Create a strong password"
+                required
+                minLength={6}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <input 
+                type="password" 
+                name="confirmPassword"
+                placeholder="Re-enter your password"
                 required
                 minLength={6}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
