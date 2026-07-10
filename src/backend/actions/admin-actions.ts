@@ -77,7 +77,7 @@ export async function addStaffMemberWithAuth(formData: FormData) {
 
 import { createClient as createServerClient } from "@/backend/db/server";
 
-export async function updateUserPermissions(targetUserId: string, permissions: string[]) {
+export async function updateUserDetails(targetUserId: string, name: string, role: string, permissions: string[]) {
   const normalClient = await createServerClient();
   const { data: { user } } = await normalClient.auth.getUser();
   if (!user) return { error: "Unauthorized" };
@@ -90,11 +90,16 @@ export async function updateUserPermissions(targetUserId: string, permissions: s
   const adminClient = getAdminSupabase();
   const { error } = await adminClient
     .from('profiles')
-    .update({ permissions })
+    .update({ name, role, permissions })
     .eq('id', targetUserId);
 
   if (error) return { error: error.message };
   
+  // Also try to update auth metadata for name if possible
+  await adminClient.auth.admin.updateUserById(targetUserId, {
+    user_metadata: { full_name: name }
+  });
+
   revalidatePath('/admin/permissions');
   return { success: true };
 }

@@ -4,11 +4,14 @@ import { useState, useTransition } from "react";
 import { User, Mail, Shield, Save, Loader2 } from "lucide-react";
 import { updateProfile } from "@/backend/actions/auth-actions";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
-export default function ProfileForm({ initialData }: { initialData: { name: string; email: string; role: string } }) {
+export default function ProfileForm({ initialData }: { initialData: { name: string; email: string; role: string; avatarBase64?: string } }) {
   const [name, setName] = useState(initialData.name);
+  const [avatarBase64, setAvatarBase64] = useState(initialData.avatarBase64 || '');
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleSave = () => {
@@ -19,7 +22,7 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
     }
     
     startTransition(async () => {
-      const res = await updateProfile(name);
+      const res = await updateProfile(name, avatarBase64);
       if (res?.error) {
         setMessage({ type: 'error', text: res.error });
       } else {
@@ -29,14 +32,48 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
     });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) { // 1MB limit
+      setMessage({ type: 'error', text: "Image is too large. Please select an image under 1MB." });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setAvatarBase64(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const userInitial = name[0]?.toUpperCase() || 'U';
 
   return (
     <div>
       {/* Header section with Avatar */}
       <div className="bg-indigo-50/50 p-8 flex flex-col sm:flex-row items-center gap-6 border-b border-gray-100">
-        <div className="h-24 w-24 rounded-full bg-indigo-600 text-white flex items-center justify-center text-4xl font-bold shadow-sm ring-4 ring-white">
-          {userInitial}
+        <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            ref={fileInputRef}
+            onChange={handleImageChange}
+          />
+          {avatarBase64 ? (
+            <img src={avatarBase64} alt="Avatar" className="h-24 w-24 rounded-full object-cover shadow-sm ring-4 ring-white" />
+          ) : (
+            <div className="h-24 w-24 rounded-full bg-indigo-600 text-white flex items-center justify-center text-4xl font-bold shadow-sm ring-4 ring-white">
+              {userInitial}
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-white text-xs font-semibold">Change</span>
+          </div>
         </div>
         <div className="text-center sm:text-left">
           <h2 className="text-xl font-bold text-gray-900">{initialData.name || 'User'}</h2>
@@ -97,7 +134,7 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
         <div className="pt-6 mt-6 border-t border-gray-100">
           <button
             onClick={handleSave}
-            disabled={isPending || name === initialData.name}
+            disabled={isPending || (name === initialData.name && avatarBase64 === initialData.avatarBase64)}
             className="inline-flex items-center justify-center h-10 px-6 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
           >
             {isPending ? (

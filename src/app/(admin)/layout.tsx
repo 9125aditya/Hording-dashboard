@@ -24,6 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const isSuperAdmin = role === 'super_admin';
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
   const userInitial = (user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A').toUpperCase();
+  const avatarBase64 = user?.user_metadata?.avatar_base64 || null;
 
   return (
     <div className="min-h-full flex w-full bg-gray-50/80">
@@ -91,9 +92,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* User Profile at bottom */}
         <div className="px-4 py-4 border-t border-gray-100 mt-auto hover:bg-gray-50 transition-colors">
           <Link href="/profile" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
-              {userInitial}
-            </div>
+            {avatarBase64 ? (
+              <img src={avatarBase64} alt="Avatar" className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                {userInitial}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{userName}</p>
               <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
@@ -113,9 +118,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
               <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
             </div>
-            <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
-              {userInitial}
-            </div>
+            {avatarBase64 ? (
+              <img src={avatarBase64} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
+                {userInitial}
+              </div>
+            )}
           </Link>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto animate-in fade-in duration-300">

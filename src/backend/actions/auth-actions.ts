@@ -86,7 +86,7 @@ export async function logout() {
   redirect("/");
 }
 
-export async function updateProfile(name: string) {
+export async function updateProfile(name: string, avatarBase64?: string) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   
@@ -94,7 +94,7 @@ export async function updateProfile(name: string) {
     return { error: "Not authenticated" };
   }
 
-  // Update profile in database
+  // Update profile in database (name only for profiles table)
   const { error } = await supabase
     .from('profiles')
     .update({ name })
@@ -104,9 +104,14 @@ export async function updateProfile(name: string) {
     return { error: error.message };
   }
   
-  // Try to update auth metadata too (best effort)
+  // Update auth metadata (name and avatar)
+  const metadataUpdate: any = { full_name: name };
+  if (avatarBase64) {
+    metadataUpdate.avatar_base64 = avatarBase64;
+  }
+  
   await supabase.auth.updateUser({
-    data: { full_name: name }
+    data: metadataUpdate
   });
 
   return { success: true };

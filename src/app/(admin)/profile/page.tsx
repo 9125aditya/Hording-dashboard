@@ -20,6 +20,7 @@ export default async function ProfilePage() {
     name: profile?.name || user.user_metadata?.full_name || '',
     email: user.email || '',
     role: profile?.role || 'public',
+    avatarBase64: user.user_metadata?.avatar_base64 || '',
   };
 
   return (
