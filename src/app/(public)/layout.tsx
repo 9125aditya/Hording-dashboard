@@ -88,8 +88,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                 </a>
               </div>
               <div className="mt-8">
-                <Link href="/login" className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-blue-400/30 text-blue-200 font-bold text-[13px] hover:bg-white/10 hover:text-white transition-colors">
-                  Staff Login
+                <Link href="/login" className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#fab935] text-slate-900 font-bold text-[15px] hover:bg-[#f2a81d] transition-colors shadow-sm">
+                  Login
                 </Link>
               </div>
             </div>
