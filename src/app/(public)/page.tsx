@@ -18,12 +18,7 @@ export default function PublicHomePage() {
             
             {/* Left Content */}
             <div className="flex flex-col items-start max-w-2xl">
-              <AnimateOnScroll animation="fade-right" duration={700}>
-                <div className="inline-flex items-center rounded-xl border-2 border-slate-900 bg-white px-3 py-1 mb-8 text-[11px] font-bold text-slate-900">
-                  .outdoor advertising .ooh media
-                </div>
-              </AnimateOnScroll>
-              
+
               <AnimateOnScroll animation="fade-right" delay={100} duration={700}>
                 <h1 className="text-6xl sm:text-7xl lg:text-[5.5rem] font-black tracking-[-0.04em] leading-[1.05] mb-6">
                   <span className="text-slate-900 block">Your Brand.</span>
