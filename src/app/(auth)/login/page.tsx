@@ -2,13 +2,14 @@
 
 import { useTransition, useState } from "react";
 import { loginUser } from "@/backend/actions/auth-actions";
-import { Lock, UserCircle } from "lucide-react";
+import { Lock, UserCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [loginMode, setLoginMode] = useState<'client' | 'admin'>('client');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,12 +77,19 @@ export default function LoginPage() {
                 <Lock className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 required
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
           </div>
         </div>
