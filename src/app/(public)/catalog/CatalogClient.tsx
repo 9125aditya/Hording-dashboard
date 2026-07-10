@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight, MapPin, Maximize2, Search } from "lucide-react";
+import { ArrowRight, MapPin, Maximize2, Search, Loader2 } from "lucide-react";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
+import { useSearchParams } from "next/navigation";
 
-export default function CatalogClient({ sites }: { sites: any[] }) {
-  const [search, setSearch] = useState("");
+function CatalogFilters({ sites }: { sites: any[] }) {
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [activeArea, setActiveArea] = useState("All");
   const [activeType, setActiveType] = useState("All");
 
@@ -98,5 +100,13 @@ export default function CatalogClient({ sites }: { sites: any[] }) {
           )}
         </div>
     </>
+  );
+}
+
+export default function CatalogClient({ sites }: { sites: any[] }) {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <CatalogFilters sites={sites} />
+    </Suspense>
   );
 }

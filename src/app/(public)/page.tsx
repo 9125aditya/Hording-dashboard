@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, Megaphone, Globe, Calendar, ArrowRight } from "lucide-react";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
+import HomeSearchBar from "@/frontend/components/HomeSearchBar";
 
 export default function PublicHomePage() {
   const clients = ["Suzuki", "TVS", "Punjab National Bank", "ESAF Bank", "Kalptare", "Godrej Properties", "Krims Hospital", "HCG Hospital", "UltraTech Cement", "Ambuja Cement", "PNG Jewellers", "Tanishq Jewellers", "Polycab Wires", "Blinkit", "IGM", "SDPL", "Priyadarshini", "Aakash Institute", "Allen"];
@@ -37,20 +38,8 @@ export default function PublicHomePage() {
                 </p>
               </AnimateOnScroll>
               
-              <AnimateOnScroll animation="fade-up" delay={300} duration={700} className="w-full max-w-[480px]">
-                <div className="w-full bg-white rounded-xl p-1.5 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200">
-                  <div className="pl-4 pr-2 text-[#dd3333]">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="Search by area or city..." 
-                    className="flex-1 h-12 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-[15px] font-semibold"
-                  />
-                  <Link href="/catalog" className="h-12 px-8 bg-[#dd3333] hover:bg-[#c42c2c] text-white font-bold rounded-lg flex items-center transition-colors shadow-sm text-sm">
-                    Search
-                  </Link>
-                </div>
+              <AnimateOnScroll animation="fade-up" delay={300} duration={700} className="w-full">
+                <HomeSearchBar />
               </AnimateOnScroll>
             </div>
 
