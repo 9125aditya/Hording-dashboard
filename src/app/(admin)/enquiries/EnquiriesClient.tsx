@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2, Building } from "lucide-react";
 import { createClient } from "@/backend/db/client";
-import { updateEnquiryStatus } from "@/backend/actions/actions";
+import { updateEnquiryStatus, addEnquiryNote } from "@/backend/actions/actions";
 
 type Enquiry = {
   id: string;
@@ -50,15 +50,39 @@ export default function EnquiriesClient() {
   };
 
   const handleAddNote = () => {
-    if (!replyText.trim()) return;
-    alert("Internal note added successfully!");
-    setReplyText("");
+    if (!replyText.trim() || !selectedId) return;
+    const eq = enquiries.find(e => e.id === selectedId);
+    if (!eq) return;
+
+    startTransition(async () => {
+      const res = await addEnquiryNote(Number(selectedId), eq.message, replyText, false);
+      if (res.success) {
+        // Update local state by re-fetching or manually appending. 
+        // For simplicity, we manually append to the UI immediately.
+        const timestamp = new Date().toLocaleString('en-IN');
+        const updatedMsg = `${eq.message}\n\n[INTERNAL NOTE - ${timestamp}]\n${replyText}`;
+        setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg } : e));
+        setReplyText("");
+      }
+    });
   };
 
   const handleReply = () => {
-    if (!replyText.trim()) return;
-    alert("Reply sent to user via email!");
-    setReplyText("");
+    if (!replyText.trim() || !selectedId) return;
+    const eq = enquiries.find(e => e.id === selectedId);
+    if (!eq) return;
+
+    startTransition(async () => {
+      // Act as "Reply via Email" - saves as note and changes status to Contacted
+      const res = await addEnquiryNote(Number(selectedId), eq.message, replyText, true);
+      await updateEnquiryStatus(Number(selectedId), "Contacted");
+      if (res.success) {
+        const timestamp = new Date().toLocaleString('en-IN');
+        const updatedMsg = `${eq.message}\n\n[SENT REPLY - ${timestamp}]\n${replyText}`;
+        setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg, status: "Contacted" } : e));
+        setReplyText("");
+      }
+    });
   };
 
   useEffect(() => {

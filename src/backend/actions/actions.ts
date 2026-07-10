@@ -85,6 +85,24 @@ export async function updateEnquiryStatus(id: number, status: string) {
   return { success: true };
 }
 
+export async function addEnquiryNote(id: number, currentMessage: string, noteText: string, isReply: boolean = false) {
+  const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
+
+  const timestamp = new Date().toLocaleString('en-IN');
+  const prefix = isReply ? "SENT REPLY" : "INTERNAL NOTE";
+  const updatedMessage = `${currentMessage}\n\n[${prefix} - ${timestamp}]\n${noteText}`;
+
+  const { error } = await supabase
+    .from("enquiries")
+    .update({ message: updatedMessage })
+    .eq("id", id);
+    
+  if (error) return { error: error.message };
+  revalidatePath("/admin/enquiries");
+  return { success: true };
+}
+
 // ==========================================
 // ADMIN INVENTORY ACTIONS
 // ==========================================
