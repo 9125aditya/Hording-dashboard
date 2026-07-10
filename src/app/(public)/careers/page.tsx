@@ -1,8 +1,32 @@
+"use client";
+
 import Link from "next/link";
-import { Briefcase, Mail } from "lucide-react";
+import { Briefcase, Mail, Loader2 } from "lucide-react";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
+import { useState, useTransition } from "react";
+import { addApplication } from "@/backend/actions/actions";
 
 export default function CareersPage() {
+  const [isPending, startTransition] = useTransition();
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus("idle");
+    const formData = new FormData(e.currentTarget);
+    
+    startTransition(async () => {
+      const res = await addApplication(formData);
+      if (res?.error) {
+        setStatus("error");
+        setErrorMsg(res.error);
+      } else {
+        setStatus("success");
+        (e.target as HTMLFormElement).reset();
+      }
+    });
+  };
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb] min-h-screen">
       {/* Header Section */}
@@ -48,24 +72,24 @@ export default function CareersPage() {
               </div>
 
               {/* Form */}
-              <form className="space-y-7">
+              <form onSubmit={handleSubmit} className="space-y-7">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">FULL NAME *</label>
-                    <input required type="text" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
+                    <input name="fullName" required type="text" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">EMAIL *</label>
-                    <input required type="email" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
+                    <input name="email" required type="email" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">PHONE *</label>
-                    <input required type="tel" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
+                    <input name="phone" required type="tel" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">ROLE</label>
                     <div className="relative">
-                      <select className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none text-slate-800 font-medium text-sm pr-10">
+                      <select name="role" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none text-slate-800 font-medium text-sm pr-10">
                         <option>Sales Executive</option>
                         <option>Field Operations</option>
                         <option>Designer / Creative</option>
@@ -81,7 +105,7 @@ export default function CareersPage() {
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">EXPERIENCE</label>
                     <div className="relative">
-                      <select className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none text-slate-800 font-medium text-sm pr-10">
+                      <select name="experience" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none text-slate-800 font-medium text-sm pr-10">
                         <option>0-1 yrs</option>
                         <option>1-3 yrs</option>
                         <option>3-5 yrs</option>
@@ -94,18 +118,36 @@ export default function CareersPage() {
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">PORTFOLIO / RESUME URL</label>
-                    <input type="url" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
+                    <input name="portfolio" type="url" className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm font-medium" />
                   </div>
                 </div>
 
                 <div className="space-y-2.5 pt-2">
                   <label className="text-[11.5px] font-bold text-slate-600 tracking-wider uppercase">WHY DO YOU WANT TO JOIN?</label>
-                  <textarea rows={5} className="w-full p-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none text-sm font-medium"></textarea>
+                  <textarea name="whyJoin" rows={5} className="w-full p-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none text-sm font-medium"></textarea>
                 </div>
 
+                {status === "error" && (
+                  <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-xl text-sm">
+                    {errorMsg || "Failed to submit application. Please try again."}
+                  </div>
+                )}
+
+                {status === "success" && (
+                  <div className="p-4 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm font-medium text-center">
+                    Thank you! Your application has been received. We will contact you shortly.
+                  </div>
+                )}
+
                 <div className="pt-2">
-                  <button type="button" className="w-full h-14 bg-[#0047cc] hover:bg-[#003cb3] text-white font-bold rounded-xl text-[16px] transition-colors shadow-md shadow-blue-500/20">
-                    Send Application
+                  <button type="submit" disabled={isPending || status === "success"} className="w-full h-14 bg-[#0047cc] hover:bg-[#003cb3] disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center text-white font-bold rounded-xl text-[16px] transition-colors shadow-md shadow-blue-500/20">
+                    {isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
+                      </>
+                    ) : (
+                      "Send Application"
+                    )}
                   </button>
                 </div>
               </form>

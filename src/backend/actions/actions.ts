@@ -72,6 +72,34 @@ export async function addEnquiry(formData: FormData) {
   return { success: true };
 }
 
+export async function addApplication(formData: FormData) {
+  const name = formData.get("fullName") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const role = formData.get("role") as string;
+  const experience = formData.get("experience") as string;
+  const portfolio = formData.get("portfolio") as string;
+  const whyJoin = formData.get("whyJoin") as string;
+
+  const message = `[CAREER APPLICATION: ${role}]\nExperience: ${experience}\nPortfolio: ${portfolio}\n\nWhy they want to join:\n${whyJoin}`;
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("enquiries").insert([
+    {
+      name,
+      email,
+      company: "Career Application",
+      phone,
+      message,
+      status: "New"
+    }
+  ]);
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
 // ==========================================
 // ADMIN ENQUIRIES ACTIONS
 // ==========================================
