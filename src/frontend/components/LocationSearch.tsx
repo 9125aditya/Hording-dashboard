@@ -50,14 +50,18 @@ export default function LocationSearch({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isSelectedRef = useRef(false);
+
   useEffect(() => {
     if (!query || query.length < 3) {
       setResults([]);
       return;
     }
 
-    // Only search if the query doesn't match our selected address
-    if (query === address) return;
+    if (isSelectedRef.current) {
+      isSelectedRef.current = false;
+      return;
+    }
 
     const delayDebounceFn = setTimeout(async () => {
       setIsLoading(true);
@@ -81,9 +85,10 @@ export default function LocationSearch({
     }, 600);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query, address]);
+  }, [query]);
 
   const handleSelect = (item: SearchResult) => {
+    isSelectedRef.current = true;
     const extractedCity = item.address?.city || item.address?.state_district || "";
     
     setQuery(item.display_name);
