@@ -202,6 +202,7 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
                     );
                   })}
                 </div>
+              </div>
               
               {error && (
                 <div className="flex items-start gap-2 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
