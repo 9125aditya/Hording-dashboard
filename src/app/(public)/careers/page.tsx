@@ -67,9 +67,10 @@ export default function CareersPage() {
                     <div className="relative">
                       <select className="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-[#f8fafc] focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none text-slate-800 font-medium text-sm pr-10">
                         <option>Sales Executive</option>
-                        <option>Operations Manager</option>
-                        <option>Creative Designer</option>
-                        <option>Marketing Specialist</option>
+                        <option>Field Operations</option>
+                        <option>Designer / Creative</option>
+                        <option>Account Manager</option>
+                        <option>Internship</option>
                         <option>Other</option>
                       </select>
                       <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">

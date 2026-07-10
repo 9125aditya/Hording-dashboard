@@ -74,7 +74,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             {/* Brand Column */}
             <div className="col-span-1 md:col-span-1">
               <Link href="/" className="flex items-center mb-6">
-                <img src="/logo.png" alt="Sellads Advertising" className="h-12 w-auto object-contain brightness-0 invert" />
+                <img src="/logo.png" alt="Sellads Advertising" className="h-20 md:h-24 w-auto object-contain brightness-0 invert" />
               </Link>
               <p className="text-[13px] text-blue-100 leading-relaxed pr-4 font-medium opacity-90">
                 Premium outdoor media inventory across Maharashtra. Hoardings, billboards, and brand campaigns that drive reach.
