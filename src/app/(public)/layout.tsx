@@ -27,7 +27,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <header className="sticky top-0 z-50 w-full bg-[#f4f8fb]/90 backdrop-blur-md">
         <div className="container flex h-20 max-w-7xl items-center mx-auto px-6 justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Sellads Advertising" className="h-8 w-auto object-contain" />
+            <img src="/logo.png" alt="Sellads Advertising" className="h-12 w-auto object-contain" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
@@ -74,7 +74,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             {/* Brand Column */}
             <div className="col-span-1 md:col-span-1">
               <Link href="/" className="flex items-center mb-6">
-                <img src="/logo.png" alt="Sellads Advertising" className="h-8 w-auto object-contain brightness-0 invert" />
+                <img src="/logo.png" alt="Sellads Advertising" className="h-12 w-auto object-contain brightness-0 invert" />
               </Link>
               <p className="text-[13px] text-blue-100 leading-relaxed pr-4 font-medium opacity-90">
                 Premium outdoor media inventory across Maharashtra. Hoardings, billboards, and brand campaigns that drive reach.

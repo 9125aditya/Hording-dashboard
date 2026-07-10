@@ -38,7 +38,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
             style={{ backgroundColor: '#ffffff' }}
           >
             <div className="flex items-center justify-between mb-8">
-              <img src="/logo.png" alt="Sellads Advertising" className="h-8 w-auto object-contain" />
+              <img src="/logo.png" alt="Sellads Advertising" className="h-10 w-auto object-contain" />
               <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 text-slate-900 bg-slate-100 rounded-full hover:bg-slate-200" aria-label="Close menu">
                 <X className="h-5 w-5" />
               </button>
