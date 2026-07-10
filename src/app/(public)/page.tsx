@@ -20,10 +20,10 @@ export default function PublicHomePage() {
             <div className="flex flex-col items-start max-w-2xl">
 
               <AnimateOnScroll animation="fade-right" delay={100} duration={700}>
-                <h1 className="text-6xl sm:text-7xl lg:text-[5.5rem] font-black tracking-[-0.04em] leading-[1.05] mb-6">
-                  <span className="text-slate-900 block">Your Brand.</span>
-                  <span className="text-blue-600 block">Every Street.</span>
-                  <span className="text-slate-900 block">Every City.</span>
+                <h1 className="text-[3.5rem] sm:text-6xl lg:text-[6rem] font-black tracking-[-0.03em] leading-[1.05] mb-8">
+                  <span className="text-[#111111] block">Your Brand.</span>
+                  <span className="text-[#0047cc] block font-[family-name:var(--font-michroma)] font-bold tracking-tight text-[0.85em] py-1">Every Street.</span>
+                  <span className="text-[#111111] block">Every City.</span>
                 </h1>
               </AnimateOnScroll>
               
