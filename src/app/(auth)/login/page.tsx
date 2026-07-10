@@ -30,7 +30,7 @@ export default function LoginPage() {
           <Lock className="h-8 w-8 text-primary" />
         </div>
         <h1 className="font-heading text-2xl font-bold text-foreground">Welcome Back</h1>
-        <p className="text-muted-foreground mt-2">Sign in to your ESTROC account.</p>
+        <p className="text-muted-foreground mt-2">Welcome to your Sellads account.</p>
       </div>
       
       <div className="px-8 pt-6">
