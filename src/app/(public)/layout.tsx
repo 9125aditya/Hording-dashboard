@@ -36,7 +36,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             <Link href="/#services" className="hover:text-red-600 transition-colors">Services</Link>
             <Link href="/#clients" className="hover:text-red-600 transition-colors">Clients</Link>
             <Link href="/contact" className="hover:text-red-600 transition-colors">Enquiry</Link>
-            <Link href="/#careers" className="hover:text-red-600 transition-colors">Careers</Link>
+            <Link href="/careers" className="hover:text-red-600 transition-colors">Careers</Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -52,10 +52,9 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               </Link>
             </div>
             
-            {/* Admin Dashboard Link for logged in users */}
-            {user && isAdmin && (
-               <Link href="/dashboard" className="hidden lg:inline-flex text-xs font-bold bg-slate-900 text-white px-3 py-1.5 rounded-full shadow-sm ml-2">Dashboard</Link>
-            )}
+            <Link href="/login" className="hidden lg:inline-flex text-[13px] font-bold bg-slate-900 text-white px-4 py-2 rounded-full shadow-sm ml-2 hover:bg-slate-800 transition-colors">
+              Login
+            </Link>
             <div className="md:hidden">
               <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} />
             </div>
