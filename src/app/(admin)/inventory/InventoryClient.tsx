@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import SiteActions from "./SiteActions";
 
 type SiteItem = {
@@ -30,11 +30,14 @@ type SiteItem = {
   agency_rate: number;
 };
 
+const PAGE_SIZE = 25;
+
 export default function InventoryClient({ initialInventory }: { initialInventory: SiteItem[] }) {
   const [activeTab, setActiveTab] = useState<"normal" | "metro">("normal");
   const [activeSubTab, setActiveSubTab] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [page, setPage] = useState(1);
   
   const subTabs = useMemo(() => {
     const sheets = Array.from(new Set(
@@ -43,17 +46,17 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         .map(item => item.sheet_name)
         .filter(Boolean)
     ));
-    // Sort alphabetically
     sheets.sort((a, b) => a.localeCompare(b));
     return ['All', ...sheets];
   }, [initialInventory, activeTab]);
   
   const filteredSites = useMemo(() => {
     return initialInventory.filter(item => {
+      const searchLower = search.toLowerCase();
       const matchesSearch = 
-        item.name?.toLowerCase().includes(search.toLowerCase()) || 
-        item.city?.toLowerCase().includes(search.toLowerCase()) ||
-        item.area?.toLowerCase().includes(search.toLowerCase());
+        item.name?.toLowerCase().includes(searchLower) || 
+        item.city?.toLowerCase().includes(searchLower) ||
+        item.area?.toLowerCase().includes(searchLower);
       
       const matchesStatus = statusFilter === "All" || item.status === statusFilter;
       const matchesTab = activeTab === "metro" ? item.is_metro : !item.is_metro;
@@ -63,12 +66,43 @@ export default function InventoryClient({ initialInventory }: { initialInventory
     });
   }, [initialInventory, search, statusFilter, activeTab, activeSubTab]);
 
+  const totalPages = Math.ceil(filteredSites.length / PAGE_SIZE);
+  const paginatedSites = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredSites.slice(start, start + PAGE_SIZE);
+  }, [filteredSites, page]);
+
+  // Reset page when filters change
+  const handleTabChange = useCallback((tab: "normal" | "metro") => {
+    setActiveTab(tab);
+    setActiveSubTab("All");
+    setPage(1);
+  }, []);
+
+  const handleSubTabChange = useCallback((tab: string) => {
+    setActiveSubTab(tab);
+    setPage(1);
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
+  const handleStatusChange = useCallback((value: string) => {
+    setStatusFilter(value);
+    setPage(1);
+  }, []);
+
+  const startIndex = (page - 1) * PAGE_SIZE + 1;
+  const endIndex = Math.min(page * PAGE_SIZE, filteredSites.length);
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
       {/* Main Tabs */}
       <div className="flex border-b border-gray-200">
         <button 
-          onClick={() => { setActiveTab("normal"); setActiveSubTab("All"); }} 
+          onClick={() => handleTabChange("normal")} 
           className={`px-6 py-3.5 text-sm font-semibold transition-all relative ${
             activeTab === 'normal' 
               ? 'text-indigo-600' 
@@ -79,7 +113,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
           {activeTab === 'normal' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t" />}
         </button>
         <button 
-          onClick={() => { setActiveTab("metro"); setActiveSubTab("All"); }} 
+          onClick={() => handleTabChange("metro")} 
           className={`px-6 py-3.5 text-sm font-semibold transition-all relative ${
             activeTab === 'metro' 
               ? 'text-indigo-600' 
@@ -96,7 +130,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         {subTabs.map(tab => (
           <button
             key={tab}
-            onClick={() => setActiveSubTab(tab)}
+            onClick={() => handleSubTabChange(tab)}
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
               activeSubTab === tab 
                 ? 'bg-indigo-600 text-white shadow-sm' 
@@ -116,14 +150,14 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             type="text" 
             placeholder="Search by name or ID" 
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full h-9 pl-10 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
           />
         </div>
         <div className="flex items-center gap-3">
           <select 
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => handleStatusChange(e.target.value)}
             className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 appearance-none pr-8 cursor-pointer"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
           >
@@ -132,9 +166,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             <option value="Booked">Booked</option>
             <option value="Blocked">Blocked</option>
           </select>
-          <span className="text-xs text-gray-500 hidden sm:block">
-            {filteredSites.length} site{filteredSites.length !== 1 ? 's' : ''}
-          </span>
         </div>
       </div>
 
@@ -162,12 +193,12 @@ export default function InventoryClient({ initialInventory }: { initialInventory
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredSites.length === 0 ? (
+              {paginatedSites.length === 0 ? (
                 <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
-                filteredSites.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{index + 1}</td>
+                paginatedSites.map((item, index) => (
+                  <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{startIndex + index}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.city}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
@@ -185,7 +216,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white border-l border-gray-100">
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
                   </tr>
@@ -215,12 +246,12 @@ export default function InventoryClient({ initialInventory }: { initialInventory
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredSites.length === 0 ? (
+              {paginatedSites.length === 0 ? (
                 <tr><td colSpan={15} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
-                filteredSites.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{index + 1}</td>
+                paginatedSites.map((item, index) => (
+                  <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{startIndex + index}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.metro_line || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
@@ -238,7 +269,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white border-l border-gray-100">
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
                   </tr>
@@ -248,6 +279,31 @@ export default function InventoryClient({ initialInventory }: { initialInventory
           </table>
         )}
       </div>
+
+      {/* Pagination */}
+      {filteredSites.length > PAGE_SIZE && (
+        <div className="px-5 py-3 border-t border-gray-200 flex items-center justify-between bg-white">
+          <span className="text-sm text-gray-500">
+            {startIndex}-{endIndex} of {filteredSites.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage(p => p - 1)}
+              className="h-8 px-3 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft className="h-4 w-4 inline -mt-0.5" /> Previous
+            </button>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+              className="h-8 px-3 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              Next <ChevronRight className="h-4 w-4 inline -mt-0.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

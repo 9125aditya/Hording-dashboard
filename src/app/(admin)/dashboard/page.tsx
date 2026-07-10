@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@/backend/db/server";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -60,10 +61,10 @@ export default async function DashboardPage() {
 
       {/* KPI Row */}
       <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        <KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} accent="indigo" />
-        <KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} accent="emerald" />
-        <KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" accent="amber" />
-        <KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" accent="rose" />
+        <Link href="/inventory"><KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} accent="indigo" /></Link>
+        <Link href="/inventory"><KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} accent="emerald" /></Link>
+        <Link href="/inventory"><KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" accent="amber" /></Link>
+        <Link href="/inventory"><KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" accent="rose" /></Link>
         <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" accent="violet" />
       </div>
 
@@ -104,17 +105,19 @@ export default async function DashboardPage() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {cities.map((city) => (
-              <tr key={city.name} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-6 py-4 font-medium text-gray-900">{city.name}</td>
+              <tr key={city.name} className="hover:bg-indigo-50/40 transition-colors cursor-pointer group">
+                <td className="px-6 py-4 font-medium text-gray-900">
+                  <Link href="/inventory" className="hover:text-indigo-600 transition-colors">{city.name}</Link>
+                </td>
                 <td className="px-6 py-4">
                   <div className="flex h-2.5 rounded-full overflow-hidden bg-gray-100 w-40">
-                    {city.avail > 0 && <div className="bg-emerald-500" style={{ width: `${(city.avail/city.total)*100}%` }} />}
-                    {city.booked > 0 && <div className="bg-indigo-500" style={{ width: `${(city.booked/city.total)*100}%` }} />}
-                    {city.blocked > 0 && <div className="bg-amber-400" style={{ width: `${(city.blocked/city.total)*100}%` }} />}
+                    {city.avail > 0 && <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${(city.avail/city.total)*100}%` }} />}
+                    {city.booked > 0 && <div className="bg-indigo-500 transition-all duration-500" style={{ width: `${(city.booked/city.total)*100}%` }} />}
+                    {city.blocked > 0 && <div className="bg-amber-400 transition-all duration-500" style={{ width: `${(city.blocked/city.total)*100}%` }} />}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right font-semibold text-gray-700">{city.total}</td>
-                <td className="px-6 py-4 text-gray-400">
+                <td className="px-6 py-4 text-gray-400 group-hover:text-indigo-500 transition-colors">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </td>
               </tr>
@@ -128,7 +131,7 @@ export default async function DashboardPage() {
         <h2 className="text-base font-semibold text-gray-900 mb-4">Media Types</h2>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {mediaTypes.map((mt) => (
-            <div key={mt.name} className="bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-200 transition-colors">
+            <Link key={mt.name} href="/inventory" className="bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all block">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h3 className="text-[15px] font-semibold text-gray-900">{mt.name}</h3>
@@ -154,7 +157,7 @@ export default async function DashboardPage() {
                   <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">Booked</div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

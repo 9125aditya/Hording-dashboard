@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
+import ActiveLink from "@/frontend/components/ActiveLink";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
 
@@ -18,14 +19,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
   } catch (error) {
     console.error("Admin Layout Supabase Error:", error);
-    // Ignore error, render with default values
   }
 
   const isSuperAdmin = role === 'super_admin';
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
   const userInitial = (user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A').toUpperCase();
-
-  const navLinkClass = "flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700";
 
   return (
     <div className="min-h-full flex w-full bg-gray-50/80">
@@ -38,44 +36,44 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         <nav className="flex-1 px-3 space-y-0.5">
-          <Link href="/dashboard" className={navLinkClass}>
+          <ActiveLink href="/dashboard">
             <LayoutDashboard className="mr-3 h-[18px] w-[18px]" />
             Dashboard
-          </Link>
-          <Link href="/inventory" className={navLinkClass}>
+          </ActiveLink>
+          <ActiveLink href="/inventory">
             <MapPin className="mr-3 h-[18px] w-[18px]" />
             Inventory
-          </Link>
-          <Link href="/admin-map" className={navLinkClass}>
+          </ActiveLink>
+          <ActiveLink href="/admin-map">
             <Map className="mr-3 h-[18px] w-[18px]" />
             Map View
-          </Link>
+          </ActiveLink>
           {isSuperAdmin && (
-            <Link href="/approvals" className={navLinkClass}>
+            <ActiveLink href="/approvals">
               <CheckCircle className="mr-3 h-[18px] w-[18px]" />
               Approvals
-            </Link>
+            </ActiveLink>
           )}
-          <Link href="/enquiries" className={navLinkClass}>
+          <ActiveLink href="/enquiries">
             <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
-          </Link>
+          </ActiveLink>
           {isSuperAdmin && (
             <>
-              <Link href="/permissions" className={navLinkClass}>
+              <ActiveLink href="/permissions">
                 <Shield className="mr-3 h-[18px] w-[18px]" />
                 Access Control
-              </Link>
-              <Link href="/staff" className={navLinkClass}>
+              </ActiveLink>
+              <ActiveLink href="/staff">
                 <Users className="mr-3 h-[18px] w-[18px]" />
                 Staff
-              </Link>
+              </ActiveLink>
             </>
           )}
         </nav>
 
         <div className="px-3 mb-2">
-          <Link href="/" target="_blank" className={navLinkClass}>
+          <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">
             <ExternalLink className="mr-3 h-[18px] w-[18px]" />
             View Live Site
           </Link>
@@ -120,7 +118,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
           {children}
         </main>
       </div>
