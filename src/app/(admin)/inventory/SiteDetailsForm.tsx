@@ -5,6 +5,7 @@ import { saveSiteDetails } from "@/backend/actions/actions";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train } from "lucide-react";
 import Link from "next/link";
+import LocationSearch from "@/frontend/components/LocationSearch";
 
 export default function SiteDetailsForm({ site = null }: { site?: any }) {
   const router = useRouter();
@@ -70,20 +71,20 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        
+
         {/* SECTION 1: BASIC INFO */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
           <div className="flex items-center gap-2 border-b pb-3">
             <Building2 className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Basic Information</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">Site Name / Code / Location *</label>
               <input required name="name" defaultValue={site?.name} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Shankar Nagar Sq." />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
               <select name="status" defaultValue={site?.status || 'Available'} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -132,11 +133,16 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
               <Train className="w-5 h-5 text-indigo-600" />
               <h2 className="text-lg font-semibold text-indigo-900">Metro Specific Details</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-indigo-900">Metro Line</label>
-                <input name="metro_line" defaultValue={site?.metro_line} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Orange Line, Aqua Line" />
+                <label className="text-sm font-medium text-indigo-900">Metro Line / Station</label>
+                <input name="metro_line" list="metro-suggestions" defaultValue={site?.metro_line} className="w-full h-10 px-3 rounded-md border border-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Sitabuldi Metro" />
+                <datalist id="metro-suggestions">
+                  <option value="Jhansi Rani Metro" />
+                  <option value="Sitabuldi Metro" />
+                  <option value="Metro Pillar Signages Current" />
+                </datalist>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-indigo-900">From Pillar To Pillar</label>
@@ -160,36 +166,25 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <MapPin className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Location Details</h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">City *</label>
-              <input required name="city" defaultValue={site?.city} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Area / Region</label>
-              <input name="area" defaultValue={site?.area} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
-            </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Full Address</label>
-              <textarea name="address" defaultValue={site?.address} className="w-full min-h-[80px] p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Complete physical address..." />
-            </div>
+          <div className="grid grid-cols-1 gap-6">
+            <LocationSearch 
+              defaultAddress={site?.address || ''}
+              defaultCity={site?.city || ''}
+              defaultLat={site?.lat || ''}
+              defaultLng={site?.lng || ''}
+            />
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Google Maps Link</label>
-              <input name="maps_link" defaultValue={site?.maps_link} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://maps.google.com/..." />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Area / Region</label>
+                <input name="area" defaultValue={site?.area} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Latitude</label>
-              <input type="number" step="any" name="lat" defaultValue={site?.lat} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="21.1458" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Longitude</label>
-              <input type="number" step="any" name="lng" defaultValue={site?.lng} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="79.0882" />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Google Maps Link</label>
+                <input name="maps_link" defaultValue={site?.maps_link} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://maps.google.com/..." />
+              </div>
             </div>
           </div>
         </div>
@@ -200,7 +195,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <IndianRupee className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Commercials & Landlord</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Net Rate</label>
@@ -236,7 +231,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <FileText className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Electricity Details</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Consumer Number</label>
@@ -263,7 +258,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <FileText className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Rationale / Advertising Value</h2>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Audience profile, traffic count, facing direction, visibility...</label>
             <textarea name="rationale" defaultValue={site?.rationale} className="w-full min-h-[120px] p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Describe the commercial advantages of this site..." />
@@ -276,7 +271,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <ImageIcon className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Photos</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Day (Long) Image URL</label>
@@ -294,7 +289,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
         </div>
 
         <div className="flex justify-end pt-4">
-          <button 
+          <button
             disabled={isPending}
             className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
