@@ -57,7 +57,6 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
             {/* Header */}
             <div>
                <div className="flex items-center gap-3 mb-4">
-                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${site.color}`}>{site.status}</span>
                  <span className="text-sm font-medium text-primary">{site.city}</span>
                </div>
                <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">{site.name}</h1>
@@ -117,16 +116,12 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
               {/* Action Card */}
               <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
                  <h3 className="font-heading text-2xl font-bold mb-2">Interested?</h3>
-                 <p className="text-muted-foreground mb-8">This site is currently available. Contact us for the latest rates and booking terms.</p>
+                 <p className="text-muted-foreground mb-8">Contact us for the latest rates and booking terms for this location.</p>
                  
                  <div className="space-y-4 mb-8">
                    <div className="flex items-center text-sm">
-                     <Check className="h-4 w-4 text-available mr-3" /> 
-                     <span>Est. {site.dailyTraffic} daily traffic</span>
-                   </div>
-                   <div className="flex items-center text-sm">
-                     <Check className="h-4 w-4 text-available mr-3" /> 
-                     <span>Illuminated {site.illumination}</span>
+                     <Check className="h-4 w-4 text-primary mr-3" /> 
+                     <span>Available for immediate booking</span>
                    </div>
                  </div>
 
