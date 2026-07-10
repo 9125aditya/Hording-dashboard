@@ -45,7 +45,12 @@ export async function addEnquiry(formData: FormData) {
   const email = formData.get("email") as string;
   const company = formData.get("company") as string;
   const phone = formData.get("phone") as string;
-  const message = formData.get("message") as string;
+  let message = formData.get("message") as string;
+  const preferredSite = formData.get("preferredSite") as string;
+
+  if (preferredSite) {
+    message = `[Preferred Site: ${preferredSite}]\n\n${message}`;
+  }
 
   const supabase = await createClient();
 

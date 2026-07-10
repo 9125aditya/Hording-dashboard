@@ -2,13 +2,25 @@
 
 import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { addEnquiry } from "@/backend/actions/actions";
+import { createClient } from "@/backend/db/client";
+import Link from "next/link";
 
 export default function ContactPage() {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [sites, setSites] = useState<{site_id: string, name: string, city: string}[]>([]);
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('sites').select('site_id, name, city').order('city', { ascending: true });
+      if (data) setSites(data);
+    };
+    fetchSites();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -124,6 +136,26 @@ export default function ContactPage() {
                   <div className="space-y-2 group/input">
                     <label htmlFor="phone" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Phone Number</label>
                     <input type="tel" name="phone" id="phone" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="+91 98765 43210" />
+                  </div>
+
+                  <div className="space-y-2 group/input">
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="preferredSite" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Preferred Site / Location (Optional)</label>
+                      <Link href="/catalog" target="_blank" className="text-xs text-primary hover:underline flex items-center">
+                        <MapPin className="h-3 w-3 mr-1" /> Browse Catalog
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <select name="preferredSite" id="preferredSite" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 appearance-none">
+                        <option value="">-- Select a site from our catalog --</option>
+                        {sites.map(s => (
+                          <option key={s.site_id} value={`${s.name} (${s.city})`}>{s.name} - {s.city}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-muted-foreground">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2 group/input">
