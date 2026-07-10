@@ -23,23 +23,44 @@ async function seedEmployees() {
 
   for (const emp of employees) {
     console.log(`Creating ${emp.name} (${emp.email})...`);
-    const { data, error } = await supabase.auth.admin.createUser({
+    let userId;
+    let { data, error } = await supabase.auth.admin.createUser({
       email: emp.email,
       password: emp.password,
       email_confirm: true,
       user_metadata: { full_name: emp.name }
     });
 
-    if (error) {
+    if (error && error.message.includes('already')) {
+      console.log(`User ${emp.email} already exists, attempting to confirm and update...`);
+      const { data: usersData } = await supabase.auth.admin.listUsers();
+      const existingUser = usersData.users.find(u => u.email === emp.email);
+      if (existingUser) {
+         userId = existingUser.id;
+         const { error: updateError } = await supabase.auth.admin.updateUserById(userId, {
+            password: emp.password,
+            email_confirm: true,
+            user_metadata: { full_name: emp.name }
+         });
+         if (updateError) {
+           console.log(`Error updating ${emp.email}:`, updateError.message);
+         } else {
+           console.log(`Successfully updated and confirmed ${emp.email}`);
+         }
+      }
+    } else if (error) {
       console.log(`Error creating ${emp.email}:`, error.message);
     } else {
-      console.log(`Successfully created ${emp.email} with ID: ${data.user.id}`);
-      
+      userId = data.user.id;
+      console.log(`Successfully created ${emp.email} with ID: ${userId}`);
+    }
+
+    if (userId) {
       // Update profile with specific role
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ role: emp.role, name: emp.name })
-        .eq('id', data.user.id);
+        .eq('id', userId);
         
       if (profileError) {
         console.log(`Error updating profile for ${emp.email}:`, profileError.message);
