@@ -139,7 +139,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
           <div className="pt-8 border-t border-blue-800/60 text-center">
             <p className="text-[11.5px] font-medium text-blue-300/60 uppercase tracking-wide">
-              © {new Date().getFullYear()} Outreach OOH Media. All rights reserved. <Link href="/admin/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
+              © {new Date().getFullYear()} Sellads Outdoor Advertising. All rights reserved. <Link href="/admin/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
             </p>
           </div>
         </div>

@@ -142,7 +142,7 @@ export default function PublicHomePage() {
         <div className="container mx-auto px-6 max-w-7xl text-center mb-16">
           <AnimateOnScroll animation="fade-up">
             <h2 className="text-3xl md:text-[2.5rem] font-black text-slate-900 tracking-tight mb-4">Top Companies We&apos;ve Worked With</h2>
-            <p className="text-[17px] text-slate-500 font-medium">Leading brands across Maharashtra choose Outreach OOH for their outdoor campaigns.</p>
+            <p className="text-[17px] text-slate-500 font-medium">Leading brands across Maharashtra choose Sellads Outdoor Advertising for their outdoor campaigns.</p>
           </AnimateOnScroll>
         </div>
         
