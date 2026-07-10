@@ -82,7 +82,7 @@ export default function LocationSearch({
       } finally {
         setIsLoading(false);
       }
-    }, 600);
+    }, 200);
 
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
