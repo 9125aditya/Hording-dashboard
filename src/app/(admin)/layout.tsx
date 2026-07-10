@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin, LayoutGrid, Package } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import ActiveLink from "@/frontend/components/ActiveLink";
 import { logout } from "@/backend/actions/auth-actions";
@@ -42,8 +42,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Dashboard
           </ActiveLink>
           <ActiveLink href="/inventory">
-            <MapPin className="mr-3 h-[18px] w-[18px]" />
+            <LayoutGrid className="mr-3 h-[18px] w-[18px]" />
             Inventory
+          </ActiveLink>
+          <ActiveLink href="/flex-inventory">
+            <Package className="mr-3 h-[18px] w-[18px]" />
+            Flex Inventory
           </ActiveLink>
           <ActiveLink href="/admin-map">
             <Map className="mr-3 h-[18px] w-[18px]" />

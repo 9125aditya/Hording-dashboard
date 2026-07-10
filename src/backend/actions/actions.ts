@@ -356,3 +356,33 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
     return { error: err.message || "An unexpected error occurred" };
   }
 }
+
+// ==========================================
+// FLEX INVENTORY ACTIONS
+// ==========================================
+
+export async function addFlexTransaction(formData: FormData) {
+  const type = formData.get("type") as string;
+  const size = formData.get("size") as string;
+  const quantity = parseInt(formData.get("quantity") as string, 10);
+  const notes = formData.get("notes") as string;
+
+  const supabase = await createClient();
+  await requireRole(supabase, ['admin', 'super_admin']);
+
+  const { error } = await supabase.from("flex_transactions").insert([
+    {
+      type,
+      size,
+      quantity,
+      notes
+    }
+  ]);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/flex-inventory");
+  return { success: true };
+}
