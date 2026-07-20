@@ -354,6 +354,26 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
 
     // Merge existing + new, cap at 5
     const finalImages = [...existingImages, ...uploadedUrls].slice(0, 5);
+
+    // If updating, delete removed images from storage
+    if (siteId) {
+      const { data: oldSite } = await supabase.from('sites').select('images').eq('site_id', siteId).single();
+      if (oldSite && oldSite.images) {
+        const oldImages: string[] = oldSite.images;
+        const removedUrls = oldImages.filter(url => !finalImages.includes(url));
+        if (removedUrls.length > 0) {
+          const pathsToRemove = removedUrls.map(url => {
+            // Extract the relative path after the bucket name
+            const parts = url.split('/site-images/');
+            return parts.length > 1 ? parts[1] : null;
+          }).filter(Boolean) as string[];
+          
+          if (pathsToRemove.length > 0) {
+            await supabase.storage.from('site-images').remove(pathsToRemove);
+          }
+        }
+      }
+    }
     // ---- End image uploads ----
 
     const payload = {
