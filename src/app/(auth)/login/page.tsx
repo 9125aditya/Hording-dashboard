@@ -8,14 +8,12 @@ import Link from "next/link";
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [loginMode, setLoginMode] = useState<'client' | 'admin'>('client');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
-    formData.append("loginMode", loginMode);
     startTransition(async () => {
       const res = await loginUser(formData);
       if (res?.error) {
@@ -34,24 +32,6 @@ export default function LoginPage() {
         <p className="text-muted-foreground mt-2">Welcome to your Sellads account.</p>
       </div>
       
-      <div className="px-8 pt-6">
-        <div className="flex p-1 bg-slate-100 rounded-lg">
-          <button 
-            type="button"
-            onClick={() => setLoginMode('client')}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${loginMode === 'client' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Client
-          </button>
-          <button 
-            type="button"
-            onClick={() => setLoginMode('admin')}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${loginMode === 'admin' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Admin
-          </button>
-        </div>
-      </div>
 
       <form onSubmit={handleLogin} className="px-8 py-6 space-y-6">
         <div className="space-y-4">

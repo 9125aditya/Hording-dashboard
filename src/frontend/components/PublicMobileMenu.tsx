@@ -61,11 +61,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                     </button>
                   </form>
                 </>
-              ) : (
-                <Link href="/login" onClick={() => setIsOpen(false)} className="flex h-12 items-center justify-center rounded-full border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition-colors bg-white">
-                  Login
-                </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

@@ -51,9 +51,6 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               </Link>
             </div>
             
-            <Link href="/login" className="hidden lg:inline-flex text-[13px] font-bold bg-slate-900 text-white px-4 py-2 rounded-full shadow-sm ml-2 hover:bg-slate-800 transition-colors">
-              Login
-            </Link>
             <div className="md:hidden">
               <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} />
             </div>

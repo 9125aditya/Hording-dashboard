@@ -31,8 +31,6 @@ export async function signupUser(formData: FormData) {
 export async function loginUser(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const loginMode = formData.get("loginMode") as string;
-  
   let redirectPath: string | null = null;
 
   try {
@@ -54,22 +52,11 @@ export async function loginUser(formData: FormData) {
       .eq('id', authData.user.id)
       .single();
       
-    if (loginMode === 'admin') {
-      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
-      if (adminRoles.includes(profile?.role)) {
-        redirectPath = "/dashboard";
-      } else {
-        await supabase.auth.signOut();
-        return { error: "Unauthorized: You do not have admin permissions. Please use the Client login tab." };
-      }
+    const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+    if (adminRoles.includes(profile?.role)) {
+      redirectPath = "/dashboard";
     } else {
-      // Client login mode
-      const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
-      if (adminRoles.includes(profile?.role)) {
-        redirectPath = "/dashboard";
-      } else {
-        redirectPath = "/catalog";
-      }
+      redirectPath = "/catalog";
     }
   } catch (err: any) {
     console.error("Login Exception:", err);
