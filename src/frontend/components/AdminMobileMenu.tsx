@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, LogOut, X, Menu, ExternalLink, CheckCircle, Shield, Users, MapPin } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, LogOut, X, Menu, ExternalLink, CheckCircle, Shield, Users, MapPin, Package } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
@@ -52,14 +52,17 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <MapPin className="mr-3 h-[18px] w-[18px]" /> Inventory
               </Link>
-              <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <Map className="mr-3 h-[18px] w-[18px]" /> Map View
-              </Link>
               {isSuperAdmin && (
                 <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
                   <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Approvals
                 </Link>
               )}
+              <Link href="/flex-inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <Package className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
+              </Link>
+              <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <Map className="mr-3 h-[18px] w-[18px]" /> Map View
+              </Link>
               <Link href="/enquiries" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <MessageSquare className="mr-3 h-[18px] w-[18px]" /> Enquiries
               </Link>

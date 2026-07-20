@@ -45,6 +45,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <LayoutGrid className="mr-3 h-[18px] w-[18px]" />
             Inventory
           </ActiveLink>
+          {isSuperAdmin && (
+            <ActiveLink href="/approvals">
+              <CheckCircle className="mr-3 h-[18px] w-[18px]" />
+              Approvals
+            </ActiveLink>
+          )}
           <ActiveLink href="/flex-inventory">
             <Package className="mr-3 h-[18px] w-[18px]" />
             Flex Inventory
@@ -53,12 +59,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Map className="mr-3 h-[18px] w-[18px]" />
             Map View
           </ActiveLink>
-          {isSuperAdmin && (
-            <ActiveLink href="/approvals">
-              <CheckCircle className="mr-3 h-[18px] w-[18px]" />
-              Approvals
-            </ActiveLink>
-          )}
           <ActiveLink href="/enquiries">
             <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
