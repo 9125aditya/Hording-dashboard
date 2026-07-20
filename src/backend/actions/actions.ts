@@ -317,6 +317,37 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       return { error: "Insufficient permissions: requires edit_site_details" };
     }
 
+    let imageUrls: string[] = [];
+    try {
+      imageUrls = JSON.parse(formData.get("existing_images") as string || "[]");
+    } catch (e) {
+      // Ignore
+    }
+
+    const files = formData.getAll("images") as File[];
+    for (const file of files) {
+      if (file.size === 0) continue;
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        return { error: `Failed to upload image: ${uploadError.message}` };
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-images')
+        .getPublicUrl(filePath);
+
+      imageUrls.push(publicUrl);
+    }
+
     const payload = {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
@@ -362,9 +393,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
       
       // Photos
-      day_long_photo: formData.get("day_long_photo") as string || null,
-      day_mid_photo: formData.get("day_mid_photo") as string || null,
-      night_mid_photo: formData.get("night_mid_photo") as string || null,
+      images: imageUrls,
     };
 
     // Log the action for history

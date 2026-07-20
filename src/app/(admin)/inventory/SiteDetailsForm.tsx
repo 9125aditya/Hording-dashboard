@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { saveSiteDetails } from "@/backend/actions/actions";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train } from "lucide-react";
+import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train, X } from "lucide-react";
 import Link from "next/link";
 import LocationSearch from "@/frontend/components/LocationSearch";
 
@@ -12,6 +12,52 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const [isMetro, setIsMetro] = useState(site?.is_metro || false);
+  
+  // Image handling state
+  const [existingImages, setExistingImages] = useState<string[]>(
+    site?.images || []
+  );
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Check total limit
+    if (existingImages.length + newFiles.length + files.length > 5) {
+      setError("You can only upload a maximum of 5 images in total.");
+      return;
+    }
+
+    // Check size limit (2MB)
+    const MAX_SIZE = 2 * 1024 * 1024;
+    for (const file of files) {
+      if (file.size > MAX_SIZE) {
+        setError(`Image ${file.name} exceeds the 2MB size limit.`);
+        return;
+      }
+    }
+
+    setError("");
+    setNewFiles(prev => [...prev, ...files]);
+    
+    // Create preview URLs
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => {
+      // Revoke the URL to avoid memory leaks
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,6 +66,14 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
     const formData = new FormData(e.currentTarget);
     formData.append("is_metro", isMetro.toString());
+    
+    // Append existing images as a JSON string so backend knows what to keep
+    formData.append("existing_images", JSON.stringify(existingImages));
+    
+    // Append new files
+    newFiles.forEach(file => {
+      formData.append("images", file);
+    });
 
     const res = await saveSiteDetails(site?.id ? String(site.id) : null, formData);
 
@@ -271,17 +325,61 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Day (Long) Image URL</label>
-              <input name="day_long_photo" defaultValue={site?.day_long_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Day (Mid) Image URL</label>
-              <input name="day_mid_photo" defaultValue={site?.day_mid_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Night (Mid) Image URL</label>
-              <input name="night_mid_photo" defaultValue={site?.night_mid_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
+            <div className="md:col-span-3 space-y-4">
+              <label className="text-sm font-medium block">Upload Images (Max 5, up to 2MB each)</label>
+              
+              <div className="flex items-center gap-4">
+                <label className="flex items-center justify-center w-full max-w-xs h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+                  <span className="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <span className="font-medium text-gray-600">Drop files or click to upload</span>
+                  </span>
+                  <input type="file" name="file_upload" accept="image/*" multiple className="hidden" onChange={handleFileChange} disabled={existingImages.length + newFiles.length >= 5} />
+                </label>
+                <div className="text-sm text-gray-500">
+                  {existingImages.length + newFiles.length} / 5 images added
+                </div>
+              </div>
+
+              {/* Previews */}
+              {(existingImages.length > 0 || previewUrls.length > 0) && (
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                  {/* Existing Images */}
+                  {existingImages.map((url, i) => (
+                    <div key={`existing-${i}`} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Existing ${i}`} className="w-full h-full object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeExistingImage(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* New File Previews */}
+                  {previewUrls.map((url, i) => (
+                    <div key={`new-${i}`} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`New ${i}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                        <span className="bg-white/80 text-xs px-2 py-1 rounded font-medium">New</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => removeNewImage(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
