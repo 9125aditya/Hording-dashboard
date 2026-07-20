@@ -52,11 +52,9 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <MapPin className="mr-3 h-[18px] w-[18px]" /> Inventory
               </Link>
-              {isSuperAdmin && (
-                <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                  <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Approvals
-                </Link>
-              )}
+              <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
+              </Link>
               <Link href="/flex-inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <Package className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
               </Link>
