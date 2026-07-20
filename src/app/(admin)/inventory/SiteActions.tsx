@@ -9,14 +9,6 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleStatusChange = (status: string) => {
-    setIsOpen(false);
-    startTransition(async () => {
-      const res = await updateSiteStatus(uuid, status);
-      // Status updated directly
-    });
-  };
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this site?")) {
       setIsOpen(false);
@@ -69,34 +61,7 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
 
             <div className="h-px bg-gray-100 my-1" />
 
-            {currentStatus !== "Available" && (
-              <button 
-                onClick={() => handleStatusChange("Available")}
-                className={menuItemClass}
-              >
-                <CheckCircle className="mr-2.5 h-4 w-4 text-emerald-500" /> Mark Available
-              </button>
-            )}
-            
-            {currentStatus !== "Booked" && (
-              <button 
-                onClick={() => handleStatusChange("Booked")}
-                className={menuItemClass}
-              >
-                <AlertCircle className="mr-2.5 h-4 w-4 text-rose-500" /> Mark Booked
-              </button>
-            )}
 
-            {currentStatus !== "Blocked" && (
-              <button 
-                onClick={() => handleStatusChange("Blocked")}
-                className={menuItemClass}
-              >
-                <Ban className="mr-2.5 h-4 w-4 text-amber-500" /> Mark Blocked
-              </button>
-            )}
-
-            <div className="h-px bg-gray-100 my-1" />
 
             <button 
               onClick={handleDelete}

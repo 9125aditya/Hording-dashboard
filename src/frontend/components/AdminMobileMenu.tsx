@@ -52,6 +52,9 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <MapPin className="mr-3 h-[18px] w-[18px]" /> Inventory
               </Link>
+              <Link href="/status" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Update Status
+              </Link>
               <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
               </Link>

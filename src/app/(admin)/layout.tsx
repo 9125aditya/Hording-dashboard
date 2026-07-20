@@ -45,6 +45,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <LayoutGrid className="mr-3 h-[18px] w-[18px]" />
             Inventory
           </ActiveLink>
+          <ActiveLink href="/status">
+            <CheckCircle className="mr-3 h-[18px] w-[18px]" />
+            Update Status
+          </ActiveLink>
           <ActiveLink href="/approvals">
             <CheckCircle className="mr-3 h-[18px] w-[18px]" />
             Action History
