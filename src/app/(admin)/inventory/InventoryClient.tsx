@@ -34,21 +34,30 @@ const PAGE_SIZE = 25;
 
 export default function InventoryClient({ initialInventory }: { initialInventory: SiteItem[] }) {
   const [activeTab, setActiveTab] = useState<"normal" | "metro">("normal");
-  const [activeSubTab, setActiveSubTab] = useState<string>("All");
+  const [activeType, setActiveType] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [litFilter, setLitFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
   
-  const subTabs = useMemo(() => {
-    const sheets = Array.from(new Set(
+  const typeTabs = useMemo(() => {
+    const types = Array.from(new Set(
       initialInventory
         .filter(item => (activeTab === 'metro' ? item.is_metro : !item.is_metro))
-        .map(item => item.sheet_name)
+        .map(item => item.type)
         .filter(Boolean)
     ));
-    sheets.sort((a, b) => a.localeCompare(b));
-    return ['All', ...sheets];
+    types.sort((a, b) => a.localeCompare(b));
+    return ['All', ...types];
   }, [initialInventory, activeTab]);
+
+  const availableLitTypes = useMemo(() => {
+    const lits = Array.from(new Set(
+      initialInventory.map(item => item.lit_type).filter(Boolean)
+    ));
+    lits.sort((a, b) => a.localeCompare(b));
+    return lits;
+  }, [initialInventory]);
   
   const filteredSites = useMemo(() => {
     return initialInventory.filter(item => {
@@ -59,12 +68,13 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         item.area?.toLowerCase().includes(searchLower);
       
       const matchesStatus = statusFilter === "All" || item.status === statusFilter;
+      const matchesLit = litFilter === "All" || item.lit_type === litFilter;
       const matchesTab = activeTab === "metro" ? item.is_metro : !item.is_metro;
-      const matchesSubTab = activeSubTab === "All" || item.sheet_name === activeSubTab;
+      const matchesType = activeType === "All" || item.type === activeType;
       
-      return matchesSearch && matchesStatus && matchesTab && matchesSubTab;
+      return matchesSearch && matchesStatus && matchesLit && matchesTab && matchesType;
     });
-  }, [initialInventory, search, statusFilter, activeTab, activeSubTab]);
+  }, [initialInventory, search, statusFilter, litFilter, activeTab, activeType]);
 
   const totalPages = Math.ceil(filteredSites.length / PAGE_SIZE);
   const paginatedSites = useMemo(() => {
@@ -75,12 +85,12 @@ export default function InventoryClient({ initialInventory }: { initialInventory
   // Reset page when filters change
   const handleTabChange = useCallback((tab: "normal" | "metro") => {
     setActiveTab(tab);
-    setActiveSubTab("All");
+    setActiveType("All");
     setPage(1);
   }, []);
 
-  const handleSubTabChange = useCallback((tab: string) => {
-    setActiveSubTab(tab);
+  const handleTypeChange = useCallback((tab: string) => {
+    setActiveType(tab);
     setPage(1);
   }, []);
 
@@ -125,19 +135,19 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         </button>
       </div>
 
-      {/* Sub Tabs */}
+      {/* Type Tabs */}
       <div className="bg-gray-50/60 border-b border-gray-200 px-4 py-3 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
-        {subTabs.map(tab => (
+        {typeTabs.map(tab => (
           <button
             key={tab}
-            onClick={() => handleSubTabChange(tab)}
+            onClick={() => handleTypeChange(tab)}
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              activeSubTab === tab 
+              activeType === tab 
                 ? 'bg-indigo-600 text-white shadow-sm' 
                 : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-200 hover:text-indigo-600'
             }`}
           >
-            {tab === "Metro Pillar Signages CURRENT" ? "Metro Pillar Signages Current" : tab}
+            {tab}
           </button>
         ))}
       </div>
@@ -155,6 +165,17 @@ export default function InventoryClient({ initialInventory }: { initialInventory
           />
         </div>
         <div className="flex items-center gap-3">
+          <select 
+            value={litFilter}
+            onChange={(e) => { setLitFilter(e.target.value); setPage(1); }}
+            className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 appearance-none pr-8 cursor-pointer"
+            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
+          >
+            <option value="All">Lit Type: All</option>
+            {availableLitTypes.map(lt => (
+              <option key={lt} value={lt}>{lt}</option>
+            ))}
+          </select>
           <select 
             value={statusFilter}
             onChange={(e) => handleStatusChange(e.target.value)}
