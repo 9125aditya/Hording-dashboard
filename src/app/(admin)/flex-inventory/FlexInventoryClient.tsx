@@ -24,6 +24,7 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
   const [activeTab, setActiveTab] = useState<"Stock" | "Transactions">("Stock");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txType, setTxType] = useState<"INWARD" | "OUTWARD">("INWARD");
+  const [isCustomSize, setIsCustomSize] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // Calculate Real-time Stock per Size
@@ -81,7 +82,7 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
         <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between">
           <div>
             <p className="text-3xl font-bold text-gray-900">{totalAvailable}</p>
-            <p className="text-sm text-gray-500 font-medium">Total Rolls Available</p>
+            <p className="text-sm text-gray-500 font-medium">Total Flex Available</p>
           </div>
           <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
             <PackageSearch className="h-6 w-6" />
@@ -119,7 +120,7 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {STANDARD_SIZES.map((size, idx) => (
+              {Object.keys(stockMap).map((size, idx) => (
                 <tr key={size} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-3.5 text-gray-500">{idx + 1}</td>
                   <td className="px-6 py-3.5 font-bold text-gray-900">{size}</td>
@@ -200,12 +201,27 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">Size</label>
-                  <select name="size" required className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                  <select 
+                    name={isCustomSize ? undefined : "size"} 
+                    onChange={(e) => setIsCustomSize(e.target.value === "custom")}
+                    required={!isCustomSize} 
+                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                  >
                     <option value="">Select a size...</option>
                     {STANDARD_SIZES.map(size => (
                       <option key={size} value={size}>{size}</option>
                     ))}
+                    <option value="custom">Custom Size...</option>
                   </select>
+                  {isCustomSize && (
+                    <input 
+                      type="text" 
+                      name="size" 
+                      required 
+                      className="w-full mt-2 p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors" 
+                      placeholder="e.g. 15X15" 
+                    />
+                  )}
                 </div>
 
                 <div>
