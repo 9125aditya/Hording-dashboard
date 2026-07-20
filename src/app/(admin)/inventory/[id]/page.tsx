@@ -4,17 +4,18 @@ import SiteDetailsForm from "../SiteDetailsForm";
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditSitePage({ params }: { params: { id: string } }) {
+export default async function EditSitePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const supabase = await createClient();
   
   // First, check if the ID passed is a UUID or a numeric ID.
-  const isNumeric = /^\d+$/.test(params.id);
+  const isNumeric = /^\d+$/.test(resolvedParams.id);
   
   let query = supabase.from("sites").select("*");
   if (isNumeric) {
-    query = query.eq("id", parseInt(params.id));
+    query = query.eq("id", parseInt(resolvedParams.id));
   } else {
-    query = query.eq("site_id", params.id);
+    query = query.eq("site_id", resolvedParams.id);
   }
   
   const { data: site } = await query.single();
