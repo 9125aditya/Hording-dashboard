@@ -216,6 +216,7 @@ export async function updateSiteStatus(id: string, status: string) {
     
   if (error) return { error: error.message };
   revalidatePath("/inventory");
+  revalidatePath("/status");
   return { success: true };
 }
 
