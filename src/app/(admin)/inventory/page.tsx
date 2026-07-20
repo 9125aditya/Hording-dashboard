@@ -22,6 +22,8 @@ export default async function InventoryPage() {
     type: s.type,
     lit_type: s.lit_type || '',
     landlord: s.landlord || '',
+    landlord_contact: s.landlord_contact || '',
+    electricity_consumer_no: s.electricity_consumer_no || '',
     qty: s.qty || 1,
     total_sq_ft: s.total_sq_ft || 0,
     printable_size: s.printable_size || '',

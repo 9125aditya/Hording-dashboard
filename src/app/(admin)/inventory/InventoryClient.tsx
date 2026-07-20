@@ -16,6 +16,8 @@ type SiteItem = {
   type: string;
   lit_type: string;
   landlord: string;
+  landlord_contact: string;
+  electricity_consumer_no: string;
   status: string;
   statusColor: string;
   qty: number;
@@ -37,7 +39,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
   const [activeTab, setActiveTab] = useState<"normal" | "metro">("normal");
   const [activeType, setActiveType] = useState<string>("All");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
   const [litFilter, setLitFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
   
@@ -68,14 +69,13 @@ export default function InventoryClient({ initialInventory }: { initialInventory
         item.city?.toLowerCase().includes(searchLower) ||
         item.area?.toLowerCase().includes(searchLower);
       
-      const matchesStatus = statusFilter === "All" || item.status === statusFilter;
       const matchesLit = litFilter === "All" || item.lit_type === litFilter;
       const matchesTab = activeTab === "metro" ? item.is_metro : !item.is_metro;
       const matchesType = activeType === "All" || item.type === activeType;
       
-      return matchesSearch && matchesStatus && matchesLit && matchesTab && matchesType;
+      return matchesSearch && matchesLit && matchesTab && matchesType;
     });
-  }, [initialInventory, search, statusFilter, litFilter, activeTab, activeType]);
+  }, [initialInventory, search, litFilter, activeTab, activeType]);
 
   const totalPages = Math.ceil(filteredSites.length / PAGE_SIZE);
   const paginatedSites = useMemo(() => {
@@ -97,11 +97,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
-    setPage(1);
-  }, []);
-
-  const handleStatusChange = useCallback((value: string) => {
-    setStatusFilter(value);
     setPage(1);
   }, []);
 
@@ -177,17 +172,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
               <option key={lt} value={lt}>{lt}</option>
             ))}
           </select>
-          <select 
-            value={statusFilter}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 appearance-none pr-8 cursor-pointer"
-            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
-          >
-            <option value="All">Status: All</option>
-            <option value="Available">Available</option>
-            <option value="Booked">Booked</option>
-            <option value="Blocked">Blocked</option>
-          </select>
         </div>
       </div>
 
@@ -201,6 +185,8 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">City</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Hoarding Location</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord Contact</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Consumer No</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">LIT/ N.LIT</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Size (WxH)</th>
@@ -211,7 +197,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Net Rate</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DCPM</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
-                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-gray-50/80"></th>
               </tr>
             </thead>
@@ -225,6 +210,8 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.city}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord_contact || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.electricity_consumer_no || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
@@ -235,11 +222,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${item.statusColor}`}>
-                        {item.status}
-                      </span>
-                    </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
@@ -256,6 +238,8 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Line</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Locations</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord Contact</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Consumer No</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">LIT/ N.LIT</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">TYPE</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
@@ -267,7 +251,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (NET)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (DCPM)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
-                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-indigo-50/40"></th>
               </tr>
             </thead>
@@ -281,6 +264,8 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.metro_line || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord_contact || '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.electricity_consumer_no || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
@@ -291,11 +276,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${item.statusColor}`}>
-                        {item.status}
-                      </span>
-                    </td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
