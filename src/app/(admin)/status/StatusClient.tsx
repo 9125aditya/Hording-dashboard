@@ -7,6 +7,7 @@ import { updateSiteStatus } from "@/backend/actions/actions";
 type SiteItem = {
   id: number;
   uuid: string;
+  useSiteId: boolean;
   name: string;
   city: string;
   area: string;

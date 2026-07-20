@@ -213,8 +213,15 @@ export async function updateSiteStatus(id: string, status: string) {
     .from("sites")
     .update({ status })
     .eq("site_id", id);
-    
-  if (error) return { error: error.message };
+
+  // Fallback: try matching by numeric id if site_id match affected 0 rows
+  if (error) {
+    const { error: error2 } = await supabase
+      .from("sites")
+      .update({ status })
+      .eq("id", id);
+    if (error2) return { error: error2.message };
+  }
   revalidatePath("/inventory");
   revalidatePath("/status");
   return { success: true };
