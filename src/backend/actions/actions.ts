@@ -317,27 +317,31 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       return { error: "Insufficient permissions: requires edit_site_details" };
     }
 
-    let imageUrls: string[] = [];
+    // ---- Handle image uploads ----
+    const existingImagesRaw = formData.get("existing_images") as string;
+    let existingImages: string[] = [];
     try {
-      imageUrls = JSON.parse(formData.get("existing_images") as string || "[]");
-    } catch (e) {
-      // Ignore
-    }
+      existingImages = existingImagesRaw ? JSON.parse(existingImagesRaw) : [];
+    } catch { existingImages = []; }
 
-    const files = formData.getAll("images") as File[];
-    for (const file of files) {
-      if (file.size === 0) continue;
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+    const newImageFiles = formData.getAll("images") as File[];
+    const uploadedUrls: string[] = [];
+
+    for (const file of newImageFiles) {
+      if (!file || file.size === 0) continue;
+      // Enforce 2MB limit server-side too
+      if (file.size > 2 * 1024 * 1024) {
+        return { error: `Image ${file.name} exceeds the 2MB size limit.` };
+      }
+      const ext = file.name.split('.').pop() || 'jpg';
+      const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const filePath = `sites/${uniqueName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('site-images')
-        .upload(filePath, file);
+        .upload(filePath, file, { contentType: file.type, upsert: false });
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
         return { error: `Failed to upload image: ${uploadError.message}` };
       }
 
@@ -345,8 +349,12 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
         .from('site-images')
         .getPublicUrl(filePath);
 
-      imageUrls.push(publicUrl);
+      uploadedUrls.push(publicUrl);
     }
+
+    // Merge existing + new, cap at 5
+    const finalImages = [...existingImages, ...uploadedUrls].slice(0, 5);
+    // ---- End image uploads ----
 
     const payload = {
       name: formData.get("name") as string,
@@ -392,8 +400,8 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
       
-      // Photos
-      images: imageUrls,
+      // Images array
+      images: finalImages,
     };
 
     // Log the action for history

@@ -1,7 +1,7 @@
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Info, Ruler, Zap, DollarSign, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Info, Ruler, Zap, DollarSign, Images } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +32,8 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
     </div>
   );
 
+  const siteImages: string[] = site.images || [];
+
   return (
     <div className="max-w-[900px] mx-auto space-y-6 pb-20">
       {/* Header */}
@@ -56,6 +58,24 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
 
       {/* Sections */}
       <div className="space-y-5">
+
+        {/* Photos Gallery */}
+        {siteImages.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+              <Images className="w-4 h-4 text-purple-500" /> Site Photos
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {siteImages.map((url: string, i: number) => (
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-gray-200 aspect-video hover:opacity-90 transition-opacity">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Site photo ${i + 1}`} className="w-full h-full object-cover" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Basic Info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
@@ -130,23 +150,6 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
             {renderField("Agency Rate", site.agency_rate ? `₹${site.agency_rate}` : null)}
           </div>
         </div>
-
-        {/* Photos */}
-        {site.images && site.images.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
-              <ImageIcon className="w-4 h-4 text-blue-500" /> Photos
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {site.images.map((imgUrl: string, i: number) => (
-                <a key={i} href={imgUrl} target="_blank" rel="noreferrer" className="block relative aspect-square rounded-lg overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imgUrl} alt={`Site image ${i+1}`} className="w-full h-full object-cover" />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
