@@ -50,16 +50,7 @@ export default function SiteActions({ siteId, currentStatus, uuid }: { siteId: s
               <Pencil className="mr-2.5 h-4 w-4 text-blue-500" /> Edit Details
             </Link>
 
-            <Link 
-              href={`/catalog/${uuid}`}
-              target="_blank"
-              onClick={() => setIsOpen(false)}
-              className={menuItemClass}
-            >
-              <ExternalLink className="mr-2.5 h-4 w-4 text-gray-400" /> View Live
-            </Link>
 
-            <div className="h-px bg-gray-100 my-1" />
 
 
 

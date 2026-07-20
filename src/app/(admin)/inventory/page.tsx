@@ -11,7 +11,7 @@ export default async function InventoryPage() {
 
   const inventory = dbSites?.map((s: any) => ({
     id: s.id,
-    uuid: s.site_id,
+    uuid: s.site_id || String(s.id),
     displayId: s.site_id?.substring(0, 8) || String(s.id),
     is_metro: !!s.is_metro,
     name: s.name,
