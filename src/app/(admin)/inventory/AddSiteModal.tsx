@@ -18,12 +18,8 @@ export default function AddSiteModal() {
     startTransition(async () => {
       const res = await addSite(formData);
       if (res?.success) {
-        if (res.isPending) {
-          setSuccessMsg("Request sent for approval to Super Admin.");
-          setTimeout(() => setIsOpen(false), 3000);
-        } else {
-          setIsOpen(false);
-        }
+        setSuccessMsg("Site added successfully.");
+        setTimeout(() => setIsOpen(false), 2000);
         setError(null);
       } else {
         setError(res?.error || "Failed to add site. Please try again.");
