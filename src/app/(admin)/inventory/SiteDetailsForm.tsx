@@ -270,21 +270,67 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             <h2 className="text-lg font-semibold">Photos</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Day (Long) Image URL</label>
-              <input name="day_long_photo" defaultValue={site?.day_long_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Day (Mid) Image URL</label>
-              <input name="day_mid_photo" defaultValue={site?.day_mid_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Night (Mid) Image URL</label>
-              <input name="night_mid_photo" defaultValue={site?.night_mid_photo} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://..." />
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-4">
+              <label className="text-sm font-medium block">Upload Photos (Max 5, up to 2MB each)</label>
+              
+              <div className="flex items-center gap-4">
+                <label className={`flex flex-col items-center justify-center w-full max-w-xs h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-indigo-400 focus:outline-none ${existingImages.length + newFiles.length >= 5 ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600">Click to upload images</span>
+                  <span className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP up to 2MB</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={existingImages.length + newFiles.length >= 5}
+                  />
+                </label>
+                <div className="text-sm text-gray-500">
+                  <span className="font-semibold text-gray-800">{existingImages.length + newFiles.length}</span> / 5 images
+                </div>
+              </div>
+
+              {/* Previews */}
+              {(existingImages.length > 0 || previewUrls.length > 0) && (
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
+                  {existingImages.map((url, i) => (
+                    <div key={`existing-${i}`} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {previewUrls.map((url, i) => (
+                    <div key={`new-${i}`} className="relative group rounded-lg overflow-hidden border-2 border-indigo-300 aspect-square bg-gray-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`New photo ${i + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-indigo-600/80 text-white text-xs text-center py-0.5 font-medium">New</div>
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
+
 
         <div className="flex justify-end pt-4">
           <button
