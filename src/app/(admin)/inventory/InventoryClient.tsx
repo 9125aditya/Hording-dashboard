@@ -15,6 +15,7 @@ type SiteItem = {
   size: string;
   type: string;
   lit_type: string;
+  landlord: string;
   status: string;
   statusColor: string;
   qty: number;
@@ -199,6 +200,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Sr.</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">City</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Hoarding Location</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">LIT/ N.LIT</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Size (WxH)</th>
@@ -215,13 +217,14 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{startIndex + index}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.city}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
@@ -252,6 +255,8 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Sr.</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Line</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[200px]">Locations</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Landlord</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">LIT/ N.LIT</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">TYPE</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Media</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DESIGN SIZE WXH</th>
@@ -268,13 +273,14 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={15} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">{startIndex + index}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.metro_line || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap font-medium text-gray-900 min-w-[200px]">{item.name}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-700">{item.landlord || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.lit_type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.type}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>

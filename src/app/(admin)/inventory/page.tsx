@@ -21,6 +21,7 @@ export default async function InventoryPage() {
     size: s.size,
     type: s.type,
     lit_type: s.lit_type || '',
+    landlord: s.landlord || '',
     qty: s.qty || 1,
     total_sq_ft: s.total_sq_ft || 0,
     printable_size: s.printable_size || '',
