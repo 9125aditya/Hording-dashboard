@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { saveSiteDetails } from "@/backend/actions/actions";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train } from "lucide-react";
+import { Loader2, ArrowLeft, Save, MapPin, Building2, FileText, IndianRupee, Image as ImageIcon, Train, X } from "lucide-react";
 import Link from "next/link";
 import LocationSearch from "@/frontend/components/LocationSearch";
 
@@ -13,6 +13,49 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
   const [error, setError] = useState("");
   const [isMetro, setIsMetro] = useState(site?.is_metro || false);
 
+  // Image handling state
+  const [existingImages, setExistingImages] = useState<string[]>(site?.images || []);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Check total limit
+    if (existingImages.length + newFiles.length + files.length > 5) {
+      setError("You can only upload a maximum of 5 images in total.");
+      return;
+    }
+
+    // Check size limit (2MB)
+    const MAX_SIZE = 2 * 1024 * 1024;
+    for (const file of files) {
+      if (file.size > MAX_SIZE) {
+        setError(`Image ${file.name} exceeds the 2MB size limit.`);
+        return;
+      }
+    }
+
+    setError("");
+    setNewFiles(prev => [...prev, ...files]);
+    
+    // Create preview URLs
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsPending(true);
@@ -20,6 +63,14 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
     const formData = new FormData(e.currentTarget);
     formData.append("is_metro", isMetro.toString());
+    
+    // Append existing images as a JSON string so backend knows what to keep
+    formData.append("existing_images", JSON.stringify(existingImages));
+    
+    // Append new files
+    newFiles.forEach(file => {
+      formData.append("images", file);
+    });
 
     const res = await saveSiteDetails(site?.id ? String(site.id) : null, formData);
 
