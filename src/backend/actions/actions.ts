@@ -271,14 +271,13 @@ export async function updateSiteStatus(id: string, status: string) {
     }
   ]);
 
-  const { error, count } = await supabase
+  const { error } = await supabase
     .from("sites")
     .update({ status })
-    .eq("site_id", id)
-    .select('*', { count: 'exact', head: true });
+    .eq("site_id", id);
 
-  // Fallback: only try numeric id column if id looks like an integer (not a UUID)
-  if (error || count === 0) {
+  if (error) {
+    // Fallback: only try numeric id column if id looks like an integer (not a UUID)
     const isNumericId = /^\d+$/.test(id);
     if (isNumericId) {
       const { error: error2 } = await supabase
@@ -286,7 +285,7 @@ export async function updateSiteStatus(id: string, status: string) {
         .update({ status })
         .eq("id", parseInt(id, 10));
       if (error2) return { error: error2.message };
-    } else if (error) {
+    } else {
       return { error: error.message };
     }
   }
