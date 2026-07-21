@@ -153,7 +153,7 @@ export async function addSite(formData: FormData) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    throw new Error("Insufficient permissions: requires edit_site_details");
+    return { error: "Insufficient permissions: requires edit_site_details" };
   }
 
   const payload = {
@@ -193,7 +193,7 @@ export async function updateSiteStatus(id: string, status: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    throw new Error("Insufficient permissions: requires edit_site_details");
+    return { error: "Insufficient permissions: requires edit_site_details" };
   }
 
   // Log the action for history
@@ -233,7 +233,7 @@ export async function deleteSite(id: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    throw new Error("Insufficient permissions: requires edit_site_details");
+    return { error: "Insufficient permissions: requires edit_site_details" };
   }
 
   // Log the action for history

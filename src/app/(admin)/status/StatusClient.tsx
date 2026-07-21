@@ -129,22 +129,31 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
   const handleStatusChange = (uuid: string, status: string) => {
     setUpdatingId(uuid);
     startTransition(async () => {
-      await updateSiteStatus(uuid, status);
-      // Optimistic update — reflect immediately in UI
-      setLocalInventory(prev =>
-        prev.map(item => {
-          if (item.uuid !== uuid) return item;
-          return {
-            ...item,
-            status,
-            statusColor:
-              status === "Available" ? "bg-emerald-100 text-emerald-700"
-              : status === "Booked"  ? "bg-rose-100 text-rose-700"
-              : "bg-amber-100 text-amber-700",
-          };
-        })
-      );
-      setUpdatingId(null);
+      try {
+        const res = await updateSiteStatus(uuid, status);
+        if (res && res.error) {
+          alert(res.error);
+        } else {
+          // Optimistic update — reflect immediately in UI
+          setLocalInventory(prev =>
+            prev.map(item => {
+              if (item.uuid !== uuid) return item;
+              return {
+                ...item,
+                status,
+                statusColor:
+                  status === "Available" ? "bg-emerald-100 text-emerald-700"
+                  : status === "Booked"  ? "bg-rose-100 text-rose-700"
+                  : "bg-amber-100 text-amber-700",
+              };
+            })
+          );
+        }
+      } catch (err: any) {
+        alert(err.message || "An unexpected error occurred");
+      } finally {
+        setUpdatingId(null);
+      }
     });
   };
 
