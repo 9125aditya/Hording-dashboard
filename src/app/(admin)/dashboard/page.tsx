@@ -91,10 +91,27 @@ export default async function DashboardPage() {
 
       {/* Cities Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">Cities</h2>
         </div>
-        <table className="w-full text-sm">
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-gray-50">
+          {cities.map((city) => (
+            <div key={city.name} className="px-4 py-3 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 text-sm">{city.name}</p>
+                <div className="flex h-2 rounded-full overflow-hidden bg-gray-100 w-full mt-1.5">
+                  {city.avail > 0 && <div className="bg-emerald-500" style={{ width: `${(city.avail/city.total)*100}%` }} />}
+                  {city.booked > 0 && <div className="bg-indigo-500" style={{ width: `${(city.booked/city.total)*100}%` }} />}
+                  {city.blocked > 0 && <div className="bg-amber-400" style={{ width: `${(city.blocked/city.total)*100}%` }} />}
+                </div>
+              </div>
+              <span className="text-sm font-bold text-gray-700 shrink-0">{city.total}</span>
+            </div>
+          ))}
+        </div>
+        {/* Desktop table */}
+        <table className="w-full text-sm hidden md:table">
           <thead>
             <tr className="border-b border-gray-100">
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">City</th>

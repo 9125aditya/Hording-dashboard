@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useMemo, useRef, useEffect } from "react";
-import { Search, CheckCircle, X, Loader2, MapPin, Tag } from "lucide-react";
+import { Search, X, Loader2, MapPin, Tag, ChevronDown } from "lucide-react";
 import { updateSiteStatus } from "@/backend/actions/actions";
 
 type SiteItem = {
@@ -34,15 +34,9 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function StatusDropdown({
-  uuid,
-  currentStatus,
-  isPending,
-  onUpdate,
+  uuid, currentStatus, isPending, onUpdate,
 }: {
-  uuid: string;
-  currentStatus: string;
-  isPending: boolean;
-  onUpdate: (uuid: string, status: string) => void;
+  uuid: string; currentStatus: string; isPending: boolean; onUpdate: (uuid: string, status: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -63,7 +57,7 @@ function StatusDropdown({
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-indigo-300 transition-all disabled:opacity-50"
       >
         Change Status
-        <span className="text-gray-400">▾</span>
+        <ChevronDown className="w-3 h-3 text-gray-400" />
       </button>
       {open && (
         <div className="absolute right-0 mt-1.5 z-50 w-40 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
@@ -91,7 +85,6 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
   const [isPending, startTransition] = useTransition();
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Suggestions: top 8 matches for autocomplete dropdown
   const suggestions = useMemo(() => {
     if (!search.trim()) return [];
     const lower = search.toLowerCase();
@@ -100,11 +93,9 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
         item.name?.toLowerCase().includes(lower) ||
         item.city?.toLowerCase().includes(lower) ||
         item.area?.toLowerCase().includes(lower)
-      )
-      .slice(0, 8);
+      ).slice(0, 8);
   }, [localInventory, search]);
 
-  // Filtered sites for the table
   const filteredSites = useMemo(() => {
     if (!search.trim()) return localInventory;
     const lower = search.toLowerCase();
@@ -115,12 +106,9 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
     );
   }, [localInventory, search]);
 
-  // Close suggestions on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSuggestions(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -134,13 +122,11 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
         if (res && res.error) {
           alert(res.error);
         } else {
-          // Optimistic update — reflect immediately in UI
           setLocalInventory(prev =>
             prev.map(item => {
               if (item.uuid !== uuid) return item;
               return {
-                ...item,
-                status,
+                ...item, status,
                 statusColor:
                   status === "Available" ? "bg-emerald-100 text-emerald-700"
                   : status === "Booked"  ? "bg-rose-100 text-rose-700"
@@ -157,46 +143,36 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
     });
   };
 
-  const selectSuggestion = (item: SiteItem) => {
-    setSearch(item.name);
-    setShowSuggestions(false);
-  };
-
   return (
     <div className="space-y-4">
-      {/* Search with Autocomplete */}
+      {/* Search */}
       <div ref={searchRef} className="relative">
         <div className="relative">
           <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Type a site name to search..."
+            placeholder="Search by site, city or area..."
             value={search}
             onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
             onFocus={() => setShowSuggestions(true)}
             className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 transition-all shadow-sm"
           />
           {search && (
-            <button
-              onClick={() => { setSearch(""); setShowSuggestions(false); }}
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
-            >
+            <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors">
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
-
-        {/* Suggestions Dropdown */}
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
             {suggestions.map(item => (
               <button
                 key={item.uuid}
-                onClick={() => selectSuggestion(item)}
+                onClick={() => { setSearch(item.name); setShowSuggestions(false); }}
                 className="w-full flex items-start gap-3 px-4 py-3 hover:bg-indigo-50 text-left transition-colors border-b border-gray-50 last:border-0"
               >
                 <MapPin className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
                   <p className="text-xs text-gray-500 truncate">{item.city}{item.area ? `, ${item.area}` : ""} · {item.type}</p>
                 </div>
@@ -208,35 +184,70 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {STATUS_OPTIONS.map(opt => {
           const count = localInventory.filter(i => i.status === opt.label).length;
           return (
-            <div key={opt.label} className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex items-center gap-3">
-              <span className={`w-3 h-3 rounded-full ${opt.dot} shrink-0`} />
+            <div key={opt.label} className="bg-white rounded-xl border border-gray-200 px-3 py-3 sm:px-4 flex items-center gap-2 sm:gap-3">
+              <span className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${opt.dot} shrink-0`} />
               <div>
-                <p className="text-xl font-bold text-gray-900">{count}</p>
-                <p className="text-xs text-gray-500 font-medium">{opt.label}</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900">{count}</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 font-medium">{opt.label}</p>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {/* Header */}
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Showing {filteredSites.length} of {localInventory.length} sites
-          </span>
-          {isPending && (
-            <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
-            </div>
-          )}
-        </div>
+      {/* Count bar */}
+      <div className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          {filteredSites.length} of {localInventory.length} sites
+        </span>
+        {isPending && (
+          <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
+          </div>
+        )}
+      </div>
 
+      {/* Mobile: Card List */}
+      <div className="md:hidden space-y-2">
+        {filteredSites.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
+            <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <p className="text-gray-500 text-sm">No sites found.</p>
+          </div>
+        ) : (
+          filteredSites.map(item => (
+            <div
+              key={item.uuid}
+              className={`bg-white rounded-xl border border-gray-200 p-4 transition-opacity ${updatingId === item.uuid ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-gray-900 text-sm leading-snug">{item.name}</p>
+                  <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{item.city}{item.area ? `, ${item.area}` : ""}</span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-500">
+                    <Tag className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{item.type}{item.lit_type ? ` · ${item.lit_type}` : ""}</span>
+                  </div>
+                </div>
+                <StatusBadge status={item.status} />
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-end">
+                <StatusDropdown uuid={item.uuid} currentStatus={item.status} isPending={isPending} onUpdate={handleStatusChange} />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop: Table */}
+      <div className="hidden md:block bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="border-b border-gray-100">
@@ -258,10 +269,7 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
                 </tr>
               ) : (
                 filteredSites.map(item => (
-                  <tr
-                    key={item.uuid}
-                    className={`hover:bg-gray-50 transition-colors ${updatingId === item.uuid ? "opacity-60" : ""}`}
-                  >
+                  <tr key={item.uuid} className={`hover:bg-gray-50 transition-colors ${updatingId === item.uuid ? "opacity-60" : ""}`}>
                     <td className="px-5 py-4 font-semibold text-gray-900">{item.name}</td>
                     <td className="px-5 py-4 text-gray-500 text-sm">
                       <div className="flex items-center gap-1">
@@ -275,16 +283,9 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
                         {item.type}{item.lit_type ? ` · ${item.lit_type}` : ""}
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <StatusBadge status={item.status} />
-                    </td>
+                    <td className="px-5 py-4"><StatusBadge status={item.status} /></td>
                     <td className="px-5 py-4 text-right">
-                      <StatusDropdown
-                        uuid={item.uuid}
-                        currentStatus={item.status}
-                        isPending={isPending}
-                        onUpdate={handleStatusChange}
-                      />
+                      <StatusDropdown uuid={item.uuid} currentStatus={item.status} isPending={isPending} onUpdate={handleStatusChange} />
                     </td>
                   </tr>
                 ))

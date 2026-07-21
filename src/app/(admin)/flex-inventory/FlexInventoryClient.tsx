@@ -109,37 +109,40 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
       {/* Content */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {activeTab === "Stock" ? (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[400px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sr No.</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Size</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Inward Total</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Outward Total</th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">Qty Available</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sr No.</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Size</th>
+                <th className="px-4 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Inward</th>
+                <th className="px-4 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Outward</th>
+                <th className="px-4 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">Available</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {Object.keys(stockMap).map((size, idx) => (
                 <tr key={size} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-3.5 text-gray-500">{idx + 1}</td>
-                  <td className="px-6 py-3.5 font-bold text-gray-900">{size}</td>
-                  <td className="px-6 py-3.5 text-right text-gray-600">{stockMap[size].inward}</td>
-                  <td className="px-6 py-3.5 text-right text-gray-600">{stockMap[size].outward}</td>
-                  <td className="px-6 py-3.5 text-right font-bold text-indigo-600 bg-indigo-50/30">{stockMap[size].available}</td>
+                  <td className="px-4 py-3 text-gray-500">{idx + 1}</td>
+                  <td className="px-4 py-3 font-bold text-gray-900">{size}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{stockMap[size].inward}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{stockMap[size].outward}</td>
+                  <td className="px-4 py-3 text-right font-bold text-indigo-600 bg-indigo-50/30">{stockMap[size].available}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Size</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Size</th>
+                <th className="px-4 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -148,23 +151,24 @@ export default function FlexInventoryClient({ transactions }: { transactions: Fl
               ) : (
                 transactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-3.5 text-gray-500">
-                      {new Date(tx.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      {new Date(tx.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-3.5">
+                    <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${tx.type === 'INWARD' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                         {tx.type === 'INWARD' ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
                         {tx.type}
                       </span>
                     </td>
-                    <td className="px-6 py-3.5 font-bold text-gray-900">{tx.size}</td>
-                    <td className="px-6 py-3.5 text-right font-bold text-gray-700">{tx.quantity}</td>
-                    <td className="px-6 py-3.5 text-gray-500 text-xs truncate max-w-[200px]">{tx.notes || '-'}</td>
+                    <td className="px-4 py-3 font-bold text-gray-900">{tx.size}</td>
+                    <td className="px-4 py-3 text-right font-bold text-gray-700">{tx.quantity}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs truncate max-w-[140px]">{tx.notes || '-'}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

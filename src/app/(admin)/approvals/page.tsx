@@ -63,8 +63,8 @@ export default async function ApprovalsPage() {
   return (
     <div className="space-y-6 max-w-[1100px] mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Action History</h1>
-        <p className="text-sm text-gray-500 mt-1">History of auto-approved actions by administrators</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Action History</h1>
+        <p className="text-sm text-gray-500 mt-1">History of actions and pending requests by administrators</p>
       </div>
 
       {/* Stats Row */}
@@ -87,8 +87,8 @@ export default async function ApprovalsPage() {
           </div>
         ) : (
           requests.map((req: any) => (
-            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:border-gray-300 transition-colors">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 hover:border-gray-300 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-4">
                   {/* Status Icon */}
                   <div className="mt-0.5">
