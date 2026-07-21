@@ -24,10 +24,10 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   return (
     <div className="min-h-full flex flex-col bg-[#f4f8fb] text-slate-900 font-sans">
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 w-full bg-[#f4f8fb]/90 backdrop-blur-md">
-        <div className="container flex h-20 max-w-7xl items-center mx-auto px-6 justify-between">
+      <header className="sticky top-0 z-50 w-full bg-[#f4f8fb] border-b border-slate-200/70 shadow-sm">
+        <div className="container flex h-16 md:h-20 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Sellads Advertising" className="h-12 w-auto object-contain" />
+            <img src="/logo.png" alt="Sellads Advertising" className="h-9 md:h-12 w-auto object-contain" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
@@ -64,9 +64,9 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-[#031e6c] text-white pt-16 pb-8 border-t border-[#031d68]">
+      <footer className="bg-[#031e6c] text-white pt-10 md:pt-16 pb-8 border-t border-[#031d68]">
         <div className="container mx-auto px-6 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-16">
             
             {/* Brand Column */}
             <div className="col-span-1 md:col-span-1">

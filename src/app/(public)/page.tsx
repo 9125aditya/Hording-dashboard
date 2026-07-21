@@ -9,18 +9,18 @@ export default function PublicHomePage() {
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb]">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center pt-10 pb-20 overflow-hidden">
+      <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-8 pb-16 md:pb-20 overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 z-0 pointer-events-none"></div>
         
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-8 items-center">
             
             {/* Left Content */}
             <div className="flex flex-col items-start max-w-2xl">
 
               <AnimateOnScroll animation="fade-right" delay={100} duration={700}>
-                <h1 className="text-[3.5rem] sm:text-6xl lg:text-[6rem] font-black tracking-[-0.03em] leading-[1.05] mb-8">
+                <h1 className="text-[2.6rem] sm:text-5xl lg:text-[6rem] font-black tracking-[-0.03em] leading-[1.05] mb-6 md:mb-8">
                   <span className="text-[#111111] block">Your Brand.</span>
                   <span className="text-[#0047cc] block font-[family-name:var(--font-michroma)] font-bold tracking-tight text-[0.85em] py-1">Every Street.</span>
                   <span className="text-[#111111] block">Every City.</span>
@@ -28,7 +28,7 @@ export default function PublicHomePage() {
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-right" delay={200} duration={700}>
-                <p className="text-[17px] text-slate-500 mb-10 max-w-[500px] leading-relaxed font-medium">
+                <p className="text-[15px] md:text-[17px] text-slate-500 mb-8 md:mb-10 max-w-[500px] leading-relaxed font-medium">
                   Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, and get personalized rates.
                 </p>
               </AnimateOnScroll>
@@ -80,7 +80,7 @@ export default function PublicHomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <AnimateOnScroll animation="fade-up" delay={100} className="h-full">
-              <div className="bg-white p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+              <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-blue-600 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-blue-600/20">
                   <Megaphone className="h-7 w-7" />
                 </div>
@@ -93,7 +93,7 @@ export default function PublicHomePage() {
             </AnimateOnScroll>
 
             <AnimateOnScroll animation="fade-up" delay={200} className="h-full">
-              <div className="bg-white p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+              <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-[#fab935] rounded-2xl flex items-center justify-center text-slate-900 mb-8 shadow-lg shadow-amber-400/20">
                   <Globe className="h-7 w-7" />
                 </div>
@@ -106,7 +106,7 @@ export default function PublicHomePage() {
             </AnimateOnScroll>
 
             <AnimateOnScroll animation="fade-up" delay={300} className="h-full">
-              <div className="bg-white p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+              <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-blue-700 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-blue-700/20">
                   <Calendar className="h-7 w-7" />
                 </div>
@@ -133,14 +133,14 @@ export default function PublicHomePage() {
         <div className="relative flex overflow-x-hidden group">
           <div className="py-8 animate-marquee whitespace-nowrap flex items-center gap-16 px-8">
             {clients.map((client, i) => (
-              <span key={i} className="text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
+              <span key={i} className="text-xl sm:text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
                 {client}
               </span>
             ))}
           </div>
           <div className="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex items-center gap-16 px-8 ml-8">
             {clients.map((client, i) => (
-              <span key={`dup-${i}`} className="text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
+              <span key={`dup-${i}`} className="text-xl sm:text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
                 {client}
               </span>
             ))}
