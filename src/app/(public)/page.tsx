@@ -9,9 +9,11 @@ export default function PublicHomePage() {
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb]">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-8 pb-16 md:pb-20 overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 z-0 pointer-events-none"></div>
+      <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-8 pb-16 md:pb-20">
+        {/* Subtle background glow wrapper to prevent horizontal scroll */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 z-0"></div>
+        </div>
         
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-8 items-center">
