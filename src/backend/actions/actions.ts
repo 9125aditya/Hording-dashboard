@@ -465,7 +465,10 @@ export async function addFlexTransaction(formData: FormData) {
   const notes = formData.get("notes") as string;
 
   const supabase = await createClient();
-  await requireRole(supabase, ['admin', 'super_admin']);
+  const { role } = await getUserAndRole(supabase);
+  if (role === 'public') {
+    return { error: "Insufficient permissions" };
+  }
 
   const { error } = await supabase.from("flex_transactions").insert([
     {

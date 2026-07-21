@@ -55,9 +55,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/status" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Update Status
               </Link>
-              <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
-              </Link>
+
               <Link href="/flex-inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <Package className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
               </Link>
@@ -69,6 +67,9 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               </Link>
               {isSuperAdmin && (
                 <>
+                  <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                    <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
+                  </Link>
                   <Link href="/permissions" onClick={() => setIsOpen(false)} className={navLinkClass}>
                     <Shield className="mr-3 h-[18px] w-[18px]" /> Access Control
                   </Link>

@@ -12,7 +12,7 @@ export default async function FlexInventoryPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   const role = profile?.role || 'public';
   
-  if (role !== 'admin' && role !== 'super_admin') {
+  if (role === 'public') {
      return redirect('/dashboard');
   }
 

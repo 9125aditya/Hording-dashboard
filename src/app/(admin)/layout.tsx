@@ -49,10 +49,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <CheckCircle className="mr-3 h-[18px] w-[18px]" />
             Update Status
           </ActiveLink>
-          <ActiveLink href="/approvals">
-            <CheckCircle className="mr-3 h-[18px] w-[18px]" />
-            Action History
-          </ActiveLink>
+
           <ActiveLink href="/flex-inventory">
             <Package className="mr-3 h-[18px] w-[18px]" />
             Flex Inventory
@@ -67,6 +64,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </ActiveLink>
           {isSuperAdmin && (
             <>
+              <ActiveLink href="/approvals">
+                <CheckCircle className="mr-3 h-[18px] w-[18px]" />
+                Action History
+              </ActiveLink>
               <ActiveLink href="/permissions">
                 <Shield className="mr-3 h-[18px] w-[18px]" />
                 Access Control
