@@ -151,11 +151,6 @@ export async function addSite(formData: FormData) {
   const supabase = await createClient();
   const { user, role, permissions } = await getUserAndRole(supabase);
   
-  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-  if (!hasEditPermission && role !== 'admin') {
-    return { error: "Insufficient permissions: requires edit_site_details" };
-  }
-
   const payload = {
     name,
     type,
@@ -167,6 +162,19 @@ export async function addSite(formData: FormData) {
     lat: 21.1458,
     lng: 79.0882
   };
+
+  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+  if (!hasEditPermission && role !== 'admin') {
+    await supabase.from("admin_requests").insert([
+      {
+        action_type: 'ADD_SITE',
+        payload,
+        requested_by: user.id,
+        status: 'PENDING',
+      }
+    ]);
+    return { error: "Request submitted for approval" };
+  }
 
   // Log the action for history
   await supabase.from("admin_requests").insert([
@@ -193,7 +201,16 @@ export async function updateSiteStatus(id: string, status: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    return { error: "Insufficient permissions: requires edit_site_details" };
+    await supabase.from("admin_requests").insert([
+      {
+        action_type: 'UPDATE_STATUS',
+        entity_id: id,
+        payload: { site_id: id, status },
+        requested_by: user.id,
+        status: 'PENDING',
+      }
+    ]);
+    return { error: "Request submitted for approval" };
   }
 
   // Log the action for history
@@ -233,7 +250,16 @@ export async function deleteSite(id: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    return { error: "Insufficient permissions: requires edit_site_details" };
+    await supabase.from("admin_requests").insert([
+      {
+        action_type: 'DELETE_SITE',
+        entity_id: id,
+        payload: { site_id: id },
+        requested_by: user.id,
+        status: 'PENDING',
+      }
+    ]);
+    return { error: "Request submitted for approval" };
   }
 
   // Log the action for history
@@ -313,9 +339,6 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
     const { user, role, permissions } = await getUserAndRole(supabase);
     
     const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-    if (!hasEditPermission && role !== 'admin') {
-      return { error: "Insufficient permissions: requires edit_site_details" };
-    }
 
     // ---- Handle image uploads ----
     const existingImagesRaw = formData.get("existing_images") as string;
@@ -423,6 +446,19 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       // Images array
       images: finalImages,
     };
+
+    if (!hasEditPermission && role !== 'admin') {
+      await supabase.from("admin_requests").insert([
+        {
+          action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
+          entity_id: siteId,
+          payload: { ...payload, site_id: siteId },
+          requested_by: user.id,
+          status: 'PENDING',
+        }
+      ]);
+      return { error: "Request submitted for approval" };
+    }
 
     // Log the action for history
     await supabase.from("admin_requests").insert([
