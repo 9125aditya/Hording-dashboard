@@ -26,6 +26,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const userInitial = (user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A').toUpperCase();
   const avatarBase64 = user?.user_metadata?.avatar_base64 || null;
 
+  // Fetch nav counts
+  let enquiryCount = 0;
+  let pendingCount = 0;
+  try {
+    if (user) {
+      const supabase2 = await createClient();
+      const [{ count: eCount }, { count: pCount }] = await Promise.all([
+        supabase2.from('enquiries').select('*', { count: 'exact', head: true }).eq('status', 'New'),
+        supabase2.from('admin_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+      ]);
+      enquiryCount = eCount || 0;
+      pendingCount = pCount || 0;
+    }
+  } catch {}
+
   return (
     <div className="min-h-full flex w-full bg-gray-50/80">
       {/* Light Sidebar */}
@@ -61,12 +76,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <ActiveLink href="/enquiries">
             <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
+            {enquiryCount > 0 && (
+              <span className="ml-auto text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
+                {enquiryCount}
+              </span>
+            )}
           </ActiveLink>
           {isSuperAdmin && (
             <>
               <ActiveLink href="/approvals">
                 <CheckCircle className="mr-3 h-[18px] w-[18px]" />
                 Action History
+                {pendingCount > 0 && (
+                  <span className="ml-auto text-[10px] font-bold bg-amber-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
+                    {pendingCount}
+                  </span>
+                )}
               </ActiveLink>
               <ActiveLink href="/permissions">
                 <Shield className="mr-3 h-[18px] w-[18px]" />
@@ -115,7 +140,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex-1 flex flex-col min-w-0 md:ml-[220px]">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 md:px-6 justify-between sticky top-0 z-30">
           <div className="flex items-center">
-            <AdminMobileMenu isSuperAdmin={isSuperAdmin} />
+            <AdminMobileMenu isSuperAdmin={isSuperAdmin} enquiryCount={enquiryCount} pendingCount={pendingCount} />
           </div>
           <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="hidden sm:flex flex-col items-end mr-1">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, LogOut, X, Menu, ExternalLink, CheckCircle, Shield, Users, MapPin, Package } from "lucide-react";
 import { logout } from "@/backend/actions/auth-actions";
 
-export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
+export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; pendingCount?: number }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -62,13 +62,27 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
               <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <Map className="mr-3 h-[18px] w-[18px]" /> Map View
               </Link>
-              <Link href="/enquiries" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <MessageSquare className="mr-3 h-[18px] w-[18px]" /> Enquiries
+              <Link href="/enquiries" onClick={() => setIsOpen(false)} className={`${navLinkClass} justify-between`}>
+                <span className="flex items-center">
+                  <MessageSquare className="mr-3 h-[18px] w-[18px]" /> Enquiries
+                </span>
+                {enquiryCount > 0 && (
+                  <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
+                    {enquiryCount}
+                  </span>
+                )}
               </Link>
               {isSuperAdmin && (
                 <>
-                  <Link href="/approvals" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                    <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
+                  <Link href="/approvals" onClick={() => setIsOpen(false)} className={`${navLinkClass} justify-between`}>
+                    <span className="flex items-center">
+                      <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
+                    </span>
+                    {pendingCount > 0 && (
+                      <span className="text-[10px] font-bold bg-amber-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
+                        {pendingCount}
+                      </span>
+                    )}
                   </Link>
                   <Link href="/permissions" onClick={() => setIsOpen(false)} className={navLinkClass}>
                     <Shield className="mr-3 h-[18px] w-[18px]" /> Access Control
