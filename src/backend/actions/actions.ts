@@ -115,6 +115,7 @@ export async function addApplication(formData: FormData) {
 
 export async function updateEnquiryStatus(id: number, status: string) {
   const supabase = await createClient();
+  const { user } = await getUserAndRole(supabase);
   await requireRole(supabase, ['admin', 'super_admin']);
 
   const { error } = await supabase
@@ -123,12 +124,26 @@ export async function updateEnquiryStatus(id: number, status: string) {
     .eq("id", id);
     
   if (error) return { error: error.message };
+
+  // Log to action history
+  const adminClient = getAdminSupabase();
+  await adminClient.from("admin_requests").insert([{
+    action_type: 'UPDATE_ENQUIRY_STATUS',
+    entity_id: String(id),
+    payload: { enquiry_id: id, status },
+    requested_by: user.id,
+    status: 'APPROVED',
+    resolved_at: new Date().toISOString(),
+    resolved_by: user.id,
+  }]);
+
   revalidatePath("/admin/enquiries");
   return { success: true };
 }
 
 export async function addEnquiryNote(id: number, currentMessage: string, noteText: string, isReply: boolean = false) {
   const supabase = await createClient();
+  const { user } = await getUserAndRole(supabase);
   await requireRole(supabase, ['admin', 'super_admin']);
 
   const timestamp = new Date().toLocaleString('en-IN');
@@ -141,6 +156,19 @@ export async function addEnquiryNote(id: number, currentMessage: string, noteTex
     .eq("id", id);
     
   if (error) return { error: error.message };
+
+  // Log to action history
+  const adminClient = getAdminSupabase();
+  await adminClient.from("admin_requests").insert([{
+    action_type: isReply ? 'ENQUIRY_REPLY' : 'ENQUIRY_NOTE',
+    entity_id: String(id),
+    payload: { enquiry_id: id, note: noteText, is_reply: isReply },
+    requested_by: user.id,
+    status: 'APPROVED',
+    resolved_at: new Date().toISOString(),
+    resolved_by: user.id,
+  }]);
+
   revalidatePath("/admin/enquiries");
   return { success: true };
 }
@@ -186,8 +214,9 @@ export async function addSite(formData: FormData) {
     return { error: "Request submitted for approval" };
   }
 
-  // Log the action for history
-  await supabase.from("admin_requests").insert([
+  // Log the action for history (use service client to bypass RLS)
+  const adminClient = getAdminSupabase();
+  await adminClient.from("admin_requests").insert([
     {
       action_type: 'ADD_SITE',
       payload,
@@ -228,8 +257,9 @@ export async function updateSiteStatus(id: string, status: string) {
     return { error: "Request submitted for approval" };
   }
 
-  // Log the action for history
-  await supabase.from("admin_requests").insert([
+  // Log the action for history (use service client to bypass RLS)
+  const adminClient = getAdminSupabase();
+  await adminClient.from("admin_requests").insert([
     {
       action_type: 'UPDATE_STATUS',
       entity_id: id,
@@ -278,8 +308,9 @@ export async function deleteSite(id: string) {
     return { error: "Request submitted for approval" };
   }
 
-  // Log the action for history
-  await supabase.from("admin_requests").insert([
+  // Log the action for history (use service client to bypass RLS)
+  const adminClient2 = getAdminSupabase();
+  await adminClient2.from("admin_requests").insert([
     {
       action_type: 'DELETE_SITE',
       entity_id: id,
@@ -518,7 +549,7 @@ export async function addFlexTransaction(formData: FormData) {
   const notes = formData.get("notes") as string;
 
   const supabase = await createClient();
-  const { role } = await getUserAndRole(supabase);
+  const { user, role } = await getUserAndRole(supabase);
   if (role === 'public') {
     return { error: "Insufficient permissions" };
   }
@@ -535,6 +566,17 @@ export async function addFlexTransaction(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  // Log to action history
+  const adminClient = getAdminSupabase();
+  await adminClient.from("admin_requests").insert([{
+    action_type: 'FLEX_TRANSACTION',
+    payload: { type, size, quantity, notes },
+    requested_by: user.id,
+    status: 'APPROVED',
+    resolved_at: new Date().toISOString(),
+    resolved_by: user.id,
+  }]);
 
   revalidatePath("/admin/flex-inventory");
   return { success: true };
