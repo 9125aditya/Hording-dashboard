@@ -71,10 +71,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <Shield className="mr-3 h-[18px] w-[18px]" />
                 Access Control
               </ActiveLink>
-              <ActiveLink href="/staff">
-                <Users className="mr-3 h-[18px] w-[18px]" />
-                Staff
-              </ActiveLink>
+
             </>
           )}
         </nav>

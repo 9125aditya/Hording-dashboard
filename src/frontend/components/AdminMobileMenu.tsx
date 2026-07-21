@@ -72,9 +72,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false }: { isSuperAdmin
                   <Link href="/permissions" onClick={() => setIsOpen(false)} className={navLinkClass}>
                     <Shield className="mr-3 h-[18px] w-[18px]" /> Access Control
                   </Link>
-                  <Link href="/staff" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                    <Users className="mr-3 h-[18px] w-[18px]" /> Staff
-                  </Link>
+
                 </>
               )}
             </nav>
