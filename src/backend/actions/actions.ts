@@ -271,18 +271,24 @@ export async function updateSiteStatus(id: string, status: string) {
     }
   ]);
 
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from("sites")
     .update({ status })
-    .eq("site_id", id);
+    .eq("site_id", id)
+    .select('*', { count: 'exact', head: true });
 
-  // Fallback: try matching by numeric id if site_id match affected 0 rows
-  if (error) {
-    const { error: error2 } = await supabase
-      .from("sites")
-      .update({ status })
-      .eq("id", id);
-    if (error2) return { error: error2.message };
+  // Fallback: only try numeric id column if id looks like an integer (not a UUID)
+  if (error || count === 0) {
+    const isNumericId = /^\d+$/.test(id);
+    if (isNumericId) {
+      const { error: error2 } = await supabase
+        .from("sites")
+        .update({ status })
+        .eq("id", parseInt(id, 10));
+      if (error2) return { error: error2.message };
+    } else if (error) {
+      return { error: error.message };
+    }
   }
   revalidatePath("/inventory");
   revalidatePath("/status");
