@@ -1,7 +1,16 @@
 "use server";
 
 import { createClient } from "@/backend/db/server";
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from "next/cache";
+
+const getAdminSupabase = () => {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
 
 // ==========================================
 // RBAC HELPER
@@ -165,7 +174,8 @@ export async function addSite(formData: FormData) {
 
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    await supabase.from("admin_requests").insert([
+    const adminClient = getAdminSupabase();
+    await adminClient.from("admin_requests").insert([
       {
         action_type: 'ADD_SITE',
         payload,
@@ -201,7 +211,8 @@ export async function updateSiteStatus(id: string, status: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    await supabase.from("admin_requests").insert([
+    const adminClient = getAdminSupabase();
+    const { error: insertError } = await adminClient.from("admin_requests").insert([
       {
         action_type: 'UPDATE_STATUS',
         entity_id: id,
@@ -210,6 +221,10 @@ export async function updateSiteStatus(id: string, status: string) {
         status: 'PENDING',
       }
     ]);
+    if (insertError) {
+      console.error("Insert Error:", insertError);
+      return { error: `Database error: ${insertError.message}` };
+    }
     return { error: "Request submitted for approval" };
   }
 
@@ -250,7 +265,8 @@ export async function deleteSite(id: string) {
   
   const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
   if (!hasEditPermission && role !== 'admin') {
-    await supabase.from("admin_requests").insert([
+    const adminClient = getAdminSupabase();
+    await adminClient.from("admin_requests").insert([
       {
         action_type: 'DELETE_SITE',
         entity_id: id,
@@ -448,7 +464,8 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
     };
 
     if (!hasEditPermission && role !== 'admin') {
-      await supabase.from("admin_requests").insert([
+      const adminClient = getAdminSupabase();
+      await adminClient.from("admin_requests").insert([
         {
           action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
           entity_id: siteId,
