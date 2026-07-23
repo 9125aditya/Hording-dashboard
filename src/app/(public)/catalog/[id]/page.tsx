@@ -92,14 +92,14 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
                <h2 className="font-heading text-2xl font-bold mb-6">Specifications</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                  <div className="flex items-start">
-                   <div className="p-3 bg-secondary rounded-lg mr-4"><ArrowsPointingOutIcon className="h-5 w-5 text-secondary-foreground" /></div>
+                   <ArrowsPointingOutIcon className="h-5 w-5 text-muted-foreground mt-1 mr-4" />
                    <div>
                      <p className="text-sm text-muted-foreground font-medium mb-1">Dimensions</p>
                      <p className="font-semibold text-lg">{site.size}</p>
                    </div>
                  </div>
                  <div className="flex items-start">
-                   <div className="p-3 bg-secondary rounded-lg mr-4"><MapPinIcon className="h-5 w-5 text-secondary-foreground" /></div>
+                   <MapPinIcon className="h-5 w-5 text-muted-foreground mt-1 mr-4" />
                    <div>
                      <p className="text-sm text-muted-foreground font-medium mb-1">Type</p>
                      <p className="font-semibold text-lg">{site.type}</p>
