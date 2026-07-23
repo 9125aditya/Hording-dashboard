@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MapPinIcon, MegaphoneIcon, GlobeAltIcon, CalendarIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import HomeSearchBar from "@/frontend/components/HomeSearchBar";
+import AnimatedBillboard from "@/frontend/components/AnimatedBillboard";
 
 export default function PublicHomePage() {
   const clients = ["Suzuki", "TVS", "Punjab National Bank", "ESAF Bank", "Kalptare", "Godrej Properties", "Krims Hospital", "HCG Hospital", "UltraTech Cement", "Ambuja Cement", "PNG Jewellers", "Tanishq Jewellers", "Polycab Wires", "Blinkit", "IGM", "SDPL", "Priyadarshini", "Aakash Institute", "Allen"];
@@ -41,29 +42,9 @@ export default function PublicHomePage() {
             </div>
 
             {/* Right Content: Billboard Graphic */}
-            <div className="relative hidden lg:flex items-center justify-center h-[600px]">
-              <AnimateOnScroll animation="zoom-in" delay={300} duration={1000} className="relative w-full max-w-[420px] h-[580px]">
-                {/* Red Clips */}
-                <div className="absolute -top-4 left-16 w-8 h-7 bg-[#dd3333] rounded-t-md z-20 shadow-md"></div>
-                <div className="absolute -top-4 right-16 w-8 h-7 bg-[#dd3333] rounded-t-md z-20 shadow-md"></div>
-                {/* Metal Poles connecting clips */}
-                <div className="absolute top-2 left-20 w-1.5 h-6 bg-slate-400 z-10"></div>
-                <div className="absolute top-2 right-20 w-1.5 h-6 bg-slate-400 z-10"></div>
-
-                {/* The Board */}
-                <div className="absolute inset-0 bg-white border-4 border-blue-600 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] flex items-center justify-center z-30 overflow-hidden group transition-transform duration-500 hover:scale-[1.02]">
-                  {/* Subtle inner shadow/gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-slate-50/80"></div>
-                  
-                  <div className="relative z-40 text-center">
-                    <p className="text-blue-200 font-black tracking-[0.4em] text-sm uppercase group-hover:text-blue-500 transition-colors duration-500">
-                      Your ad here
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Glow behind the billboard */}
-                <div className="absolute inset-0 bg-blue-500/10 blur-[50px] -z-10 rounded-[2.5rem]"></div>
+            <div className="relative hidden lg:flex items-center justify-center h-[600px] w-full">
+              <AnimateOnScroll animation="zoom-in" delay={300} duration={1000} className="w-full flex justify-center">
+                <AnimatedBillboard />
               </AnimateOnScroll>
             </div>
           </div>
