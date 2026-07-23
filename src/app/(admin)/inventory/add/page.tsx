@@ -1,5 +1,7 @@
 import SiteDetailsForm from "../SiteDetailsForm";
 
+export const dynamic = 'force-dynamic';
+
 export default function AddSitePage() {
   return (
     <div className="p-4 md:p-8">

@@ -3,6 +3,8 @@ import MapPageClient from "@/frontend/components/MapPageClient";
 import { Suspense } from "react";
 import { createClient } from "@/backend/db/server";
 
+export const dynamic = 'force-dynamic';
+
 export default async function MapPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*');

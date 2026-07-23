@@ -8,6 +8,8 @@ import { addEnquiry } from "@/backend/actions/actions";
 import { createClient } from "@/backend/db/client";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default function ContactPage() {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");

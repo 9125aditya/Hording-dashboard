@@ -186,7 +186,8 @@ export async function addSite(formData: FormData) {
   const price = formData.get("price") as string;
 
   const supabase = await createClient();
-  const { user, role, permissions } = await getUserAndRole(supabase);
+  const { user } = await getUserAndRole(supabase);
+  await requireRole(supabase, ['admin', 'super_admin']);
   
   const payload = {
     name,
@@ -199,20 +200,6 @@ export async function addSite(formData: FormData) {
     lat: 21.1458,
     lng: 79.0882
   };
-
-  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-  if (!hasEditPermission && role !== 'admin') {
-    const adminClient = getAdminSupabase();
-    await adminClient.from("admin_requests").insert([
-      {
-        action_type: 'ADD_SITE',
-        payload,
-        requested_by: user.id,
-        status: 'PENDING',
-      }
-    ]);
-    return { error: "Request submitted for approval" };
-  }
 
   // Log the action for history (use service client to bypass RLS)
   const adminClient = getAdminSupabase();
@@ -236,26 +223,8 @@ export async function addSite(formData: FormData) {
 
 export async function updateSiteStatus(id: string, status: string) {
   const supabase = await createClient();
-  const { user, role, permissions } = await getUserAndRole(supabase);
-  
-  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-  if (!hasEditPermission && role !== 'admin') {
-    const adminClient = getAdminSupabase();
-    const { error: insertError } = await adminClient.from("admin_requests").insert([
-      {
-        action_type: 'UPDATE_STATUS',
-        entity_id: null,
-        payload: { site_id: id, status },
-        requested_by: user.id,
-        status: 'PENDING',
-      }
-    ]);
-    if (insertError) {
-      console.error("Insert Error:", insertError);
-      return { error: `Database error: ${insertError.message}` };
-    }
-    return { error: "Request submitted for approval" };
-  }
+  const { user } = await getUserAndRole(supabase);
+  await requireRole(supabase, ['admin', 'super_admin']);
 
   // Log the action for history (use service client to bypass RLS)
   const adminClient = getAdminSupabase();
@@ -296,23 +265,9 @@ export async function updateSiteStatus(id: string, status: string) {
 
 export async function deleteSite(id: string) {
   const supabase = await createClient();
-  const { user, role, permissions } = await getUserAndRole(supabase);
+  const { user } = await getUserAndRole(supabase);
+  await requireRole(supabase, ['admin', 'super_admin']);
   
-  const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
-  if (!hasEditPermission && role !== 'admin') {
-    const adminClient = getAdminSupabase();
-    await adminClient.from("admin_requests").insert([
-      {
-        action_type: 'DELETE_SITE',
-        entity_id: null,
-        payload: { site_id: id },
-        requested_by: user.id,
-        status: 'PENDING',
-      }
-    ]);
-    return { error: "Request submitted for approval" };
-  }
-
   // Log the action for history (use service client to bypass RLS)
   const adminClient2 = getAdminSupabase();
   await adminClient2.from("admin_requests").insert([
@@ -388,9 +343,8 @@ export async function deleteStaff(id: string) {
 export async function saveSiteDetails(siteId: string | null, formData: FormData) {
   try {
     const supabase = await createClient();
-    const { user, role, permissions } = await getUserAndRole(supabase);
-    
-    const hasEditPermission = role === 'super_admin' || permissions.includes('edit_site_details');
+    const { user } = await getUserAndRole(supabase);
+    await requireRole(supabase, ['admin', 'super_admin']);
 
     // ---- Handle image uploads ----
     const existingImagesRaw = formData.get("existing_images") as string;
@@ -498,20 +452,6 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       // Images array
       images: finalImages,
     };
-
-    if (!hasEditPermission && role !== 'admin') {
-      const adminClient = getAdminSupabase();
-      await adminClient.from("admin_requests").insert([
-        {
-          action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
-          entity_id: null,
-          payload: { ...payload, site_id: siteId },
-          requested_by: user.id,
-          status: 'PENDING',
-        }
-      ]);
-      return { error: "Request submitted for approval" };
-    }
 
     // Log the action for history
     await supabase.from("admin_requests").insert([

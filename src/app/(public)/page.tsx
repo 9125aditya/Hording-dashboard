@@ -4,6 +4,8 @@ import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import HomeSearchBar from "@/frontend/components/HomeSearchBar";
 import AnimatedBillboard from "@/frontend/components/AnimatedBillboard";
 
+export const dynamic = 'force-dynamic';
+
 export default function PublicHomePage() {
   const clients = ["Suzuki", "TVS", "Punjab National Bank", "ESAF Bank", "Kalptare", "Godrej Properties", "Krims Hospital", "HCG Hospital", "UltraTech Cement", "Ambuja Cement", "PNG Jewellers", "Tanishq Jewellers", "Polycab Wires", "Blinkit", "IGM", "SDPL", "Priyadarshini", "Aakash Institute", "Allen"];
 

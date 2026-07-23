@@ -6,6 +6,8 @@ import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { createClient } from "@/backend/db/server";
 import CatalogClient from "./CatalogClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CatalogPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });

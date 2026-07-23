@@ -3,6 +3,8 @@ import { createClient } from "@/backend/db/server";
 import Link from "next/link";
 import PermissionsClient from "./PermissionsClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function PermissionsPage() {
   const supabase = await createClient();
 

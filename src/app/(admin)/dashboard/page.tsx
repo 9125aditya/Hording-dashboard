@@ -2,6 +2,8 @@
 import { createClient } from "@/backend/db/server";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*');

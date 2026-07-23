@@ -4,6 +4,8 @@ import AddStaffModal from "./AddStaffModal";
 import StaffClient from "./StaffClient";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function StaffPage() {
   const supabase = await createClient();
 

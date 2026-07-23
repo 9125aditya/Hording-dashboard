@@ -7,6 +7,8 @@ import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useState, useTransition } from "react";
 import { addApplication } from "@/backend/actions/actions";
 
+export const dynamic = 'force-dynamic';
+
 export default function CareersPage() {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
