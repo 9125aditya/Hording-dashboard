@@ -67,23 +67,7 @@ export default function EnquiriesClient() {
     });
   };
 
-  const handleReply = () => {
-    if (!replyText.trim() || !selectedId) return;
-    const eq = enquiries.find(e => e.id === selectedId);
-    if (!eq) return;
 
-    startTransition(async () => {
-      // Act as "Reply via Email" - saves as note and changes status to Contacted
-      const res = await addEnquiryNote(selectedId, eq.message, replyText, true);
-      await updateEnquiryStatus(selectedId, "Contacted");
-      if (res.success) {
-        const timestamp = new Date().toLocaleString('en-IN');
-        const updatedMsg = `${eq.message}\n\n[SENT REPLY - ${timestamp}]\n${replyText}`;
-        setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg, status: "Contacted" } : e));
-        setReplyText("");
-      }
-    });
-  };
 
   useEffect(() => {
     async function fetchEnquiries() {
@@ -285,21 +269,15 @@ export default function EnquiriesClient() {
                   <textarea 
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Write a reply or internal note..." 
+                    placeholder="Write an internal note for your team..." 
                     className="w-full p-3 pr-3 sm:pr-24 pb-12 sm:pb-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 min-h-[80px] resize-none transition-all" 
                   />
                   <div className="absolute right-3 bottom-3 flex gap-2">
                     <button 
                       onClick={handleAddNote}
                       disabled={!replyText.trim()}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 transition-all">
+                      className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-all">
                       Add Note
-                    </button>
-                    <button 
-                      onClick={handleReply}
-                      disabled={!replyText.trim()}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm disabled:opacity-50 transition-all">
-                      Reply
                     </button>
                   </div>
                 </div>
