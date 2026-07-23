@@ -36,7 +36,8 @@ export async function approveRequest(requestId: string) {
 
   // 2. Apply the requested action
   if (request.action_type === 'ADD_SITE') {
-    const { error } = await supabase.from("sites").insert([request.payload]);
+    const { site_id, ...insertPayload } = request.payload;
+    const { error } = await supabase.from("sites").insert([insertPayload]);
     if (error) return { error: error.message };
   } else if (request.action_type === 'UPDATE_STATUS') {
     const { error } = await supabase
@@ -49,6 +50,13 @@ export async function approveRequest(requestId: string) {
       .from("sites")
       .delete()
       .eq("site_id", request.payload.site_id);
+    if (error) return { error: error.message };
+  } else if (request.action_type === 'UPDATE_SITE') {
+    const { site_id, ...updatePayload } = request.payload;
+    const { error } = await supabase
+      .from("sites")
+      .update(updatePayload)
+      .eq("site_id", site_id);
     if (error) return { error: error.message };
   }
 
