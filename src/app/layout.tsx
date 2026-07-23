@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OOH Media Platform",
+  title: "Sellads",
   description: "Premium outdoor media catalog and management.",
 };
 
