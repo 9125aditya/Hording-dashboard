@@ -113,7 +113,7 @@ export async function addApplication(formData: FormData) {
 // ADMIN ENQUIRIES ACTIONS
 // ==========================================
 
-export async function updateEnquiryStatus(id: number, status: string) {
+export async function updateEnquiryStatus(id: string, status: string) {
   const supabase = await createClient();
   const { user } = await getUserAndRole(supabase);
   await requireRole(supabase, ['admin', 'super_admin']);
@@ -129,7 +129,7 @@ export async function updateEnquiryStatus(id: number, status: string) {
   const adminClient = getAdminSupabase();
   await adminClient.from("admin_requests").insert([{
     action_type: 'UPDATE_ENQUIRY_STATUS',
-    entity_id: String(id),
+    entity_id: id,
     payload: { enquiry_id: id, status },
     requested_by: user.id,
     status: 'APPROVED',
@@ -141,7 +141,7 @@ export async function updateEnquiryStatus(id: number, status: string) {
   return { success: true };
 }
 
-export async function addEnquiryNote(id: number, currentMessage: string, noteText: string, isReply: boolean = false) {
+export async function addEnquiryNote(id: string, currentMessage: string, noteText: string, isReply: boolean = false) {
   const supabase = await createClient();
   const { user } = await getUserAndRole(supabase);
   await requireRole(supabase, ['admin', 'super_admin']);
@@ -161,7 +161,7 @@ export async function addEnquiryNote(id: number, currentMessage: string, noteTex
   const adminClient = getAdminSupabase();
   await adminClient.from("admin_requests").insert([{
     action_type: isReply ? 'ENQUIRY_REPLY' : 'ENQUIRY_NOTE',
-    entity_id: String(id),
+    entity_id: id,
     payload: { enquiry_id: id, note: noteText, is_reply: isReply },
     requested_by: user.id,
     status: 'APPROVED',
@@ -367,7 +367,7 @@ export async function addStaff(formData: FormData) {
   return { success: true };
 }
 
-export async function deleteStaff(id: number) {
+export async function deleteStaff(id: string) {
   const supabase = await createClient();
   await requireRole(supabase, ['super_admin']);
 

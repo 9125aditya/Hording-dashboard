@@ -40,7 +40,7 @@ export default function EnquiriesClient() {
 
   const handleStatusChange = (id: string, status: string) => {
     startTransition(async () => {
-      const res = await updateEnquiryStatus(Number(id), status);
+      const res = await updateEnquiryStatus(id, status);
       if (res.success) {
         setEnquiries((prev) =>
           prev.map((e) => (e.id === id ? { ...e, status } : e))
@@ -55,7 +55,7 @@ export default function EnquiriesClient() {
     if (!eq) return;
 
     startTransition(async () => {
-      const res = await addEnquiryNote(Number(selectedId), eq.message, replyText, false);
+      const res = await addEnquiryNote(selectedId, eq.message, replyText, false);
       if (res.success) {
         // Update local state by re-fetching or manually appending. 
         // For simplicity, we manually append to the UI immediately.
@@ -74,8 +74,8 @@ export default function EnquiriesClient() {
 
     startTransition(async () => {
       // Act as "Reply via Email" - saves as note and changes status to Contacted
-      const res = await addEnquiryNote(Number(selectedId), eq.message, replyText, true);
-      await updateEnquiryStatus(Number(selectedId), "Contacted");
+      const res = await addEnquiryNote(selectedId, eq.message, replyText, true);
+      await updateEnquiryStatus(selectedId, "Contacted");
       if (res.success) {
         const timestamp = new Date().toLocaleString('en-IN');
         const updatedMsg = `${eq.message}\n\n[SENT REPLY - ${timestamp}]\n${replyText}`;
