@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useDeferredValue } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRightIcon, MapPinIcon, ArrowsPointingOutIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
@@ -10,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 function CatalogFilters({ sites }: { sites: any[] }) {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
+  const deferredSearch = useDeferredValue(search);
   const [activeArea, setActiveArea] = useState("All");
   const [activeType, setActiveType] = useState("All");
 
@@ -19,7 +21,7 @@ function CatalogFilters({ sites }: { sites: any[] }) {
   const filteredSites = sites.filter(site => {
     if (activeArea !== "All" && site.city !== activeArea) return false;
     if (activeType !== "All" && site.type !== activeType) return false;
-    if (search && !site.name.toLowerCase().includes(search.toLowerCase()) && !site.city?.toLowerCase().includes(search.toLowerCase())) return false;
+    if (deferredSearch && !site.name.toLowerCase().includes(deferredSearch.toLowerCase()) && !site.city?.toLowerCase().includes(deferredSearch.toLowerCase())) return false;
     return true;
   });
 
@@ -71,7 +73,7 @@ function CatalogFilters({ sites }: { sites: any[] }) {
             <AnimateOnScroll key={site.id} animation="fade-up" delay={(i % 10) * 100}>
               <Link href={`/catalog/${site.id}`} className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover-lift">
                 <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                  <img src={site.img} alt={site.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <Image src={site.img} alt={site.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent opacity-60" />
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
                 </div>

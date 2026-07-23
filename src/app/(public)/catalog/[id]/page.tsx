@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, ShareIcon, PrinterIcon, MapIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
@@ -65,12 +66,12 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
 
             {/* Gallery */}
             <div className="space-y-4">
-              <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-muted border border-border">
-                <img src={site.images[0]} alt={site.name} className="w-full h-full object-cover" />
+              <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-muted border border-border relative">
+                <Image src={site.images[0]} alt={site.name} fill priority sizes="100vw" className="object-cover" />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border">
-                  <img src={site.images[1]} alt={site.name} className="w-full h-full object-cover" />
+                <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border relative">
+                  <Image src={site.images[1]} alt={site.name} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />
                 </div>
                 <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border flex items-center justify-center relative group cursor-pointer">
                   <MapIcon className="h-10 w-10 text-muted-foreground group-hover:scale-110 transition-transform" />
@@ -134,7 +135,7 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
               {/* Mini Map */}
               <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm flex flex-col">
                  <div className="h-48 bg-muted relative">
-                   <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80" alt="Map area" className="w-full h-full object-cover opacity-50 grayscale" />
+                   <Image src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80" alt="Map area" fill sizes="300px" className="object-cover opacity-50 grayscale" />
                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                      <MapPinIcon className="h-8 w-8 text-primary drop-shadow-md" fill="currentColor" />
                    </div>
