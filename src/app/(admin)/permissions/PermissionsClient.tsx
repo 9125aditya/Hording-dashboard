@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Shield, ShieldCheck, Loader2, AlertCircle, User, Briefcase, Eye, Pencil, ChevronDown, ChevronRight } from "lucide-react";
-import { updateUserDetails } from "@/backend/actions/admin-actions";
+import { Shield, ShieldCheck, Loader2, AlertCircle, User, Briefcase, Eye, Pencil, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
+import { updateUserDetails, deleteAdminUser } from "@/backend/actions/admin-actions";
 
 type Profile = {
   id: string;
@@ -97,6 +97,21 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(PERMISSION_GROUPS.map(g => g.group)));
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = (userId: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete ${userName}? This action cannot be undone.`)) {
+      return;
+    }
+    setDeletingId(userId);
+    startTransition(async () => {
+      const res = await deleteAdminUser(userId);
+      if (!res?.success) {
+        alert(res?.error || "Failed to delete user.");
+      }
+      setDeletingId(null);
+    });
+  };
 
   const permissionLabels = getAllPermissionLabels();
 
@@ -241,14 +256,24 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => openModal(profile)}
-                      disabled={isSuperAdmin}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <Shield className="w-3.5 h-3.5" />
-                      Manage Rights
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openModal(profile)}
+                        disabled={isSuperAdmin}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        Manage Rights
+                      </button>
+                      <button
+                        onClick={() => handleDelete(profile.id, profile.name)}
+                        disabled={isSuperAdmin || deletingId === profile.id}
+                        className="inline-flex items-center justify-center p-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        title="Delete User"
+                      >
+                        {deletingId === profile.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

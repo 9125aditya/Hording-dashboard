@@ -150,3 +150,35 @@ export async function createAdminUser(formData: FormData) {
   revalidatePath("/admin/permissions");
   return { success: true };
 }
+
+export async function deleteAdminUser(targetUserId: string) {
+  const normalClient = await createServerClient();
+  const { data: { user } } = await normalClient.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+  
+  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'super_admin') {
+    return { error: "Insufficient permissions to delete users." };
+  }
+  
+  if (user.id === targetUserId) {
+    return { error: "You cannot delete your own account." };
+  }
+
+  const supabase = getAdminSupabase();
+
+  // 1. Delete from profiles table (this might cascade delete if they have foreign keys, but safe for profiles)
+  const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
+  if (dbError) {
+    return { error: dbError.message };
+  }
+
+  // 2. Delete Auth User
+  const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
+  if (authError) {
+    return { error: authError.message };
+  }
+
+  revalidatePath("/admin/permissions");
+  return { success: true };
+}
