@@ -12,7 +12,7 @@ export default function StaffActions({ staffId }: { staffId: string }) {
     if (confirm("Are you sure you want to delete this staff member?")) {
       setIsOpen(false);
       startTransition(async () => {
-        await deleteStaff(Number(staffId));
+        await deleteStaff(staffId);
       });
     }
   };
