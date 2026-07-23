@@ -105,87 +105,104 @@ export async function updateUserDetails(targetUserId: string, name: string, role
 }
 
 export async function createAdminUser(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const role = formData.get("role") as string;
+  try {
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const role = formData.get("role") as string;
 
-  if (!email || !password || !name) {
-    return { error: "Name, email, and password are required." };
+    if (!email || !password || !name) {
+      return { error: "Name, email, and password are required." };
+    }
+
+    const normalClient = await createServerClient();
+    const { data: { user } } = await normalClient.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+    
+    const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'super_admin') {
+      return { error: "Insufficient permissions to create users." };
+    }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { error: "Server Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing." };
+    }
+
+    const supabase = getAdminSupabase();
+
+    // 1. Create Auth User
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: name, role: role }
+    });
+
+    if (authError) {
+      console.error("Create User Error:", authError);
+      return { error: authError.message || JSON.stringify(authError) || "Unknown Auth Error" };
+    }
+
+    const userId = authData.user.id;
+
+    // 2. Create Profile
+    const { error: profileError } = await supabase.from('profiles').upsert({
+      id: userId,
+      email,
+      name,
+      role: role
+    });
+
+    if (profileError) {
+      console.error("Profile Upsert Error:", profileError);
+    }
+
+    revalidatePath("/admin/permissions");
+    return { success: true };
+  } catch (err: any) {
+    console.error("Caught Exception in createAdminUser:", err);
+    return { error: err.message || JSON.stringify(err) || "An unexpected error occurred during user creation." };
   }
-
-  const normalClient = await createServerClient();
-  const { data: { user } } = await normalClient.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
-  
-  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'super_admin') {
-    return { error: "Insufficient permissions to create users." };
-  }
-
-  const supabase = getAdminSupabase();
-
-  // 1. Create Auth User
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: name, role: role }
-  });
-
-  if (authError) {
-    console.error("Create User Error:", authError);
-    return { error: authError.message };
-  }
-
-  const userId = authData.user.id;
-
-  // 2. Create Profile
-  const { error: profileError } = await supabase.from('profiles').upsert({
-    id: userId,
-    email,
-    name,
-    role: role
-  });
-
-  if (profileError) {
-    console.error("Profile Upsert Error:", profileError);
-    // Continue anyway as the auth user was created
-  }
-
-  revalidatePath("/admin/permissions");
-  return { success: true };
 }
 
 export async function deleteAdminUser(targetUserId: string) {
-  const normalClient = await createServerClient();
-  const { data: { user } } = await normalClient.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
-  
-  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'super_admin') {
-    return { error: "Insufficient permissions to delete users." };
-  }
-  
-  if (user.id === targetUserId) {
-    return { error: "You cannot delete your own account." };
-  }
+  try {
+    const normalClient = await createServerClient();
+    const { data: { user } } = await normalClient.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+    
+    const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'super_admin') {
+      return { error: "Insufficient permissions to delete users." };
+    }
+    
+    if (user.id === targetUserId) {
+      return { error: "You cannot delete your own account." };
+    }
 
-  const supabase = getAdminSupabase();
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { error: "Server Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing." };
+    }
 
-  // 1. Delete Auth User First (this often cascades to profiles)
-  const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
-  if (authError) {
-    console.error("Delete Auth User Error:", authError);
-    return { error: authError.message };
+    const supabase = getAdminSupabase();
+
+    // 1. Delete Auth User First (this often cascades to profiles)
+    const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
+    if (authError) {
+      console.error("Delete Auth User Error:", authError);
+      return { error: authError.message || JSON.stringify(authError) || "Unknown Auth Error" };
+    }
+
+    // 2. Try to delete from profiles table just in case it didn't cascade
+    const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
+    if (dbError) {
+      console.warn("Profile delete warning (may have cascaded already):", dbError.message);
+    }
+
+    revalidatePath("/admin/permissions");
+    return { success: true };
+  } catch (err: any) {
+    console.error("Caught Exception in deleteAdminUser:", err);
+    return { error: err.message || JSON.stringify(err) || "An unexpected error occurred during user deletion." };
   }
-
-  // 2. Try to delete from profiles table just in case it didn't cascade
-  const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
-  if (dbError) {
-    console.warn("Profile delete warning (may have cascaded already):", dbError.message);
-  }
-
-  revalidatePath("/admin/permissions");
-  return { success: true };
 }
