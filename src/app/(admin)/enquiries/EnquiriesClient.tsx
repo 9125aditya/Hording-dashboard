@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useMemo, useDeferredValue } from "react";
 import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2, Building } from "lucide-react";
 import { createClient } from "@/backend/db/client";
 import { updateEnquiryStatus, addEnquiryNote } from "@/backend/actions/actions";
@@ -33,19 +33,17 @@ export default function EnquiriesClient() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted">("All");
   const [replyText, setReplyText] = useState("");
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
 
   const handleStatusChange = (id: string, status: string) => {
+    // Optimistic update for instant feedback
+    setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, status } : e)));
     startTransition(async () => {
-      const res = await updateEnquiryStatus(id, status);
-      if (res.success) {
-        setEnquiries((prev) =>
-          prev.map((e) => (e.id === id ? { ...e, status } : e))
-        );
-      }
+      await updateEnquiryStatus(id, status);
     });
   };
 
@@ -54,16 +52,16 @@ export default function EnquiriesClient() {
     const eq = enquiries.find(e => e.id === selectedId);
     if (!eq) return;
 
+    const timestamp = new Date().toLocaleString('en-IN');
+    const updatedMsg = `${eq.message || ''}\n\n[INTERNAL NOTE - ${timestamp}]\n${replyText}`;
+    const textToSave = replyText;
+
+    // Optimistic update
+    setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg } : e));
+    setReplyText("");
+
     startTransition(async () => {
-      const res = await addEnquiryNote(selectedId, eq.message, replyText, false);
-      if (res.success) {
-        // Update local state by re-fetching or manually appending. 
-        // For simplicity, we manually append to the UI immediately.
-        const timestamp = new Date().toLocaleString('en-IN');
-        const updatedMsg = `${eq.message}\n\n[INTERNAL NOTE - ${timestamp}]\n${replyText}`;
-        setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg } : e));
-        setReplyText("");
-      }
+      await addEnquiryNote(selectedId, eq.message || '', textToSave, false);
     });
   };
 
@@ -76,15 +74,15 @@ export default function EnquiriesClient() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setEnquiries(data.map((e: any) => ({
           id: e.id,
-          name: e.name,
-          company: e.company || 'N/A',
-          email: e.email,
-          phone: e.phone || 'N/A',
+          name: e.name || 'Unknown',
+          company: e.company || '',
+          email: e.email || '',
+          phone: e.phone || '',
           site: 'Various',
           siteId: 'Multiple',
           status: e.status,
           date: new Date(e.created_at).toLocaleDateString(),
-          message: e.message
+          message: e.message || ''
         })));
       }
       setLoading(false);
@@ -92,13 +90,16 @@ export default function EnquiriesClient() {
     fetchEnquiries();
   }, [supabase]);
 
-  const filteredEnquiries = enquiries.filter(eq => {
-    const matchesSearch = eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          eq.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          eq.company.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = activeTab === "All" || eq.status === activeTab;
-    return matchesSearch && matchesTab;
-  });
+  const filteredEnquiries = useMemo(() => {
+    const lowerQuery = deferredSearchQuery.toLowerCase();
+    return enquiries.filter(eq => {
+      const matchesSearch = (eq.name || '').toLowerCase().includes(lowerQuery) || 
+                            (eq.email || '').toLowerCase().includes(lowerQuery) || 
+                            (eq.company || '').toLowerCase().includes(lowerQuery);
+      const matchesTab = activeTab === "All" || eq.status === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [enquiries, deferredSearchQuery, activeTab]);
 
   const selected = enquiries.find((e) => e.id === selectedId) ?? null;
 
