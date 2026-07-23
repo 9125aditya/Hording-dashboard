@@ -54,21 +54,17 @@ export default function CareersPage() {
             <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 md:p-12">
               
               {/* Form Header */}
-              <div className="flex flex-col md:flex-row md:items-center gap-5 mb-8">
-                <div className="w-[52px] h-[52px] bg-orange-50 rounded-2xl flex items-center justify-center shrink-0 border border-orange-100/50">
-                  <BriefcaseIcon className="h-6 w-6 text-orange-600" strokeWidth={2.5} />
-                </div>
-                <div>
-                  <h2 className="text-[26px] font-black text-slate-900 tracking-tight mb-1">Apply Now</h2>
-                  <p className="text-slate-500 font-medium text-[15px]">Tell us about yourself and we'll be in touch.</p>
-                </div>
+              <div className="mb-8 border-b border-slate-100 pb-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-1 bg-gradient-to-l from-orange-400 to-transparent rounded-full"></div>
+                <h2 className="text-[28px] font-black text-slate-900 tracking-tight mb-1">Apply Now</h2>
+                <p className="text-slate-500 font-medium text-[15px]">Tell us about yourself and we'll be in touch.</p>
               </div>
 
               {/* Email Alert */}
-              <div className="bg-[#eef5fd] rounded-xl p-4 flex items-center gap-3 mb-10 text-slate-600 font-medium text-[14.5px]">
-                <EnvelopeIcon className="h-5 w-5 text-slate-500 shrink-0" />
+              <div className="flex items-center gap-2 mb-10 text-slate-500 font-medium text-[14px]">
+                <EnvelopeIcon className="h-4 w-4 shrink-0 opacity-70" />
                 <p>
-                  You can also mail your resume to us at <a href="mailto:careers@sellads.in" className="text-red-500 font-semibold hover:underline">careers@sellads.in</a>
+                  Alternatively, mail your resume to <a href="mailto:careers@sellads.in" className="text-blue-600 font-semibold hover:underline transition-colors">careers@sellads.in</a>
                 </p>
               </div>
 

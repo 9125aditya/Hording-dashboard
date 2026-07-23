@@ -24,12 +24,11 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-      <div className="p-8 text-center border-b border-border bg-slate-50/50">
-        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-          <LockClosedIcon className="h-8 w-8 text-primary" />
-        </div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">Welcome Back</h1>
-        <p className="text-muted-foreground mt-2">Welcome to your Sellads account.</p>
+      <div className="p-8 border-b border-border bg-slate-50/50 relative overflow-hidden">
+        {/* Subtle decorative line */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/60 to-primary"></div>
+        <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Welcome Back</h1>
+        <p className="text-muted-foreground text-sm">Sign in to your Sellads account.</p>
       </div>
       
 

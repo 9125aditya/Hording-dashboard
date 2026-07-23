@@ -62,9 +62,7 @@ export default function ContactPage() {
             <div className="space-y-8 stagger-children">
               <AnimateOnScroll animation="fade-right" delay={100}>
                 <div className="flex items-start group">
-                  <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <EnvelopeIcon className="h-6 w-6 text-primary" />
-                  </div>
+                  <EnvelopeIcon className="h-5 w-5 text-primary mt-1 mr-4 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Email us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Our team usually responds within 2 hours.</p>
@@ -75,9 +73,7 @@ export default function ContactPage() {
               
               <AnimateOnScroll animation="fade-right" delay={200}>
                 <div className="flex items-start group">
-                  <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <PhoneIcon className="h-6 w-6 text-primary" />
-                  </div>
+                  <PhoneIcon className="h-5 w-5 text-primary mt-1 mr-4 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Call us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Mon-Sat from 10am to 7pm IST.</p>
@@ -88,9 +84,7 @@ export default function ContactPage() {
               
               <AnimateOnScroll animation="fade-right" delay={300}>
                 <div className="flex items-start group">
-                  <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <MapPinIcon className="h-6 w-6 text-primary" />
-                  </div>
+                  <MapPinIcon className="h-5 w-5 text-primary mt-1 mr-4 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Office</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
