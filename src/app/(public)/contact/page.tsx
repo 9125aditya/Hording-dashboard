@@ -1,6 +1,7 @@
 "use client";
 
-import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useState, useTransition, useEffect } from "react";
 import { addEnquiry } from "@/backend/actions/actions";
@@ -62,7 +63,7 @@ export default function ContactPage() {
               <AnimateOnScroll animation="fade-right" delay={100}>
                 <div className="flex items-start group">
                   <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <Mail className="h-6 w-6 text-primary" />
+                    <EnvelopeIcon className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Email us</h3>
@@ -75,7 +76,7 @@ export default function ContactPage() {
               <AnimateOnScroll animation="fade-right" delay={200}>
                 <div className="flex items-start group">
                   <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <Phone className="h-6 w-6 text-primary" />
+                    <PhoneIcon className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Call us</h3>
@@ -88,7 +89,7 @@ export default function ContactPage() {
               <AnimateOnScroll animation="fade-right" delay={300}>
                 <div className="flex items-start group">
                   <div className="p-3 bg-secondary rounded-xl mr-5 transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                    <MapPin className="h-6 w-6 text-primary" />
+                    <MapPinIcon className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Office</h3>
@@ -142,7 +143,7 @@ export default function ContactPage() {
                     <div className="flex justify-between items-center">
                       <label htmlFor="preferredSite" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Preferred Site / Location (Optional)</label>
                       <Link href="/catalog" target="_blank" className="text-xs text-primary hover:underline flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" /> Browse Catalog
+                        <MapPinIcon className="h-3 w-3 mr-1" /> Browse Catalog
                       </Link>
                     </div>
                     <div className="relative">
@@ -182,7 +183,7 @@ export default function ContactPage() {
                   >
                     {isPending ? (
                       <span className="flex items-center justify-center">
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
+                        <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" /> Submitting...
                       </span>
                     ) : (
                       "Submit Enquiry"

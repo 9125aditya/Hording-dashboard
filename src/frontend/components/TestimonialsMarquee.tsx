@@ -1,6 +1,6 @@
 "use client";
 
-import { Quote } from "lucide-react";
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/solid";
 
 const TESTIMONIALS = [
   {
@@ -51,7 +51,7 @@ export default function TestimonialsMarquee() {
             key={i} 
             className="flex-shrink-0 w-[350px] md:w-[450px] bg-card border border-border rounded-2xl p-8 shadow-sm transition-shadow duration-300 hover:shadow-lg"
           >
-            <Quote className="h-8 w-8 text-primary/20 mb-4" />
+            <ChatBubbleBottomCenterTextIcon className="h-8 w-8 text-primary/20 mb-4" />
             <p className="text-foreground text-lg leading-relaxed mb-6 font-medium line-clamp-4">
               &quot;{t.quote}&quot;
             </p>

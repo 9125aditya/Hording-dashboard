@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Megaphone, Globe, Calendar, ArrowRight } from "lucide-react";
+import { MapPinIcon, MegaphoneIcon, GlobeAltIcon, CalendarIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import HomeSearchBar from "@/frontend/components/HomeSearchBar";
 
@@ -84,12 +84,12 @@ export default function PublicHomePage() {
             <AnimateOnScroll animation="fade-up" delay={100} className="h-full">
               <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-blue-600 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-blue-600/20">
-                  <Megaphone className="h-7 w-7" />
+                  <MegaphoneIcon className="h-7 w-7" />
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight">Hoarding & Billboards</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium">Outdoor advertising across major highways, junctions and city roads with prime visibility.</p>
                 <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700">
-                  Learn more <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -97,12 +97,12 @@ export default function PublicHomePage() {
             <AnimateOnScroll animation="fade-up" delay={200} className="h-full">
               <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-[#fab935] rounded-2xl flex items-center justify-center text-slate-900 mb-8 shadow-lg shadow-amber-400/20">
-                  <Globe className="h-7 w-7" />
+                  <GlobeAltIcon className="h-7 w-7" />
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight">Digital Marketing</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium">Social media, Google Ads, SEO and online campaigns that complement your outdoor presence.</p>
                 <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700">
-                  Learn more <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -110,12 +110,12 @@ export default function PublicHomePage() {
             <AnimateOnScroll animation="fade-up" delay={300} className="h-full">
               <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                 <div className="w-[60px] h-[60px] bg-blue-700 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-blue-700/20">
-                  <Calendar className="h-7 w-7" />
+                  <CalendarIcon className="h-7 w-7" />
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight">Event Branding</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium">Exhibitions, launches, conferences — end-to-end branding and on-ground activations.</p>
                 <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700">
-                  Learn more <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
             </AnimateOnScroll>

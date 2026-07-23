@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { Megaphone } from "lucide-react";
+
 import PublicMobileMenu from "@/frontend/components/PublicMobileMenu";
 import { createClient } from "@/backend/db/server";
 

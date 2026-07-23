@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, MapPin, Maximize2, Check, Share2, Printer, Map as MapIcon } from "lucide-react";
+import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, ShareIcon, PrinterIcon, MapIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 
@@ -39,12 +39,12 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 max-w-7xl h-14 flex items-center justify-between">
           <Link href="/catalog" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeftIcon className="mr-2 h-4 w-4" />
             Back to Catalog
           </Link>
           <div className="flex items-center space-x-4">
-            <button className="text-muted-foreground hover:text-foreground transition-colors"><Share2 className="h-4 w-4" /></button>
-            <button className="text-muted-foreground hover:text-foreground transition-colors"><Printer className="h-4 w-4" /></button>
+            <button className="text-muted-foreground hover:text-foreground transition-colors"><ShareIcon className="h-4 w-4" /></button>
+            <button className="text-muted-foreground hover:text-foreground transition-colors"><PrinterIcon className="h-4 w-4" /></button>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
                  <span className="text-sm font-medium text-primary">{site.city}</span>
                </div>
                <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">{site.name}</h1>
-               <p className="text-lg text-muted-foreground flex items-center"><MapPin className="mr-2 h-5 w-5" /> {site.address}</p>
+               <p className="text-lg text-muted-foreground flex items-center"><MapPinIcon className="mr-2 h-5 w-5" /> {site.address}</p>
             </div>
 
             {/* Gallery */}
@@ -92,14 +92,14 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
                <h2 className="font-heading text-2xl font-bold mb-6">Specifications</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                  <div className="flex items-start">
-                   <div className="p-3 bg-secondary rounded-lg mr-4"><Maximize2 className="h-5 w-5 text-secondary-foreground" /></div>
+                   <div className="p-3 bg-secondary rounded-lg mr-4"><ArrowsPointingOutIcon className="h-5 w-5 text-secondary-foreground" /></div>
                    <div>
                      <p className="text-sm text-muted-foreground font-medium mb-1">Dimensions</p>
                      <p className="font-semibold text-lg">{site.size}</p>
                    </div>
                  </div>
                  <div className="flex items-start">
-                   <div className="p-3 bg-secondary rounded-lg mr-4"><MapPin className="h-5 w-5 text-secondary-foreground" /></div>
+                   <div className="p-3 bg-secondary rounded-lg mr-4"><MapPinIcon className="h-5 w-5 text-secondary-foreground" /></div>
                    <div>
                      <p className="text-sm text-muted-foreground font-medium mb-1">Type</p>
                      <p className="font-semibold text-lg">{site.type}</p>
@@ -120,7 +120,7 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
                  
                  <div className="space-y-4 mb-8">
                    <div className="flex items-center text-sm">
-                     <Check className="h-4 w-4 text-primary mr-3" /> 
+                     <CheckIcon className="h-4 w-4 text-primary mr-3" /> 
                      <span>Available for immediate booking</span>
                    </div>
                  </div>
@@ -136,7 +136,7 @@ export default async function SiteDetailsPage({ params }: { params: { id: string
                  <div className="h-48 bg-muted relative">
                    <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80" alt="Map area" className="w-full h-full object-cover opacity-50 grayscale" />
                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                     <MapPin className="h-8 w-8 text-primary drop-shadow-md" fill="currentColor" />
+                     <MapPinIcon className="h-8 w-8 text-primary drop-shadow-md" fill="currentColor" />
                    </div>
                  </div>
                  <div className="p-4 bg-card text-center">

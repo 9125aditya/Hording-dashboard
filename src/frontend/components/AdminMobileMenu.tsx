@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, LogOut, X, Menu, ExternalLink, CheckCircle, Shield, Users, MapPin, Package } from "lucide-react";
+import { Squares2X2Icon, MapIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, XMarkIcon, Bars3Icon, ArrowTopRightOnSquareIcon, CheckCircleIcon, ShieldCheckIcon, UsersIcon, MapPinIcon, CubeIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; pendingCount?: number }) {
@@ -24,7 +24,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="md:hidden mr-4 text-gray-500 hover:text-gray-900" aria-label="Open sidebar">
-        <Menu className="h-5 w-5" />
+        <Bars3Icon className="h-5 w-5" />
       </button>
 
       {isOpen && (
@@ -41,30 +41,30 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
                 <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain" />
               </Link>
               <button onClick={() => setIsOpen(false)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-                <X className="h-5 w-5" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
             <nav className="flex-1 px-3 py-3 space-y-0.5">
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <LayoutDashboard className="mr-3 h-[18px] w-[18px]" /> Dashboard
+                <Squares2X2Icon className="mr-3 h-[18px] w-[18px]" /> Dashboard
               </Link>
               <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <MapPin className="mr-3 h-[18px] w-[18px]" /> Inventory
+                <MapPinIcon className="mr-3 h-[18px] w-[18px]" /> Inventory
               </Link>
               <Link href="/status" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Update Status
+                <CheckCircleIcon className="mr-3 h-[18px] w-[18px]" /> Update Status
               </Link>
 
               <Link href="/flex-inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <Package className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
+                <CubeIcon className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
               </Link>
               <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <Map className="mr-3 h-[18px] w-[18px]" /> Map View
+                <MapIcon className="mr-3 h-[18px] w-[18px]" /> Map View
               </Link>
               <Link href="/enquiries" onClick={() => setIsOpen(false)} className={`${navLinkClass} justify-between`}>
                 <span className="flex items-center">
-                  <MessageSquare className="mr-3 h-[18px] w-[18px]" /> Enquiries
+                  <ChatBubbleLeftIcon className="mr-3 h-[18px] w-[18px]" /> Enquiries
                 </span>
                 {enquiryCount > 0 && (
                   <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
@@ -76,7 +76,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
                 <>
                   <Link href="/approvals" onClick={() => setIsOpen(false)} className={`${navLinkClass} justify-between`}>
                     <span className="flex items-center">
-                      <CheckCircle className="mr-3 h-[18px] w-[18px]" /> Action History
+                      <CheckCircleIcon className="mr-3 h-[18px] w-[18px]" /> Action History
                     </span>
                     {pendingCount > 0 && (
                       <span className="text-[10px] font-bold bg-amber-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
@@ -85,7 +85,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
                     )}
                   </Link>
                   <Link href="/permissions" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                    <Shield className="mr-3 h-[18px] w-[18px]" /> Access Control
+                    <ShieldCheckIcon className="mr-3 h-[18px] w-[18px]" /> Access Control
                   </Link>
 
                 </>
@@ -94,14 +94,14 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
 
             <div className="px-3 mb-2">
               <Link href="/" target="_blank" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <ExternalLink className="mr-3 h-[18px] w-[18px]" /> View Live Site
+                <ArrowTopRightOnSquareIcon className="mr-3 h-[18px] w-[18px]" /> View Live Site
               </Link>
             </div>
 
             <div className="p-3 border-t border-gray-100">
               <form action={logout}>
                 <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
-                  <LogOut className="mr-3 h-[18px] w-[18px]" /> Sign Out
+                  <ArrowRightOnRectangleIcon className="mr-3 h-[18px] w-[18px]" /> Sign Out
                 </button>
               </form>
             </div>

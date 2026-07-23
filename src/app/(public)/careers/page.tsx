@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Briefcase, Mail, Loader2 } from "lucide-react";
+import { BriefcaseIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useState, useTransition } from "react";
 import { addApplication } from "@/backend/actions/actions";
@@ -55,7 +56,7 @@ export default function CareersPage() {
               {/* Form Header */}
               <div className="flex flex-col md:flex-row md:items-center gap-5 mb-8">
                 <div className="w-[52px] h-[52px] bg-orange-50 rounded-2xl flex items-center justify-center shrink-0 border border-orange-100/50">
-                  <Briefcase className="h-6 w-6 text-orange-600" strokeWidth={2.5} />
+                  <BriefcaseIcon className="h-6 w-6 text-orange-600" strokeWidth={2.5} />
                 </div>
                 <div>
                   <h2 className="text-[26px] font-black text-slate-900 tracking-tight mb-1">Apply Now</h2>
@@ -65,7 +66,7 @@ export default function CareersPage() {
 
               {/* Email Alert */}
               <div className="bg-[#eef5fd] rounded-xl p-4 flex items-center gap-3 mb-10 text-slate-600 font-medium text-[14.5px]">
-                <Mail className="h-5 w-5 text-slate-500 shrink-0" />
+                <EnvelopeIcon className="h-5 w-5 text-slate-500 shrink-0" />
                 <p>
                   You can also mail your resume to us at <a href="mailto:careers@sellads.in" className="text-red-500 font-semibold hover:underline">careers@sellads.in</a>
                 </p>
@@ -143,7 +144,7 @@ export default function CareersPage() {
                   <button type="submit" disabled={isPending || status === "success"} className="w-full h-14 bg-[#0047cc] hover:bg-[#003cb3] disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center text-white font-bold rounded-xl text-[16px] transition-colors shadow-md shadow-blue-500/20">
                     {isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
+                        <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" /> Submitting...
                       </>
                     ) : (
                       "Send Application"

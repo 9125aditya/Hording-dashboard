@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { signupUser } from "@/backend/actions/auth-actions";
-import { Lock, UserCircle, Building2, User } from "lucide-react";
+import { LockClosedIcon, UserCircleIcon, BuildingOfficeIcon, UserIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -33,7 +33,7 @@ export default function SignupPage() {
     <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
       <div className="p-8 text-center border-b border-border bg-slate-50/50">
         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-          <User className="h-8 w-8 text-primary" />
+          <UserIcon className="h-8 w-8 text-primary" />
         </div>
         <h1 className="font-heading text-2xl font-bold text-foreground">Create an Account</h1>
         <p className="text-muted-foreground mt-2">Join Sellads Advertising to book premium OOH media.</p>
@@ -46,7 +46,7 @@ export default function SignupPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircle className="h-5 w-5 text-muted-foreground" />
+                <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="text" 
@@ -62,7 +62,7 @@ export default function SignupPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircle className="h-5 w-5 text-muted-foreground" />
+                <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="email" 
@@ -78,7 +78,7 @@ export default function SignupPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-muted-foreground" />
+                <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="password" 
@@ -95,7 +95,7 @@ export default function SignupPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-muted-foreground" />
+                <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="password" 

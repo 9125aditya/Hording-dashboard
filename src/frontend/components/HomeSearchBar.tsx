@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { MagnifyingGlassIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 
 export default function HomeSearchBar() {
@@ -80,7 +81,7 @@ export default function HomeSearchBar() {
     <div className="relative w-full max-w-[480px]" ref={dropdownRef}>
       <div className="w-full bg-white rounded-xl p-1.5 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200">
         <div className="pl-4 pr-2 text-[#dd3333]">
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <MapPin className="h-5 w-5" />}
+          {isLoading ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : <MapPinIcon className="h-5 w-5" />}
         </div>
         <input 
           type="text" 
@@ -111,7 +112,7 @@ export default function HomeSearchBar() {
                 onClick={() => handleSelect(item)}
                 className="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors flex items-start gap-3"
               >
-                <MapPin className="h-4 w-4 text-[#dd3333] mt-0.5 flex-shrink-0" />
+                <MapPinIcon className="h-4 w-4 text-[#dd3333] mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-slate-900 line-clamp-1">{item.display_name.split(',')[0]}</p>
                   <p className="text-[13px] text-slate-500 line-clamp-1 mt-0.5">{item.display_name}</p>

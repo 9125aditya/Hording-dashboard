@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { MagnifyingGlassIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import { createPortal } from "react-dom";
 
 type SearchResult = {
@@ -138,9 +139,9 @@ export default function LocationSearch({
           <div className="relative" ref={inputWrapperRef}>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               {isLoading ? (
-                <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+                <ArrowPathIcon className="h-4 w-4 text-blue-500 animate-spin" />
               ) : (
-                <Search className="h-4 w-4 text-gray-400" />
+                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
               )}
             </div>
             <input
@@ -186,7 +187,7 @@ export default function LocationSearch({
                       }}
                       className="px-4 py-3 hover:bg-blue-50 cursor-pointer transition-colors flex items-start gap-3"
                     >
-                      <MapPin className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <MapPinIcon className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-gray-900 truncate">{item.display_name.split(",")[0]}</p>
                         <p className="text-xs text-gray-500 mt-0.5 truncate">{item.display_name}</p>

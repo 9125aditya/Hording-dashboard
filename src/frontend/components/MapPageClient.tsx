@@ -4,7 +4,8 @@ import dynamic from "next/dynamic";
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, MapPin, X, Maximize2, ChevronRight, Loader2 } from "lucide-react";
+import { MagnifyingGlassIcon, MapPinIcon, XMarkIcon, ArrowsPointingOutIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "./AnimateOnScroll";
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
@@ -12,7 +13,7 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
   loading: () => (
     <div className="w-full h-full bg-slate-50 flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+        <ArrowPathIcon className="h-8 w-8 text-primary animate-spin" />
         <span className="text-sm text-slate-400">Loading map…</span>
       </div>
     </div>
@@ -88,7 +89,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
 
             {/* Search Input */}
             <div className="relative z-10 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
                 value={searchQuery}
@@ -146,7 +147,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                 {/* Site Info */}
                 <h3 className="text-slate-900 font-bold text-xl mb-1">{selectedSite.name}</h3>
                 <p className="text-slate-500 text-sm flex items-center mb-5">
-                  <MapPin className="mr-1 h-3.5 w-3.5 text-primary/70" /> {selectedSite.city}
+                  <MapPinIcon className="mr-1 h-3.5 w-3.5 text-primary/70" /> {selectedSite.city}
                 </p>
 
                 {/* Stats Grid */}
@@ -154,7 +155,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                   <div className="bg-slate-50 hover:bg-white hover:shadow-sm transition-all rounded-xl p-3.5 border border-slate-100 cursor-default">
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Size</p>
                     <p className="text-slate-900 text-sm font-semibold flex items-center">
-                      <Maximize2 className="mr-1.5 h-3.5 w-3.5 text-primary" />
+                      <ArrowsPointingOutIcon className="mr-1.5 h-3.5 w-3.5 text-primary" />
                       {selectedSite.size}
                     </p>
                   </div>
@@ -182,7 +183,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                 >
                   <span className="relative z-10 flex items-center">
                     View Full Details
-                    <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <ChevronRightIcon className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
                   <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12" />
                 </Link>
@@ -209,7 +210,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                       </p>
                       <p className="text-slate-400 text-xs">{site.city} · {site.type} · {site.size}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    <ChevronRightIcon className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </button>
                 </AnimateOnScroll>
               ))}

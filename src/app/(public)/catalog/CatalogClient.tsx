@@ -2,7 +2,8 @@
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight, MapPin, Maximize2, Search, Loader2 } from "lucide-react";
+import { ArrowRightIcon, MapPinIcon, ArrowsPointingOutIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useSearchParams } from "next/navigation";
 
@@ -51,7 +52,7 @@ function CatalogFilters({ sites }: { sites: any[] }) {
               </select>
 
               <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input 
                   type="text" 
                   placeholder="Search..." 
@@ -80,12 +81,12 @@ function CatalogFilters({ sites }: { sites: any[] }) {
                   </div>
                   <div className="text-sm text-primary font-medium mb-4">{site.city}</div>
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-6">
-                    <span className="flex items-center"><Maximize2 className="mr-1.5 h-4 w-4" /> {site.size}</span>
-                    <span className="flex items-center"><MapPin className="mr-1.5 h-4 w-4" /> {site.type}</span>
+                    <span className="flex items-center"><ArrowsPointingOutIcon className="mr-1.5 h-4 w-4" /> {site.size}</span>
+                    <span className="flex items-center"><MapPinIcon className="mr-1.5 h-4 w-4" /> {site.type}</span>
                   </div>
                   <div className="mt-auto pt-4 border-t border-border flex justify-between items-center">
                       <span className="text-sm font-semibold text-primary group-hover:underline flex items-center">
-                        View details <ArrowRight className="ml-1 h-3 w-3 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
+                        View details <ArrowRightIcon className="ml-1 h-3 w-3 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
                       </span>
                   </div>
                 </div>
@@ -105,7 +106,7 @@ function CatalogFilters({ sites }: { sites: any[] }) {
 
 export default function CatalogClient({ sites }: { sites: any[] }) {
   return (
-    <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex justify-center p-12"><ArrowPathIcon className="h-8 w-8 animate-spin text-primary" /></div>}>
       <CatalogFilters sites={sites} />
     </Suspense>
   );

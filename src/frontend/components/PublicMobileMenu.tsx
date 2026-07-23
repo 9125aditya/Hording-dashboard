@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, LayoutGrid, MessageSquare, Users, Briefcase, Home, LayoutDashboard, LogOut } from "lucide-react";
+import { Bars3Icon, XMarkIcon, Squares2X2Icon, ChatBubbleLeftIcon, UsersIcon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser?: boolean, isAdmin?: boolean }) {
@@ -26,7 +26,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
         className="p-2 -mr-1 text-slate-700 hover:text-slate-900 transition-colors"
         aria-label="Open menu"
       >
-        <Menu className="h-6 w-6" />
+        <Bars3Icon className="h-6 w-6" />
       </button>
 
       {isOpen && (
@@ -47,29 +47,29 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                 className="p-1.5 text-slate-500 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                 aria-label="Close menu"
               >
-                <X className="h-5 w-5" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
             {/* Nav Links */}
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
               <Link href="/" onClick={() => setIsOpen(false)} className={linkClass}>
-                <Home className="h-4 w-4 text-slate-400 shrink-0" /> Home
+                <HomeIcon className="h-4 w-4 text-slate-400 shrink-0" /> Home
               </Link>
               <Link href="/catalog" onClick={() => setIsOpen(false)} className={linkClass}>
-                <LayoutGrid className="h-4 w-4 text-slate-400 shrink-0" /> Inventory
+                <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Inventory
               </Link>
               <Link href="/#services" onClick={() => setIsOpen(false)} className={linkClass}>
-                <Briefcase className="h-4 w-4 text-slate-400 shrink-0" /> Services
+                <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Services
               </Link>
               <Link href="/#clients" onClick={() => setIsOpen(false)} className={linkClass}>
-                <Users className="h-4 w-4 text-slate-400 shrink-0" /> Clients
+                <UsersIcon className="h-4 w-4 text-slate-400 shrink-0" /> Clients
               </Link>
               <Link href="/contact" onClick={() => setIsOpen(false)} className={linkClass}>
-                <MessageSquare className="h-4 w-4 text-slate-400 shrink-0" /> Enquiry
+                <ChatBubbleLeftIcon className="h-4 w-4 text-slate-400 shrink-0" /> Enquiry
               </Link>
               <Link href="/careers" onClick={() => setIsOpen(false)} className={linkClass}>
-                <Briefcase className="h-4 w-4 text-slate-400 shrink-0" /> Careers
+                <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Careers
               </Link>
             </nav>
 
@@ -90,7 +90,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
                     >
-                      <LayoutDashboard className="h-4 w-4" /> Dashboard
+                      <Squares2X2Icon className="h-4 w-4" /> Dashboard
                     </Link>
                   )}
                   <form action={logout}>
@@ -99,7 +99,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
                     >
-                      <LogOut className="h-4 w-4" /> Sign Out
+                      <ArrowRightOnRectangleIcon className="h-4 w-4" /> Sign Out
                     </button>
                   </form>
                 </>

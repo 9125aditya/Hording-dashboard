@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { loginUser } from "@/backend/actions/auth-actions";
-import { Lock, UserCircle, Eye, EyeOff } from "lucide-react";
+import { LockClosedIcon, UserCircleIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
       <div className="p-8 text-center border-b border-border bg-slate-50/50">
         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-          <Lock className="h-8 w-8 text-primary" />
+          <LockClosedIcon className="h-8 w-8 text-primary" />
         </div>
         <h1 className="font-heading text-2xl font-bold text-foreground">Welcome Back</h1>
         <p className="text-muted-foreground mt-2">Welcome to your Sellads account.</p>
@@ -39,7 +39,7 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircle className="h-5 w-5 text-muted-foreground" />
+                <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type="email" 
@@ -54,7 +54,7 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-muted-foreground" />
+                <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
               </div>
               <input 
                 type={showPassword ? "text" : "password"}
@@ -68,7 +68,7 @@ export default function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
             </div>
           </div>
