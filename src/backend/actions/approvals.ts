@@ -42,13 +42,13 @@ export async function approveRequest(requestId: string) {
     const { error } = await supabase
       .from("sites")
       .update({ status: request.payload.status })
-      .eq("id", request.entity_id);
+      .eq("site_id", request.payload.site_id);
     if (error) return { error: error.message };
   } else if (request.action_type === 'DELETE_SITE') {
     const { error } = await supabase
       .from("sites")
       .delete()
-      .eq("id", request.entity_id);
+      .eq("site_id", request.payload.site_id);
     if (error) return { error: error.message };
   }
 

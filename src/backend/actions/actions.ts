@@ -129,7 +129,7 @@ export async function updateEnquiryStatus(id: string, status: string) {
   const adminClient = getAdminSupabase();
   await adminClient.from("admin_requests").insert([{
     action_type: 'UPDATE_ENQUIRY_STATUS',
-    entity_id: id,
+    entity_id: null,
     payload: { enquiry_id: id, status },
     requested_by: user.id,
     status: 'APPROVED',
@@ -161,7 +161,7 @@ export async function addEnquiryNote(id: string, currentMessage: string, noteTex
   const adminClient = getAdminSupabase();
   await adminClient.from("admin_requests").insert([{
     action_type: isReply ? 'ENQUIRY_REPLY' : 'ENQUIRY_NOTE',
-    entity_id: id,
+    entity_id: null,
     payload: { enquiry_id: id, note: noteText, is_reply: isReply },
     requested_by: user.id,
     status: 'APPROVED',
@@ -244,7 +244,7 @@ export async function updateSiteStatus(id: string, status: string) {
     const { error: insertError } = await adminClient.from("admin_requests").insert([
       {
         action_type: 'UPDATE_STATUS',
-        entity_id: id,
+        entity_id: null,
         payload: { site_id: id, status },
         requested_by: user.id,
         status: 'PENDING',
@@ -262,7 +262,7 @@ export async function updateSiteStatus(id: string, status: string) {
   await adminClient.from("admin_requests").insert([
     {
       action_type: 'UPDATE_STATUS',
-      entity_id: id,
+      entity_id: null,
       payload: { site_id: id, status },
       requested_by: user.id,
       status: 'APPROVED',
@@ -304,7 +304,7 @@ export async function deleteSite(id: string) {
     await adminClient.from("admin_requests").insert([
       {
         action_type: 'DELETE_SITE',
-        entity_id: id,
+        entity_id: null,
         payload: { site_id: id },
         requested_by: user.id,
         status: 'PENDING',
@@ -318,7 +318,7 @@ export async function deleteSite(id: string) {
   await adminClient2.from("admin_requests").insert([
     {
       action_type: 'DELETE_SITE',
-      entity_id: id,
+      entity_id: null,
       payload: { site_id: id },
       requested_by: user.id,
       status: 'APPROVED',
@@ -504,7 +504,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       await adminClient.from("admin_requests").insert([
         {
           action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
-          entity_id: siteId,
+          entity_id: null,
           payload: { ...payload, site_id: siteId },
           requested_by: user.id,
           status: 'PENDING',
