@@ -2,6 +2,7 @@ import { ShieldAlert } from "lucide-react";
 import { createClient } from "@/backend/db/server";
 import Link from "next/link";
 import PermissionsClient from "./PermissionsClient";
+import AddUserModal from "./AddUserModal";
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,7 @@ export default async function PermissionsPage() {
           <h1 className="text-2xl font-bold tracking-tight font-heading">Access Control</h1>
           <p className="text-sm text-muted-foreground">Manage granular permissions and user rights.</p>
         </div>
+        <AddUserModal />
       </div>
       <PermissionsClient profiles={profiles || []} />
     </div>

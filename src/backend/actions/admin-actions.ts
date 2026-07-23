@@ -103,3 +103,50 @@ export async function updateUserDetails(targetUserId: string, name: string, role
   revalidatePath('/admin/permissions');
   return { success: true };
 }
+
+export async function createAdminUser(formData: FormData) {
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const role = formData.get("role") as string;
+
+  if (!email || !password || !name) {
+    return { error: "Name, email, and password are required." };
+  }
+
+  const normalClient = await createServerClient();
+  const { data: { user } } = await normalClient.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+  
+  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'super_admin') {
+    return { error: "Insufficient permissions to create users." };
+  }
+
+  const supabase = getAdminSupabase();
+
+  // 1. Create Auth User
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: name, role: role }
+  });
+
+  if (authError) {
+    return { error: authError.message };
+  }
+
+  const userId = authData.user.id;
+
+  // 2. Create Profile
+  await supabase.from('profiles').upsert({
+    id: userId,
+    email,
+    name,
+    role: role
+  });
+
+  revalidatePath("/admin/permissions");
+  return { success: true };
+}
