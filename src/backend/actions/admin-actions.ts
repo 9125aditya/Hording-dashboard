@@ -77,6 +77,22 @@ export async function addStaffMemberWithAuth(formData: FormData) {
 
 import { createClient as createServerClient } from "@/backend/db/server";
 
+function safeErrorString(err: any): string {
+  if (typeof err === 'string') return err;
+  if (!err) return "Unknown Error (null/undefined)";
+  
+  if (err.message) return err.message;
+  if (err.error_description) return err.error_description;
+  if (err.msg) return err.msg;
+  
+  try {
+    const str = JSON.stringify(err, Object.getOwnPropertyNames(err));
+    if (str !== '{}') return str;
+  } catch (e) {}
+  
+  return "Unknown Error Object: " + String(err);
+}
+
 export async function updateUserDetails(targetUserId: string, name: string, role: string, permissions: string[]) {
   const normalClient = await createServerClient();
   const { data: { user } } = await normalClient.auth.getUser();
@@ -140,7 +156,7 @@ export async function createAdminUser(formData: FormData) {
 
     if (authError) {
       console.error("Create User Error:", authError);
-      return { error: authError.message || JSON.stringify(authError) || "Unknown Auth Error" };
+      return { error: "Auth Error: " + safeErrorString(authError) };
     }
 
     const userId = authData.user.id;
@@ -161,7 +177,7 @@ export async function createAdminUser(formData: FormData) {
     return { success: true };
   } catch (err: any) {
     console.error("Caught Exception in createAdminUser:", err);
-    return { error: err.message || JSON.stringify(err) || "An unexpected error occurred during user creation." };
+    return { error: "Exception: " + safeErrorString(err) };
   }
 }
 
@@ -190,7 +206,7 @@ export async function deleteAdminUser(targetUserId: string) {
     const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
     if (authError) {
       console.error("Delete Auth User Error:", authError);
-      return { error: authError.message || JSON.stringify(authError) || "Unknown Auth Error" };
+      return { error: "Delete Auth Error: " + safeErrorString(authError) };
     }
 
     // 2. Try to delete from profiles table just in case it didn't cascade
@@ -203,6 +219,6 @@ export async function deleteAdminUser(targetUserId: string) {
     return { success: true };
   } catch (err: any) {
     console.error("Caught Exception in deleteAdminUser:", err);
-    return { error: err.message || JSON.stringify(err) || "An unexpected error occurred during user deletion." };
+    return { error: "Exception: " + safeErrorString(err) };
   }
 }
