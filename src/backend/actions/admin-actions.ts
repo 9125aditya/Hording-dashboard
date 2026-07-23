@@ -134,18 +134,24 @@ export async function createAdminUser(formData: FormData) {
   });
 
   if (authError) {
+    console.error("Create User Error:", authError);
     return { error: authError.message };
   }
 
   const userId = authData.user.id;
 
   // 2. Create Profile
-  await supabase.from('profiles').upsert({
+  const { error: profileError } = await supabase.from('profiles').upsert({
     id: userId,
     email,
     name,
     role: role
   });
+
+  if (profileError) {
+    console.error("Profile Upsert Error:", profileError);
+    // Continue anyway as the auth user was created
+  }
 
   revalidatePath("/admin/permissions");
   return { success: true };
@@ -167,16 +173,17 @@ export async function deleteAdminUser(targetUserId: string) {
 
   const supabase = getAdminSupabase();
 
-  // 1. Delete from profiles table (this might cascade delete if they have foreign keys, but safe for profiles)
-  const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
-  if (dbError) {
-    return { error: dbError.message };
-  }
-
-  // 2. Delete Auth User
+  // 1. Delete Auth User First (this often cascades to profiles)
   const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
   if (authError) {
+    console.error("Delete Auth User Error:", authError);
     return { error: authError.message };
+  }
+
+  // 2. Try to delete from profiles table just in case it didn't cascade
+  const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
+  if (dbError) {
+    console.warn("Profile delete warning (may have cascaded already):", dbError.message);
   }
 
   revalidatePath("/admin/permissions");
