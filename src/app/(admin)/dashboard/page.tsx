@@ -15,19 +15,31 @@ export default async function DashboardPage() {
   // Calculate media types breakdown
   const mediaMap: Record<string, { total: number, avail: number, blocked: number, booked: number, cities: Set<string> }> = {};
 
+  // Helper for title casing
+  const toTitleCase = (str: string) => {
+    return str
+      .trim()
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   sites.forEach((site: any) => {
+    const city = site.city ? toTitleCase(site.city) : 'Unknown';
+    
     // City Aggregation
-    if (!cityMap[site.city]) cityMap[site.city] = { total: 0, avail: 0, blocked: 0, booked: 0 };
-    cityMap[site.city].total += 1;
-    if (site.status === 'Available') cityMap[site.city].avail += 1;
-    else if (site.status === 'Blocked') cityMap[site.city].blocked += 1;
-    else if (site.status === 'Booked') cityMap[site.city].booked += 1;
+    if (!cityMap[city]) cityMap[city] = { total: 0, avail: 0, blocked: 0, booked: 0 };
+    cityMap[city].total += 1;
+    if (site.status === 'Available') cityMap[city].avail += 1;
+    else if (site.status === 'Blocked') cityMap[city].blocked += 1;
+    else if (site.status === 'Booked') cityMap[city].booked += 1;
 
     // Media Type Aggregation
-    const mType = site.type || 'Other';
+    const mType = site.type ? toTitleCase(site.type) : 'Other';
     if (!mediaMap[mType]) mediaMap[mType] = { total: 0, avail: 0, blocked: 0, booked: 0, cities: new Set() };
     mediaMap[mType].total += 1;
-    mediaMap[mType].cities.add(site.city);
+    mediaMap[mType].cities.add(city);
     if (site.status === 'Available') mediaMap[mType].avail += 1;
     else if (site.status === 'Blocked') mediaMap[mType].blocked += 1;
     else if (site.status === 'Booked') mediaMap[mType].booked += 1;
