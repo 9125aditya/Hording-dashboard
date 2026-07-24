@@ -18,6 +18,23 @@ const getAdminSupabase = () => {
   );
 }
 
+function serializeError(err: any): string {
+  if (!err) return "Unknown Error";
+  if (typeof err === "string") return err;
+  let msg = err.message || "";
+  if (err.name) msg = `${err.name}: ${msg}`;
+  if (err.status) msg += ` (Status: ${err.status})`;
+  if (err.code) msg += ` (Code: ${err.code})`;
+  if (!msg || msg === ": ") {
+    try {
+      msg = JSON.stringify(err, Object.getOwnPropertyNames(err));
+    } catch(e) {
+      msg = String(err);
+    }
+  }
+  return msg;
+}
+
 export async function addStaffMemberWithAuth(formData: FormData) {
   const name = formData.get("name") as string;
   const role = formData.get("role") as string;
@@ -76,22 +93,6 @@ export async function addStaffMemberWithAuth(formData: FormData) {
 }
 
 import { createClient as createServerClient } from "@/backend/db/server";
-
-function safeErrorString(err: any): string {
-  if (typeof err === 'string') return err;
-  if (!err) return "Unknown Error (null/undefined)";
-  
-  if (err.message) return err.message;
-  if (err.error_description) return err.error_description;
-  if (err.msg) return err.msg;
-  
-  try {
-    const str = JSON.stringify(err, Object.getOwnPropertyNames(err));
-    if (str !== '{}') return str;
-  } catch (e) {}
-  
-  return "Unknown Error Object: " + String(err);
-}
 
 export async function updateUserDetails(targetUserId: string, name: string, role: string, permissions: string[]) {
   const normalClient = await createServerClient();
@@ -156,7 +157,7 @@ export async function createAdminUser(formData: FormData) {
 
     if (authError) {
       console.error("Create User Error:", authError);
-      return { error: "Auth Error: " + safeErrorString(authError) };
+      return { error: `Auth Error: ${serializeError(authError)}` };
     }
 
     const userId = authData.user.id;
@@ -177,7 +178,7 @@ export async function createAdminUser(formData: FormData) {
     return { success: true };
   } catch (err: any) {
     console.error("Caught Exception in createAdminUser:", err);
-    return { error: "Exception: " + safeErrorString(err) };
+    return { error: `Exception: ${serializeError(err)}` };
   }
 }
 
@@ -206,7 +207,7 @@ export async function deleteAdminUser(targetUserId: string) {
     const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
     if (authError) {
       console.error("Delete Auth User Error:", authError);
-      return { error: "Delete Auth Error: " + safeErrorString(authError) };
+      return { error: `Delete Auth Error: ${serializeError(authError)}` };
     }
 
     // 2. Try to delete from profiles table just in case it didn't cascade
@@ -219,6 +220,6 @@ export async function deleteAdminUser(targetUserId: string) {
     return { success: true };
   } catch (err: any) {
     console.error("Caught Exception in deleteAdminUser:", err);
-    return { error: "Exception: " + safeErrorString(err) };
+    return { error: `Exception: ${serializeError(err)}` };
   }
 }
