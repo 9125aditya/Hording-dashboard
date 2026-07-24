@@ -84,7 +84,7 @@ export default function LoginPage() {
           disabled={isPending}
           className="w-full h-12 flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-md hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
         >
-          {isPending ? "Authenticating..." : "Sign in"}
+          {isPending ? "Authenticating..." : "Admin Login"}
         </button>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
