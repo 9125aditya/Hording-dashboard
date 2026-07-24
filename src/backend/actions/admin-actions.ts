@@ -203,6 +203,13 @@ export async function deleteAdminUser(targetUserId: string) {
 
     const supabase = getAdminSupabase();
 
+    // 0. Clean up foreign keys that might block deletion (e.g., admin_requests)
+    const { error: reqError1 } = await supabase.from('admin_requests').delete().eq('requested_by', targetUserId);
+    if (reqError1) console.warn("Warning clearing requested_by:", reqError1.message);
+    
+    const { error: reqError2 } = await supabase.from('admin_requests').delete().eq('resolved_by', targetUserId);
+    if (reqError2) console.warn("Warning clearing resolved_by:", reqError2.message);
+
     // 1. Delete Auth User First (this often cascades to profiles)
     const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
     if (authError) {
