@@ -210,17 +210,17 @@ export async function deleteAdminUser(targetUserId: string) {
     const { error: reqError2 } = await supabase.from('admin_requests').delete().eq('resolved_by', targetUserId);
     if (reqError2) console.warn("Warning clearing resolved_by:", reqError2.message);
 
-    // 1. Delete Auth User First (this often cascades to profiles)
+    // 1. Delete Profile BEFORE Auth User (in case it lacks ON DELETE CASCADE)
+    const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
+    if (dbError) {
+      console.warn("Profile delete warning:", dbError.message);
+    }
+
+    // 2. Delete Auth User (Root)
     const { error: authError } = await supabase.auth.admin.deleteUser(targetUserId);
     if (authError) {
       console.error("Delete Auth User Error:", authError);
       return { error: `Delete Auth Error: ${serializeError(authError)}` };
-    }
-
-    // 2. Try to delete from profiles table just in case it didn't cascade
-    const { error: dbError } = await supabase.from('profiles').delete().eq('id', targetUserId);
-    if (dbError) {
-      console.warn("Profile delete warning (may have cascaded already):", dbError.message);
     }
 
     revalidatePath("/admin/permissions");
