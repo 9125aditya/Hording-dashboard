@@ -4,12 +4,15 @@ import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, ShareIcon,
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 
-export default async function SiteDetailsPage({ params }: { params: { id: string } }) {
+export const dynamic = 'force-dynamic';
+
+export default async function SiteDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const supabase = await createClient();
   const { data: dbSite, error } = await supabase
     .from("sites")
     .select("*")
-    .eq("site_id", params.id)
+    .eq("site_id", resolvedParams.id)
     .single();
 
   if (error || !dbSite) {
