@@ -45,7 +45,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
     if (siteIdParam) {
       const id = siteIdParam;
       const found = initialSites.find((s) => String(s.id) === id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (found) setSelectedSite(found);
     }
   }, [searchParams, initialSites]);
