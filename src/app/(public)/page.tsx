@@ -12,7 +12,7 @@ export default function PublicHomePage() {
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb]">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-8 pb-16 md:pb-20">
+      <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-8 pb-6 md:pb-20">
         {/* Subtle background glow wrapper to prevent horizontal scroll */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 z-0"></div>
@@ -25,7 +25,7 @@ export default function PublicHomePage() {
             <div className="flex flex-col items-start max-w-2xl">
 
               <AnimateOnScroll animation="fade-right" delay={100} duration={700}>
-                <h1 className="text-[2.6rem] sm:text-5xl lg:text-[6rem] font-black tracking-[-0.03em] leading-[1.05] mb-6 md:mb-8">
+                <h1 className="text-[2.6rem] sm:text-5xl lg:text-[6rem] font-black tracking-[-0.03em] leading-[1.05] mb-4 md:mb-8">
                   <span className="text-[#111111] block">Your Brand.</span>
                   <span className="text-[#0047cc] block font-[family-name:var(--font-michroma)] font-bold tracking-tight text-[0.85em] py-1">Every Street.</span>
                   <span className="text-[#111111] block">Every City.</span>
@@ -33,13 +33,33 @@ export default function PublicHomePage() {
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-right" delay={200} duration={700}>
-                <p className="text-[15px] md:text-[17px] text-slate-500 mb-8 md:mb-10 max-w-[500px] leading-relaxed font-medium">
+                <p className="text-[15px] md:text-[17px] text-slate-500 mb-4 md:mb-10 max-w-[500px] leading-relaxed font-medium">
                   Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, and get personalized rates.
                 </p>
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-up" delay={300} duration={700} className="w-full">
-                <HomeSearchBar />
+                <div className="max-w-[90%] lg:max-w-full">
+                  <HomeSearchBar />
+                </div>
+              </AnimateOnScroll>
+
+              <AnimateOnScroll animation="fade-up" delay={400} duration={700} className="w-full">
+                <div className="block lg:hidden mt-6 w-full max-w-[300px] mx-auto">
+                  <div className="relative w-full h-[200px] bg-white border-8 border-blue-600 rounded-[2.5rem] overflow-hidden">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-50"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-slate-100"></div>
+                    <div className="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-[2.5rem] -z-10"></div>
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                      <div className="text-blue-600 font-black tracking-[0.3em] text-lg uppercase px-6 py-3 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50/50 backdrop-blur-sm">
+                        Your Ad Here
+                      </div>
+                      <p className="mt-4 text-slate-400 font-medium text-sm tracking-widest uppercase">
+                        Premium Space Available
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </AnimateOnScroll>
             </div>
 

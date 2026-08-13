@@ -192,7 +192,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Size (WxH)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Qty.</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Total Sq. ft.</th>
-                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Region</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rational</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Net Rate</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DCPM</th>
@@ -202,7 +201,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
@@ -217,7 +216,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.qty}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.total_sq_ft}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.area}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap max-w-[150px] truncate text-gray-600" title={item.rationale}>{item.rationale || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
@@ -246,7 +244,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DESIGN SIZE WXH</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">From Pillars To Pillars</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">No&apos;s of Pillars</th>
-                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">No&apos;s of Display Back To Back</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Total sq ft</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (NET)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (DCPM)</th>
@@ -256,7 +253,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
@@ -271,7 +268,6 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.size}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.metro_pillars || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.no_of_pillars || '-'}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.no_of_displays || '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.total_sq_ft}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>

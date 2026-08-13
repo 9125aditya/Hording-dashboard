@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, ShareIcon, PrinterIcon, MapIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
+import LeafletMap from "@/frontend/components/LeafletMap";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
     size: dbSite.size,
     type: dbSite.type,
     status: dbSite.status,
+    lat: Number(dbSite.lat),
+    lng: Number(dbSite.lng),
     color: dbSite.status === "Available" ? "bg-available text-primary-foreground" : dbSite.status === "Booked" ? "bg-booked text-primary-foreground" : "bg-blocked text-white",
     images: dbSite.photos && dbSite.photos.length > 0 ? dbSite.photos : [
       "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=1600&q=80",
@@ -130,22 +133,27 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
                  </div>
 
                  <Link href={`/contact?site=${site.id}`} className="flex w-full h-14 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-95">
-                   Contact for rates
+                   Get In Touch
                  </Link>
                  <p className="text-center text-xs text-muted-foreground mt-4">No commitment required.</p>
               </div>
 
               {/* Mini Map */}
               <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm flex flex-col">
-                 <div className="h-48 bg-muted relative">
-                   <Image src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80" alt="Map area" fill sizes="300px" className="object-cover opacity-50 grayscale" />
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                     <MapPinIcon className="h-8 w-8 text-primary drop-shadow-md" fill="currentColor" />
-                   </div>
-                 </div>
-                 <div className="p-4 bg-card text-center">
-                    <button className="text-sm font-medium text-primary hover:underline">Open full map</button>
-                 </div>
+                {site.lat && site.lng ? (
+                  <>
+                    <div className="h-[280px] w-full">
+                      <LeafletMap
+                        sites={[{ id: site.id, name: site.name, city: site.city, lat: site.lat, lng: site.lng, status: site.status, size: site.size, type: site.type }]}
+                      />
+                    </div>
+                    <Link href={`/map?siteId=${site.id}`} className="flex w-full h-14 items-center justify-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-95 mt-2">
+                      Open full map
+                    </Link>
+                  </>
+                ) : (
+                  <div className="p-4 text-center text-muted-foreground">Map unavailable</div>
+                )}
               </div>
 
             </div>

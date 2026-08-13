@@ -38,6 +38,7 @@ interface MapPageClientProps {
 export default function MapPageClient({ initialSites }: MapPageClientProps) {
   const [selectedSite, setSelectedSite] = useState<SiteData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeStatus, setActiveStatus] = useState<"All" | "Available" | "Booked" | "Digital">("All");
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -50,10 +51,17 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
     }
   }, [searchParams, initialSites]);
 
-  const filteredSites = initialSites.filter((site) => 
-    site.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    site.city.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSites = initialSites.filter((site) => {
+    const matchesSearch =
+      site.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      site.city.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      activeStatus === "All" ||
+      (activeStatus === "Available" && site.status === "Available") ||
+      (activeStatus === "Booked" && site.status === "Booked") ||
+      (activeStatus === "Digital" && site.type === "Digital");
+    return matchesSearch && matchesStatus;
+  });
   const handleMarkerClick = useCallback((site: SiteData) => {
     setSelectedSite(site);
   }, []);
@@ -104,8 +112,9 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
               {["All", "Available", "Booked", "Digital"].map((filter) => (
                 <button
                   key={filter}
+                  onClick={() => setActiveStatus(filter as "All" | "Available" | "Booked" | "Digital")}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
-                    filter === "All"
+                    activeStatus === filter
                       ? "bg-primary text-white shadow-md shadow-primary/20"
                       : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
                   }`}
