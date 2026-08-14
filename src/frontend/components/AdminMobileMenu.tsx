@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Squares2X2Icon, MapIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, XMarkIcon, Bars3Icon, ArrowTopRightOnSquareIcon, CheckCircleIcon, ShieldCheckIcon, UsersIcon, MapPinIcon, CubeIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
-export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; pendingCount?: number }) {
+export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, totalEnquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; totalEnquiryCount?: number; pendingCount?: number }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -66,9 +66,9 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
                 <span className="flex items-center">
                   <ChatBubbleLeftIcon className="mr-3 h-[18px] w-[18px]" /> Enquiries
                 </span>
-                {enquiryCount > 0 && (
+                {totalEnquiryCount > 0 && (
                   <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
-                    {enquiryCount}
+                    {enquiryCount > 0 ? `${enquiryCount} new` : totalEnquiryCount}
                   </span>
                 )}
               </Link>

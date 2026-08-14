@@ -78,9 +78,9 @@ export default function HomeSearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-[480px]" ref={dropdownRef}>
-      <div className="w-full bg-white rounded-xl p-1.5 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200">
-        <div className="pl-4 pr-2 text-[#dd3333]">
+    <div className="relative w-full max-w-xl" ref={dropdownRef}>
+      <div className="w-full bg-white rounded-2xl p-1.5 sm:p-2 flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
+        <div className="pl-3 sm:pl-4 pr-2 text-[#dd3333] shrink-0">
           {isLoading ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : <MapPinIcon className="h-5 w-5" />}
         </div>
         <input 
@@ -95,27 +95,57 @@ export default function HomeSearchBar() {
                 handleSearch();
              }
           }}
-          placeholder="Search by area or city..." 
-          className="flex-1 h-12 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-[15px] font-semibold"
+          placeholder="Search city, area or landmark..." 
+          className="flex-1 h-11 sm:h-12 bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none px-2 text-sm sm:text-[15px] font-semibold min-w-0"
         />
-        <button onClick={handleSearch} className="h-12 px-8 bg-[#dd3333] hover:bg-[#c42c2c] text-white font-bold rounded-lg flex items-center transition-colors shadow-sm text-sm">
-          Search
+        {query && (
+          <button
+            onClick={() => { setQuery(""); setResults([]); }}
+            className="p-2 text-slate-400 hover:text-slate-600 mr-1"
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+        <button
+          onClick={handleSearch}
+          className="h-11 sm:h-12 px-5 sm:px-8 bg-[#dd3333] hover:bg-[#c42c2c] text-white font-bold rounded-xl flex items-center transition-all active:scale-95 shadow-md shadow-red-500/20 text-xs sm:text-sm shrink-0"
+        >
+          <MagnifyingGlassIcon className="h-4 w-4 sm:mr-1.5" />
+          <span className="hidden sm:inline">Search</span>
         </button>
       </div>
 
+      {/* Quick City Suggestion Chips */}
+      <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <span className="text-slate-400 font-medium whitespace-nowrap">Popular:</span>
+        {["Nagpur", "Amravati", "Chandrapur", "Pune"].map((city) => (
+          <button
+            key={city}
+            onClick={() => {
+              setQuery(city);
+              router.push(`/catalog?search=${encodeURIComponent(city)}`);
+            }}
+            className="px-3 py-1 rounded-full bg-white/80 border border-slate-200 text-slate-600 font-semibold hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all active:scale-95 whitespace-nowrap shadow-xs"
+          >
+            {city}
+          </button>
+        ))}
+      </div>
+
       {showDropdown && results.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden text-left">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden text-left animate-in fade-in slide-in-from-top-2 duration-200">
           <ul className="max-h-60 overflow-y-auto divide-y divide-slate-100">
             {results.map((item) => (
               <li
                 key={item.place_id}
                 onClick={() => handleSelect(item)}
-                className="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors flex items-start gap-3"
+                className="px-4 py-3 hover:bg-blue-50/50 cursor-pointer transition-colors flex items-start gap-3"
               >
                 <MapPinIcon className="h-4 w-4 text-[#dd3333] mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900 line-clamp-1">{item.display_name.split(',')[0]}</p>
-                  <p className="text-[13px] text-slate-500 line-clamp-1 mt-0.5">{item.display_name}</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-900 truncate">{item.display_name.split(',')[0]}</p>
+                  <p className="text-xs text-slate-500 truncate mt-0.5">{item.display_name}</p>
                 </div>
               </li>
             ))}

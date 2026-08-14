@@ -101,10 +101,25 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search city, landmark, pincode…"
-                className="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all hover:border-slate-300"
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSelectedSite(null);
+                }}
+                placeholder="Search city, area, landmark…"
+                className="w-full h-11 pl-10 pr-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all hover:border-slate-300"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedSite(null);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-700 p-1"
+                  aria-label="Clear search"
+                >
+                  <XMarkIcon className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* Filter chips */}
@@ -112,7 +127,10 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
               {["All", "Available", "Booked", "Digital"].map((filter) => (
                 <button
                   key={filter}
-                  onClick={() => setActiveStatus(filter as "All" | "Available" | "Booked" | "Digital")}
+                  onClick={() => {
+                    setActiveStatus(filter as "All" | "Available" | "Booked" | "Digital");
+                    setSelectedSite(null);
+                  }}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
                     activeStatus === filter
                       ? "bg-primary text-white shadow-md shadow-primary/20"
@@ -127,7 +145,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
         </AnimateOnScroll>
 
         {/* Site List / Selected Site */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto flex flex-col">
           {selectedSite ? (
             /* Selected Site Detail */
             <AnimateOnScroll animation="fade-left" duration={400}>
@@ -198,6 +216,40 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                 </Link>
               </div>
             </AnimateOnScroll>
+          ) : filteredSites.length === 0 ? (
+            /* Empty State: Not Available in Your Area */
+            <div className="p-6 my-auto text-center flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mb-3.5 shadow-sm">
+                <MapPinIcon className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">
+                Not Available in Your Area
+              </h3>
+              <p className="text-xs text-slate-500 max-w-[260px] leading-relaxed mb-5">
+                {searchQuery
+                  ? `We currently don't have active hoardings matching "${searchQuery}".`
+                  : "No hoardings match the selected filter criteria."}
+              </p>
+              <div className="flex flex-col gap-2 w-full max-w-[240px]">
+                <Link
+                  href={`/contact?city=${encodeURIComponent(searchQuery)}`}
+                  className="w-full py-2.5 px-4 bg-primary hover:bg-primary/90 text-white font-semibold text-xs rounded-xl transition-all shadow-md shadow-primary/20 active:scale-95 text-center"
+                >
+                  Request Space in this City
+                </Link>
+                {(searchQuery || activeStatus !== "All") && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setActiveStatus("All");
+                    }}
+                    className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-all"
+                  >
+                    Clear Search &amp; Filters
+                  </button>
+                )}
+              </div>
+            </div>
           ) : (
             /* Site List */
             <div className="p-3 stagger-children">
@@ -241,7 +293,11 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
 
       {/* Right — Map Area */}
       <div className="w-full relative order-1 md:order-2 h-[45%] md:h-full flex-shrink-0 md:flex-1">
-        <LeafletMap sites={filteredSites} onMarkerClick={handleMarkerClick} />
+        <LeafletMap
+          sites={filteredSites}
+          selectedSite={selectedSite}
+          onMarkerClick={handleMarkerClick}
+        />
       </div>
 
     </div>
