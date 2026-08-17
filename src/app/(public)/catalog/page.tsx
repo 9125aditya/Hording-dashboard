@@ -17,6 +17,7 @@ export default async function CatalogPage() {
     name: s.name,
     size: s.size,
     type: s.type,
+    lit_type: s.lit_type || 'Front Lit',
     status: s.status,
     color: s.status === 'Available' ? 'bg-available' : s.status === 'Booked' ? 'bg-booked' : 'bg-blocked text-white',
     img: s.photos?.[0] || 'https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80',

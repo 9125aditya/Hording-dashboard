@@ -78,6 +78,8 @@ export async function addEnquiry(formData: FormData) {
     return { error: error.message };
   }
 
+  revalidatePath("/enquiries");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -106,6 +108,8 @@ export async function addApplication(formData: FormData) {
   ]);
 
   if (error) return { error: error.message };
+  revalidatePath("/enquiries");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -137,7 +141,8 @@ export async function updateEnquiryStatus(id: string, status: string) {
     resolved_by: user.id,
   }]);
 
-  revalidatePath("/admin/enquiries");
+  revalidatePath("/enquiries");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -169,7 +174,7 @@ export async function addEnquiryNote(id: string, currentMessage: string, noteTex
     resolved_by: user.id,
   }]);
 
-  revalidatePath("/admin/enquiries");
+  revalidatePath("/enquiries");
   return { success: true };
 }
 

@@ -2,24 +2,34 @@ import { ReactNode } from "react";
 import Link from "next/link";
 
 import PublicMobileMenu from "@/frontend/components/PublicMobileMenu";
+import PublicUserNav from "@/frontend/components/PublicUserNav";
+import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
+
+export const dynamic = 'force-dynamic';
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   let user = null;
   let role = 'public';
+  let userName = '';
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     user = data?.user || null;
     if (user) {
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile) role = profile.role;
+      const { data: profile } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
+      if (profile) {
+        role = profile.role || 'public';
+        userName = profile.name || user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0];
+      } else {
+        userName = user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0];
+      }
     }
   } catch (error) {
     console.error("Public Layout Supabase Error:", error);
   }
 
-  const isAdmin = role === 'admin' || role === 'super_admin';
+  const isAdmin = role === 'admin' || role === 'super_admin' || role === 'backoffice' || role === 'marketing' || role === 'execution_head';
 
   return (
     <div className="min-h-full flex flex-col bg-[#f4f8fb] text-slate-900 font-sans">
@@ -35,6 +45,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             <Link href="/#services" className="hover:text-red-600 transition-colors">Services</Link>
             <Link href="/#clients" className="hover:text-red-600 transition-colors">Clients</Link>
             <Link href="/careers" className="hover:text-red-600 transition-colors">Careers</Link>
+            <Link href="/contact" className="hover:text-red-600 transition-colors">Enquiry</Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -45,13 +56,17 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               <a href="#" className="h-9 w-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:border-slate-300 transition-colors bg-white shadow-sm">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
-              <Link href="/contact" className="h-10 px-5 rounded-full bg-[#fab935] text-slate-900 text-[14px] font-bold flex items-center justify-center hover:bg-[#f2a81d] transition-colors ml-3 shadow-sm">
+              <Link href="/contact" className="h-10 px-5 rounded-full bg-[#fab935] text-slate-900 text-[14px] font-bold flex items-center justify-center hover:bg-[#f2a81d] transition-colors ml-1 shadow-sm">
                 Get In Touch
               </Link>
+              <PublicUserNav
+                user={user ? { name: userName, role, email: user.email } : null}
+                isAdmin={isAdmin}
+              />
             </div>
             
             <div className="md:hidden">
-              <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} />
+              <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} userName={userName} role={role} />
             </div>
           </div>
         </div>
@@ -83,10 +98,32 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                 </a>
               </div>
-              <div className="mt-8">
-                <Link href="/login" className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#fab935] text-slate-900 font-bold text-[15px] hover:bg-[#f2a81d] transition-colors shadow-sm">
-                  Login
-                </Link>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                {user ? (
+                  <>
+                    <Link
+                      href={isAdmin ? "/dashboard" : "/catalog"}
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#fab935] text-slate-900 font-bold text-[14px] hover:bg-[#f2a81d] transition-all shadow-sm"
+                    >
+                      <span>{isAdmin ? "Go to Dashboard" : "Browse Catalogue"}</span>
+                      <span className="text-[10px] bg-slate-900/15 px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">
+                        {userName || 'User'}
+                      </span>
+                    </Link>
+                    <form action={logout}>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center justify-center px-4 py-3 rounded-full border border-blue-400/40 text-blue-200 hover:bg-white/10 hover:text-white text-[13.5px] font-semibold transition-colors cursor-pointer"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <Link href="/login" className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#fab935] text-slate-900 font-bold text-[15px] hover:bg-[#f2a81d] transition-colors shadow-sm">
+                    Login
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -96,9 +133,10 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               <ul className="space-y-3.5 text-[13px] text-blue-100 font-medium opacity-90">
                 <li><Link href="/" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Home</Link></li>
                 <li><Link href="/catalog" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Inventory</Link></li>
+                <li><Link href="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Enquiry</Link></li>
                 <li><Link href="/#services" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Services</Link></li>
                 <li><Link href="/#clients" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Clients</Link></li>
-                <li><Link href="/#careers" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Careers</Link></li>
+                <li><Link href="/careers" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Careers</Link></li>
                 <li><Link href="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Contact</Link></li>
               </ul>
             </div>

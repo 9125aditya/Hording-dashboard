@@ -1,13 +1,27 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@/backend/db/server";
 import Link from "next/link";
+import { MessageSquare, ArrowRight, Clock, User, Building, Phone } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: dbSites } = await supabase.from('sites').select('*');
+  
+  // Parallel fetch sites and enquiries
+  const [
+    { data: dbSites },
+    { data: recentEnquiries, count: totalEnquiriesCount },
+    { count: newEnquiriesCount }
+  ] = await Promise.all([
+    supabase.from('sites').select('*'),
+    supabase.from('enquiries').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(4),
+    supabase.from('enquiries').select('*', { count: 'exact', head: true }).eq('status', 'New'),
+  ]);
+
   const sites = dbSites || [];
+  const enquiries = recentEnquiries || [];
+  const totalEnquiries = totalEnquiriesCount || 0;
+  const newEnquiries = newEnquiriesCount || 0;
 
   // Calculate cities breakdown
   const cityMap: Record<string, { total: number, avail: number, blocked: number, booked: number }> = {};
@@ -68,18 +82,110 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8 max-w-[1100px]">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Key performance metrics and inventory summary</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Overview</h1>
+          <p className="text-sm text-gray-500 mt-1">Key performance metrics and customer enquiries</p>
+        </div>
+        {newEnquiries > 0 && (
+          <Link
+            href="/enquiries"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-colors w-fit"
+          >
+            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+            <span>{newEnquiries} New user {newEnquiries === 1 ? 'enquiry' : 'enquiries'} waiting for response</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        )}
       </div>
 
       {/* KPI Row */}
-      <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <Link href="/inventory"><KpiCard label="NO. OF BOARDS" value={totalSites} sub={`${cities.length} cities`} accent="indigo" /></Link>
         <Link href="/inventory"><KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} accent="emerald" /></Link>
         <Link href="/inventory"><KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" accent="amber" /></Link>
         <Link href="/inventory"><KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" accent="rose" /></Link>
         <KpiCard label="OCCUPANCY" value={`${occupancy}%`} sub="Booked / Total" accent="violet" />
+        <Link href="/enquiries">
+          <KpiCard
+            label="USER ENQUIRIES"
+            value={totalEnquiries}
+            sub={newEnquiries > 0 ? `${newEnquiries} New unhandled` : 'All caught up'}
+            accent="sky"
+          />
+        </Link>
+      </div>
+
+      {/* Recent User Enquiries Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">Recent User Enquiries</h2>
+              <p className="text-xs text-gray-500">{totalEnquiries} total received from website users</p>
+            </div>
+          </div>
+          <Link
+            href="/enquiries"
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group"
+          >
+            <span>View All Enquiries</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+
+        {enquiries.length === 0 ? (
+          <div className="py-8 text-center text-sm text-gray-400">
+            No user enquiries received yet.
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {enquiries.map((eq: any) => {
+              const statusColors: Record<string, string> = {
+                New: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                Contacted: 'bg-amber-100 text-amber-700 border-amber-200',
+                Converted: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                Lost: 'bg-gray-100 text-gray-600 border-gray-200',
+              };
+              const statusClass = statusColors[eq.status] || 'bg-gray-100 text-gray-600 border-gray-200';
+              const formattedDate = eq.created_at ? new Date(eq.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+
+              return (
+                <Link
+                  key={eq.id}
+                  href="/enquiries"
+                  className="p-3.5 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/20 transition-all block group"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">
+                        {(eq.name || 'U')[0].toUpperCase()}
+                      </div>
+                      <span className="font-semibold text-sm text-gray-900 group-hover:text-indigo-600 transition-colors truncate max-w-[140px]">
+                        {eq.name || 'Website User'}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusClass}`}>
+                      {eq.status || 'New'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                    {eq.message || 'Interested in billboard booking.'}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-50 text-[11px] text-gray-400">
+                    <span className="truncate max-w-[130px]">{eq.company || eq.email || eq.phone || 'Direct Customer'}</span>
+                    <span>{formattedDate}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Status Distribution - Horizontal Bar */}
@@ -203,6 +309,8 @@ function KpiCard({ label, value, sub, accent }: { label: string; value: string |
     amber: { text: 'text-amber-700', bg: 'bg-amber-50', line: 'bg-amber-500' },
     rose: { text: 'text-rose-700', bg: 'bg-rose-50', line: 'bg-rose-500' },
     violet: { text: 'text-violet-700', bg: 'bg-violet-50', line: 'bg-violet-500' },
+    sky: { text: 'text-blue-700', bg: 'bg-blue-50', line: 'bg-blue-500' },
+    blue: { text: 'text-blue-700', bg: 'bg-blue-50', line: 'bg-blue-500' },
   };
   const c = colorMap[accent] || colorMap.indigo;
 

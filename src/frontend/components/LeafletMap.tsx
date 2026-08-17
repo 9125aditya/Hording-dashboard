@@ -12,34 +12,49 @@ export interface SiteData {
   status: string;
   size: string;
   type: string;
+  lit_type?: string;
 }
 
 interface LeafletMapProps {
   sites: SiteData[];
+  selectedSite?: SiteData | null;
+  singleSiteZoom?: number;
+  defaultZoom?: number;
   onMarkerClick?: (site: SiteData) => void;
 }
 
-export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
+export default function LeafletMap({
+  sites,
+  selectedSite = null,
+  singleSiteZoom = 15,
+  defaultZoom = 7,
+  onMarkerClick,
+}: LeafletMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
+  const LRef = useRef<any>(null);
+  const markersMapRef = useRef<Map<string, { site: SiteData; marker: any }>>(new Map());
   const onMarkerClickRef = useRef(onMarkerClick);
+  const isInitializedRef = useRef(false);
 
   // Keep callback ref current without triggering re-render
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
   }, [onMarkerClick]);
 
+  // 1. Initialize Map Instance (Only ONCE on mount)
   useEffect(() => {
     if (!containerRef.current || mapInstanceRef.current) return;
-
     let cancelled = false;
 
-    // Dynamic imports — everything leaflet-related loads only here
     Promise.all([
       import("leaflet"),
       import("leaflet/dist/leaflet.css"),
     ]).then(([L]) => {
-      if (cancelled || !containerRef.current) return;
+      if (cancelled || !containerRef.current || mapInstanceRef.current) return;
+
+      LRef.current = L;
 
       // Fix default icon paths (webpack breaks them)
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -49,44 +64,22 @@ export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
         shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
       });
 
-      // Create custom colored icons per status
-      const createIcon = (color: string) => L.divIcon({
-        html: `<div style="
-          width: 32px; height: 32px;
-          background: ${color};
-          border: 3px solid white;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
-          display: flex; align-items: center; justify-content: center;
-        "><div style="
-          width: 10px; height: 10px;
-          background: white;
-          border-radius: 50%;
-          transform: rotate(45deg);
-        "></div></div>`,
-        className: "",
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-      });
+      const initialCenter: [number, number] = sites.length === 1 && sites[0].lat && sites[0].lng
+        ? [sites[0].lat, sites[0].lng]
+        : [20.5, 77.5];
 
-      const icons: Record<string, any> = {
-        Available: createIcon("#10B981"),
-        Booked: createIcon("#EF4444"),
-        Blocked: createIcon("#F59E0B"),
-      };
+      const initialZoom = sites.length === 1 ? singleSiteZoom : defaultZoom;
 
-      // Init map
       const map = L.map(containerRef.current, {
-        center: [20.5, 77.5], // Centered around Maharashtra (Nagpur/Amravati region)
-        zoom: 7,
+        center: initialCenter,
+        zoom: initialZoom,
         zoomControl: false,
         attributionControl: false,
       });
 
       mapInstanceRef.current = map;
 
-      // Add zoom control to bottom-left (away from panel)
+      // Add zoom control to bottom-left
       L.control.zoom({ position: "bottomleft" }).addTo(map);
 
       // Use light elegant tiles
@@ -95,62 +88,180 @@ export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
         maxZoom: 20,
       }).addTo(map);
 
-      // Add markers
-      const markers = sites.map(site => {
-        const marker = L.marker([site.lat, site.lng], {
-          icon: icons[site.status] || icons.Available,
-        });
+      // LayerGroup for markers to update without destroying the map
+      const markersLayer = L.layerGroup().addTo(map);
+      markersLayerRef.current = markersLayer;
 
-        marker.on("click", () => {
-          if (onMarkerClickRef.current) onMarkerClickRef.current(site);
-        });
+      isInitializedRef.current = true;
 
-        // Tooltip on hover
-        marker.bindTooltip(
-          `<strong>${site.name}</strong><br/><span style="opacity:0.7">${site.city}</span>`,
-          { direction: "top", offset: [0, -28], className: "leaflet-tooltip-custom" }
-        );
-        return marker;
-      });
+      // Render initial markers
+      renderMarkers();
 
-      // Add markers to layer group instead of directly to map
-      const markersLayer = L.layerGroup(markers);
-      markersLayer.addTo(map);
-
-      // Auto-fit map to marker bounds (with padding) if there are markers
-      if (markers.length > 0) {
-        const bounds = L.latLngBounds([]);
-        markers.forEach(m => bounds.extend(m.getLatLng()));
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-
-      // Save markers and map instance
-      (map as any)._markers = markers;
-      mapInstanceRef.current = map;
-
-      // Ensure the markers are loaded fully
+      // Trigger map invalidateSize to prevent partial tile render
       setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
-      
-    }).catch(err => {
+        if (mapInstanceRef.current && (mapInstanceRef.current as any)._panes) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 150);
+
+    }).catch((err) => {
       console.error("Error loading Leaflet:", err);
     });
 
     return () => {
       cancelled = true;
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          mapInstanceRef.current.stop();
+          mapInstanceRef.current.off();
+          mapInstanceRef.current.remove();
+        } catch {}
         mapInstanceRef.current = null;
+        markersLayerRef.current = null;
+        isInitializedRef.current = false;
       }
     };
-  }, [sites]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Helper: Create status-colored pin icon
+  const getIcon = (status: string) => {
+    const L = LRef.current;
+    if (!L) return undefined;
+
+    const colors: Record<string, string> = {
+      Available: "#10B981",
+      Booked: "#EF4444",
+      Blocked: "#F59E0B",
+    };
+    const color = colors[status] || "#10B981";
+
+    return L.divIcon({
+      html: `<div style="
+        width: 32px; height: 32px;
+        background: ${color};
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      "><div style="
+        width: 10px; height: 10px;
+        background: white;
+        border-radius: 50%;
+        transform: rotate(45deg);
+      "></div></div>`,
+      className: "",
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  };
+
+  // 2. Render / Update Markers when `sites` change
+  const renderMarkers = () => {
+    const map = mapInstanceRef.current;
+    const markersLayer = markersLayerRef.current;
+    const L = LRef.current;
+    if (!map || !markersLayer || !L || !(map as any)._panes) return;
+
+    markersLayer.clearLayers();
+    markersMapRef.current.clear();
+
+    const validSites = sites.filter(
+      (s) => s.lat && s.lng && !isNaN(Number(s.lat)) && !isNaN(Number(s.lng))
+    );
+
+    const createdMarkers: any[] = [];
+
+    validSites.forEach((site) => {
+      const marker = L.marker([Number(site.lat), Number(site.lng)], {
+        icon: getIcon(site.status),
+      });
+
+      marker.on("click", () => {
+        if (onMarkerClickRef.current) onMarkerClickRef.current(site);
+      });
+
+      marker.bindTooltip(
+        `<div class="text-xs">
+          <strong class="text-slate-900 block font-bold">${site.name}</strong>
+          <span class="text-slate-500">${site.city} ${site.size ? `· ${site.size}` : ''}</span>
+        </div>`,
+        {
+          direction: "top",
+          offset: [0, -28],
+          className: "leaflet-tooltip-custom",
+          permanent: sites.length === 1,
+        }
+      );
+
+      markersLayer.addLayer(marker);
+      markersMapRef.current.set(String(site.id), { site, marker });
+      createdMarkers.push(marker);
+    });
+
+    // Auto center / bounds
+    if (validSites.length === 1) {
+      map.setView([Number(validSites[0].lat), Number(validSites[0].lng)], singleSiteZoom);
+      const pair = markersMapRef.current.get(String(validSites[0].id));
+      if (pair?.marker) {
+        pair.marker.openTooltip();
+      }
+    } else if (createdMarkers.length > 1 && !selectedSite) {
+      const bounds = L.latLngBounds([]);
+      createdMarkers.forEach((m) => bounds.extend(m.getLatLng()));
+      try {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      } catch {}
+    }
+  };
+
+  // Trigger marker refresh when sites array or zoom config changes
+  useEffect(() => {
+    if (isInitializedRef.current) {
+      renderMarkers();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sites, singleSiteZoom]);
+
+  // 3. Handle `selectedSite` Changes smoothly without crashing
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const L = LRef.current;
+    if (!map || !L || !(map as any)._panes) return;
+
+    if (selectedSite && selectedSite.lat && selectedSite.lng) {
+      try {
+        map.stop();
+        map.flyTo([Number(selectedSite.lat), Number(selectedSite.lng)], Math.max(map.getZoom(), 15), {
+          duration: 1.0,
+        });
+
+        const pair = markersMapRef.current.get(String(selectedSite.id));
+        if (pair?.marker) {
+          pair.marker.openTooltip();
+        }
+      } catch (e) {
+        console.warn("Leaflet flyTo skipped:", e);
+      }
+    } else if (!selectedSite && markersMapRef.current.size > 1) {
+      try {
+        map.stop();
+        const bounds = L.latLngBounds([]);
+        markersMapRef.current.forEach((m) => bounds.extend(m.marker.getLatLng()));
+        map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 15, duration: 1.0 });
+      } catch (e) {
+        console.warn("Leaflet flyToBounds skipped:", e);
+      }
+    }
+  }, [selectedSite]);
 
   return (
-    <>
+    <div className="w-full h-full relative">
       <div
         ref={containerRef}
-        style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        className="w-full h-full absolute inset-0 z-0"
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .leaflet-container {
@@ -164,20 +275,32 @@ export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
           padding: 8px 14px;
           color: #1e293b;
           font-size: 13px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.12);
         }
         .leaflet-tooltip-custom::before {
           border-top-color: white !important;
+        }
+        .leaflet-control-zoom {
+          border: none !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+          border-radius: 8px !important;
+          overflow: hidden;
         }
         .leaflet-control-zoom a {
           background: white !important;
           color: #334155 !important;
           border-color: #e2e8f0 !important;
+          width: 34px !important;
+          height: 34px !important;
+          line-height: 34px !important;
+          font-size: 16px !important;
         }
         .leaflet-control-zoom a:hover {
           background: #f1f5f9 !important;
+          color: #0284c7 !important;
         }
       `}} />
-    </>
+    </div>
   );
 }
+

@@ -3,27 +3,47 @@
 import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, Suspense } from "react";
 import { addEnquiry } from "@/backend/actions/actions";
 import { createClient } from "@/backend/db/client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
-export default function ContactPage() {
+function ContactFormInner() {
+  const searchParams = useSearchParams();
+  const preselectedSiteId = searchParams.get("site");
+  const preselectedCity = searchParams.get("city");
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [sites, setSites] = useState<{site_id: string, name: string, city: string}[]>([]);
+  const [selectedSiteVal, setSelectedSiteVal] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  useEffect(() => {
+    if (preselectedCity) {
+      setMessage(`Hi, I am interested in booking outdoor advertising / billboard space in ${preselectedCity}. Please let me know available inventory and pricing.`);
+    }
+  }, [preselectedCity]);
 
   useEffect(() => {
     const fetchSites = async () => {
       const supabase = createClient();
       const { data } = await supabase.from('sites').select('site_id, name, city').order('city', { ascending: true });
-      if (data) setSites(data);
+      if (data) {
+        setSites(data);
+        if (preselectedSiteId) {
+          const match = data.find(s => s.site_id === preselectedSiteId);
+          if (match) {
+            setSelectedSiteVal(`${match.name} (${match.city})`);
+          }
+        }
+      }
     };
     fetchSites();
-  }, []);
+  }, [preselectedSiteId]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +58,8 @@ export default function ContactPage() {
       } else {
         setStatus("success");
         (e.target as HTMLFormElement).reset();
+        setSelectedSiteVal("");
+        setMessage("");
       }
     });
   };
@@ -143,7 +165,13 @@ export default function ContactPage() {
                       </Link>
                     </div>
                     <div className="relative">
-                      <select name="preferredSite" id="preferredSite" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 appearance-none">
+                      <select
+                        name="preferredSite"
+                        id="preferredSite"
+                        value={selectedSiteVal}
+                        onChange={(e) => setSelectedSiteVal(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 appearance-none"
+                      >
                         <option value="">-- Select a site from our catalog --</option>
                         {sites.map(s => (
                           <option key={s.site_id} value={`${s.name} (${s.city})`}>{s.name} - {s.city}</option>
@@ -157,7 +185,16 @@ export default function ContactPage() {
 
                   <div className="space-y-2 group/input">
                     <label htmlFor="message" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Project Details</label>
-                    <textarea id="message" name="message" rows={4} required className="w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 resize-none" placeholder="Tell us about your campaign goals, target locations, and timeline..."></textarea>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      required
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 resize-none"
+                      placeholder="Tell us about your campaign goals, target locations, and timeline..."
+                    />
                   </div>
 
                   {status === "error" && (
@@ -196,5 +233,17 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <ArrowPathIcon className="h-8 w-8 text-primary animate-spin" />
+      </div>
+    }>
+      <ContactFormInner />
+    </Suspense>
   );
 }
