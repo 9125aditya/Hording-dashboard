@@ -117,6 +117,13 @@ export default function LeafletMap({ sites, onMarkerClick }: LeafletMapProps) {
       const markersLayer = L.layerGroup(markers);
       markersLayer.addTo(map);
 
+      // Auto-fit map to marker bounds (with padding) if there are markers
+      if (markers.length > 0) {
+        const bounds = L.latLngBounds([]);
+        markers.forEach(m => bounds.extend(m.getLatLng()));
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+
       // Save markers and map instance
       (map as any)._markers = markers;
       mapInstanceRef.current = map;

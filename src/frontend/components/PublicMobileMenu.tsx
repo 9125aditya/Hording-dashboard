@@ -57,16 +57,13 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                 <HomeIcon className="h-4 w-4 text-slate-400 shrink-0" /> Home
               </Link>
               <Link href="/catalog" onClick={() => setIsOpen(false)} className={linkClass}>
-                <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Inventory
+                <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Catalogue
               </Link>
               <Link href="/#services" onClick={() => setIsOpen(false)} className={linkClass}>
                 <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Services
               </Link>
               <Link href="/#clients" onClick={() => setIsOpen(false)} className={linkClass}>
                 <UsersIcon className="h-4 w-4 text-slate-400 shrink-0" /> Clients
-              </Link>
-              <Link href="/contact" onClick={() => setIsOpen(false)} className={linkClass}>
-                <ChatBubbleLeftIcon className="h-4 w-4 text-slate-400 shrink-0" /> Enquiry
               </Link>
               <Link href="/careers" onClick={() => setIsOpen(false)} className={linkClass}>
                 <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Careers
@@ -80,7 +77,7 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-center w-full h-12 rounded-full bg-[#fab935] text-slate-900 text-[14px] font-bold hover:bg-[#f2a81d] transition-colors shadow-sm"
               >
-                Contact for rates
+                Get In Touch
               </Link>
               {hasUser ? (
                 <>

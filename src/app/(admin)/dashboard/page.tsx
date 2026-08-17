@@ -75,7 +75,7 @@ export default async function DashboardPage() {
 
       {/* KPI Row */}
       <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        <Link href="/inventory"><KpiCard label="TOTAL SITES" value={totalSites} sub={`${cities.length} cities`} accent="indigo" /></Link>
+        <Link href="/inventory"><KpiCard label="NO. OF BOARDS" value={totalSites} sub={`${cities.length} cities`} accent="indigo" /></Link>
         <Link href="/inventory"><KpiCard label="AVAILABLE" value={totalAvail} sub={totalSites > 0 ? `${Math.round((totalAvail / totalSites) * 100)}%` : '0%'} accent="emerald" /></Link>
         <Link href="/inventory"><KpiCard label="BLOCKED" value={totalBlocked} sub="Soft holds" accent="amber" /></Link>
         <Link href="/inventory"><KpiCard label="BOOKED" value={totalBooked} sub="Confirmed" accent="rose" /></Link>

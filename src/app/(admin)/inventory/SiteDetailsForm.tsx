@@ -145,7 +145,12 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Media Type *</label>
-              <input required name="type" defaultValue={site?.type || 'Billboard'} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Billboard, Gantry" />
+              <select required name="type" defaultValue={site?.type} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="Billboard">Billboard</option>
+                <option value="Digital Screen">Digital Screen</option>
+                <option value="Transit">Transit</option>
+                <option value="Street Furniture">Street Furniture</option>
+              </select>
             </div>
 
             <div className="space-y-2">
@@ -256,7 +261,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Agency Rate</label>
-              <input type="number" name="agency_rate" defaultValue={site?.agency_rate} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+              <input type="number" name="agency_rate" defaultValue={site?.agency_rate} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" readOnly />
             </div>
 
             <div className="space-y-2">
