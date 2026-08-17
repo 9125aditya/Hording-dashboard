@@ -155,7 +155,22 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Variant (Lit Type)</label>
-              <input name="lit_type" defaultValue={site?.lit_type} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Front Lit, Back Lit, Non-Lit" />
+              <div className="relative">
+                <input
+                  name="lit_type"
+                  list="lit-type-options"
+                  defaultValue={site?.lit_type || "Front Lit"}
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. Front Lit, Back Lit, Non-Lit"
+                />
+                <datalist id="lit-type-options">
+                  <option value="Front Lit">Front Lit (External Lighting)</option>
+                  <option value="Back Lit">Back Lit (Internal Lighting)</option>
+                  <option value="Non-Lit">Non-Lit (Standard Daylight)</option>
+                  <option value="Digital Screen">Digital Screen (LED / DOOH)</option>
+                  <option value="Both Side Lit">Both Side Lit</option>
+                </datalist>
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -2,10 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bars3Icon, XMarkIcon, Squares2X2Icon, ChatBubbleLeftIcon, UsersIcon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Squares2X2Icon, ChatBubbleLeftIcon, UsersIcon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
-export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser?: boolean, isAdmin?: boolean }) {
+export default function PublicMobileMenu({
+  hasUser,
+  isAdmin = false,
+  userName,
+  role
+}: {
+  hasUser?: boolean;
+  isAdmin?: boolean;
+  userName?: string;
+  role?: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -51,6 +61,21 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
               </button>
             </div>
 
+            {/* Logged in User Banner */}
+            {hasUser && (
+              <div className="mx-3 mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+                  {(userName || 'A')[0].toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-900 truncate">{userName || 'Admin'}</p>
+                  <p className="text-[11px] text-slate-500 font-medium capitalize">
+                    {role === 'super_admin' ? 'Super Admin' : role || 'User'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Nav Links */}
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
               <Link href="/" onClick={() => setIsOpen(false)} className={linkClass}>
@@ -58,6 +83,9 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
               </Link>
               <Link href="/catalog" onClick={() => setIsOpen(false)} className={linkClass}>
                 <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Catalogue
+              </Link>
+              <Link href="/contact" onClick={() => setIsOpen(false)} className={linkClass}>
+                <EnvelopeIcon className="h-4 w-4 text-slate-400 shrink-0" /> Enquiry
               </Link>
               <Link href="/#services" onClick={() => setIsOpen(false)} className={linkClass}>
                 <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Services
@@ -85,9 +113,9 @@ export default function PublicMobileMenu({ hasUser, isAdmin = false }: { hasUser
                     <Link
                       href="/dashboard"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full h-11 rounded-full bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm"
                     >
-                      <Squares2X2Icon className="h-4 w-4" /> Dashboard
+                      <Squares2X2Icon className="h-4 w-4" /> Go to Dashboard
                     </Link>
                   )}
                   <form action={logout}>

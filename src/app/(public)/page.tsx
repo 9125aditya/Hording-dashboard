@@ -39,32 +39,21 @@ export default function PublicHomePage() {
               </AnimateOnScroll>
               
               <AnimateOnScroll animation="fade-up" delay={300} duration={700} className="w-full">
-                <div className="max-w-[90%] lg:max-w-full">
+                <div className="w-full max-w-xl">
                   <HomeSearchBar />
                 </div>
               </AnimateOnScroll>
 
-              <AnimateOnScroll animation="fade-up" delay={400} duration={700} className="w-full">
-                <div className="block lg:hidden mt-6 w-full max-w-[300px] mx-auto">
-                  <div className="relative w-full h-[200px] bg-white border-8 border-blue-600 rounded-[2.5rem] overflow-hidden">
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-50"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-slate-100"></div>
-                    <div className="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-[2.5rem] -z-10"></div>
-                    <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                      <div className="text-blue-600 font-black tracking-[0.3em] text-lg uppercase px-6 py-3 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50/50 backdrop-blur-sm">
-                        Your Ad Here
-                      </div>
-                      <p className="mt-4 text-slate-400 font-medium text-sm tracking-widest uppercase">
-                        Premium Space Available
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
+              {/* Mobile Animated Billboard */}
+              <div className="block lg:hidden mt-8 w-full flex justify-center">
+                <AnimateOnScroll animation="zoom-in" delay={400} duration={800} className="w-full flex justify-center">
+                  <AnimatedBillboard />
+                </AnimateOnScroll>
+              </div>
             </div>
 
-            {/* Right Content: Billboard Graphic */}
-            <div className="relative hidden lg:flex items-center justify-center h-[600px] w-full">
+            {/* Right Content: Billboard Graphic (Desktop) */}
+            <div className="relative hidden lg:flex items-center justify-center min-h-[560px] w-full">
               <AnimateOnScroll animation="zoom-in" delay={300} duration={1000} className="w-full flex justify-center">
                 <AnimatedBillboard />
               </AnimateOnScroll>

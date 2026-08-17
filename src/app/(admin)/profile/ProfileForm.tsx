@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { User, Mail, Shield, Save, Loader2 } from "lucide-react";
-import { updateProfile } from "@/backend/actions/auth-actions";
+import { User, Mail, Shield, Save, Loader2, LogOut } from "lucide-react";
+import { updateProfile, logout } from "@/backend/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
@@ -131,11 +131,11 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
           </div>
         </div>
 
-        <div className="pt-6 mt-6 border-t border-gray-100">
+        <div className="pt-6 mt-6 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap">
           <button
             onClick={handleSave}
             disabled={isPending || (name === initialData.name && avatarBase64 === initialData.avatarBase64)}
-            className="inline-flex items-center justify-center h-10 px-6 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+            className="inline-flex items-center justify-center h-10 px-6 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
           >
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -144,6 +144,16 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
             )}
             Save Changes
           </button>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-lg border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50 hover:border-red-300 text-sm font-semibold transition-all cursor-pointer"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </button>
+          </form>
         </div>
       </div>
     </div>

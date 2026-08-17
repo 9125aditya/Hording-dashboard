@@ -70,11 +70,21 @@ export default function LocationSearch({
         setShowDropdown(false);
       }
     };
+
+    const handleScrollOrResize = () => {
+      if (showDropdown) updateDropdownPosition();
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
     };
-  }, []);
+  }, [showDropdown, updateDropdownPosition]);
 
   useEffect(() => {
     if (!query || query.length < 3) {

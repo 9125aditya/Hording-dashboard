@@ -8,35 +8,42 @@ import { createClient } from "@/backend/db/server";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   let user = null;
   let role = 'public';
+  let profileName = '';
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     user = data?.user || null;
     
     if (user) {
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile) role = profile.role;
+      const { data: profile } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
+      if (profile) {
+        role = profile.role;
+        profileName = profile.name;
+      }
     }
   } catch (error) {
     console.error("Admin Layout Supabase Error:", error);
   }
 
   const isSuperAdmin = role === 'super_admin';
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
-  const userInitial = (user?.user_metadata?.full_name?.[0] || user?.email?.[0] || 'A').toUpperCase();
+  const userName = profileName || user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const userInitial = (userName[0] || user?.email?.[0] || 'A').toUpperCase();
   const avatarBase64 = user?.user_metadata?.avatar_base64 || null;
 
   // Fetch nav counts
   let enquiryCount = 0;
+  let totalEnquiryCount = 0;
   let pendingCount = 0;
   try {
     if (user) {
       const supabase2 = await createClient();
-      const [{ count: eCount }, { count: pCount }] = await Promise.all([
+      const [{ count: eCount }, { count: totalECount }, { count: pCount }] = await Promise.all([
         supabase2.from('enquiries').select('*', { count: 'exact', head: true }).eq('status', 'New'),
+        supabase2.from('enquiries').select('*', { count: 'exact', head: true }),
         supabase2.from('admin_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
       ]);
       enquiryCount = eCount || 0;
+      totalEnquiryCount = totalECount || 0;
       pendingCount = pCount || 0;
     }
   } catch {}
@@ -76,9 +83,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <ActiveLink href="/enquiries">
             <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
-            {enquiryCount > 0 && (
+            {totalEnquiryCount > 0 && (
               <span className="ml-auto text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
-                {enquiryCount}
+                {enquiryCount > 0 ? `${enquiryCount} new` : totalEnquiryCount}
               </span>
             )}
           </ActiveLink>
@@ -140,21 +147,51 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex-1 flex flex-col min-w-0 md:ml-[220px]">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 md:px-6 justify-between sticky top-0 z-30">
           <div className="flex items-center">
-            <AdminMobileMenu isSuperAdmin={isSuperAdmin} enquiryCount={enquiryCount} pendingCount={pendingCount} />
+            <AdminMobileMenu isSuperAdmin={isSuperAdmin} enquiryCount={enquiryCount} totalEnquiryCount={totalEnquiryCount} pendingCount={pendingCount} />
           </div>
-          <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="hidden sm:flex flex-col items-end mr-1">
-              <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
-              <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
-            </div>
-            {avatarBase64 ? (
-              <img src={avatarBase64} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
-            ) : (
-              <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
-                {userInitial}
-              </div>
+          <div className="flex items-center gap-3">
+            {totalEnquiryCount > 0 && (
+              <Link
+                href="/enquiries"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
+                title={`${totalEnquiryCount} Total Enquiries (${enquiryCount} New)`}
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>
+                  {totalEnquiryCount} {totalEnquiryCount === 1 ? 'Enquiry' : 'Enquiries'}
+                  {enquiryCount > 0 && (
+                    <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-bold leading-none">
+                      {enquiryCount} new
+                    </span>
+                  )}
+                </span>
+              </Link>
             )}
-          </Link>
+            <Link href="/profile" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+              <div className="hidden sm:flex flex-col items-end mr-1">
+                <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
+                <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
+              </div>
+              {avatarBase64 ? (
+                <img src={avatarBase64} alt="Avatar" className="h-8 w-8 rounded-full object-cover" />
+              ) : (
+                <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs">
+                  {userInitial}
+                </div>
+              )}
+            </Link>
+            <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+            <form action={logout}>
+              <button
+                type="submit"
+                title="Sign Out"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors border border-gray-200 cursor-pointer"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </form>
+          </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
           {children}
