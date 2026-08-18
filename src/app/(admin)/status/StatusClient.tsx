@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useMemo, useRef, useEffect } from "react";
-import { Search, X, Loader2, MapPin, Tag, ChevronDown } from "lucide-react";
+import { Search, X, Loader2, MapPin, Tag, ChevronDown, ArrowUpDown, Filter } from "lucide-react";
 import { updateSiteStatus } from "@/backend/actions/actions";
 
 type SiteItem = {
@@ -65,7 +65,7 @@ function StatusDropdown({
             <button
               key={opt.label}
               onClick={() => { onUpdate(uuid, opt.label); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span className={`w-2 h-2 rounded-full ${opt.dot}`} />
               {opt.label}
@@ -79,11 +79,19 @@ function StatusDropdown({
 
 export default function StatusClient({ initialInventory }: { initialInventory: SiteItem[] }) {
   const [search, setSearch] = useState("");
+  const [selectedCity, setSelectedCity] = useState("All");
+  const [sortBy, setSortBy] = useState<"city_asc" | "city_desc" | "name_asc" | "status">("city_asc");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [localInventory, setLocalInventory] = useState<SiteItem[]>(initialInventory);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Extract unique cities
+  const citiesList = useMemo(() => {
+    const cities = Array.from(new Set(localInventory.map(i => i.city).filter(Boolean)));
+    return ["All", ...cities.sort()];
+  }, [localInventory]);
 
   const suggestions = useMemo(() => {
     if (!search.trim()) return [];
@@ -97,14 +105,44 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
   }, [localInventory, search]);
 
   const filteredSites = useMemo(() => {
-    if (!search.trim()) return localInventory;
-    const lower = search.toLowerCase();
-    return localInventory.filter(item =>
-      item.name?.toLowerCase().includes(lower) ||
-      item.city?.toLowerCase().includes(lower) ||
-      item.area?.toLowerCase().includes(lower)
-    );
-  }, [localInventory, search]);
+    let result = [...localInventory];
+
+    // Filter by city
+    if (selectedCity !== "All") {
+      result = result.filter(item => item.city?.toLowerCase() === selectedCity.toLowerCase());
+    }
+
+    // Filter by search
+    if (search.trim()) {
+      const lower = search.toLowerCase();
+      result = result.filter(item =>
+        item.name?.toLowerCase().includes(lower) ||
+        item.city?.toLowerCase().includes(lower) ||
+        item.area?.toLowerCase().includes(lower)
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortBy === "city_asc") {
+        const cityCompare = (a.city || "").localeCompare(b.city || "");
+        return cityCompare !== 0 ? cityCompare : (a.name || "").localeCompare(b.name || "");
+      }
+      if (sortBy === "city_desc") {
+        const cityCompare = (b.city || "").localeCompare(a.city || "");
+        return cityCompare !== 0 ? cityCompare : (a.name || "").localeCompare(b.name || "");
+      }
+      if (sortBy === "name_asc") {
+        return (a.name || "").localeCompare(b.name || "");
+      }
+      if (sortBy === "status") {
+        return (a.status || "").localeCompare(b.status || "");
+      }
+      return 0;
+    });
+
+    return result;
+  }, [localInventory, search, selectedCity, sortBy]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -145,42 +183,84 @@ export default function StatusClient({ initialInventory }: { initialInventory: S
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div ref={searchRef} className="relative">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by site, city or area..."
-            value={search}
-            onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 transition-all shadow-sm"
-          />
-          {search && (
-            <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+      {/* Search & Filters Row */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search Input */}
+        <div ref={searchRef} className="relative flex-1">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by site, city or area..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
+              className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 transition-all shadow-sm"
+            />
+            {search && (
+              <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+              {suggestions.map(item => (
+                <button
+                  key={item.uuid}
+                  onClick={() => { setSearch(item.name); setShowSuggestions(false); }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-indigo-50 text-left transition-colors border-b border-gray-50 last:border-0"
+                >
+                  <MapPin className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{item.city}{item.area ? `, ${item.area}` : ""} · {item.type}</p>
+                  </div>
+                  <StatusBadge status={item.status} />
+                </button>
+              ))}
+            </div>
           )}
         </div>
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
-            {suggestions.map(item => (
-              <button
-                key={item.uuid}
-                onClick={() => { setSearch(item.name); setShowSuggestions(false); }}
-                className="w-full flex items-start gap-3 px-4 py-3 hover:bg-indigo-50 text-left transition-colors border-b border-gray-50 last:border-0"
-              >
-                <MapPin className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{item.city}{item.area ? `, ${item.area}` : ""} · {item.type}</p>
-                </div>
-                <StatusBadge status={item.status} />
-              </button>
-            ))}
+
+        {/* City Filter Dropdown */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <MapPin className="h-4 w-4 text-indigo-500" />
+            </div>
+            <select
+              value={selectedCity}
+              onChange={e => setSelectedCity(e.target.value)}
+              className="h-11 pl-9 pr-8 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 appearance-none cursor-pointer"
+            >
+              {citiesList.map(city => (
+                <option key={city} value={city}>
+                  {city === "All" ? "All Cities" : city}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-3.5 pointer-events-none" />
           </div>
-        )}
+
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <ArrowUpDown className="h-4 w-4 text-indigo-500" />
+            </div>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as any)}
+              className="h-11 pl-9 pr-8 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 appearance-none cursor-pointer"
+            >
+              <option value="city_asc">Sort: City (A-Z)</option>
+              <option value="city_desc">Sort: City (Z-A)</option>
+              <option value="name_asc">Sort: Site Name (A-Z)</option>
+              <option value="status">Sort: Status</option>
+            </select>
+            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-3.5 pointer-events-none" />
+          </div>
+        </div>
       </div>
 
       {/* Stats row */}

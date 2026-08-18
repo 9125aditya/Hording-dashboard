@@ -1,134 +1,49 @@
 "use client";
 
-import { useTransition, useState } from "react";
-import { signupUser } from "@/backend/actions/auth-actions";
-import { LockClosedIcon, UserCircleIcon, BuildingOfficeIcon, UserIcon } from "@heroicons/react/24/outline";
+import { ShieldCheckIcon, LockClosedIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get("password");
-    const confirmPassword = formData.get("confirmPassword");
-    
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await signupUser(formData);
-      if (res?.error) {
-        setError(res.error);
-      }
-    });
-  };
-
   return (
-    <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-      <div className="p-8 border-b border-border bg-slate-50/50 relative overflow-hidden">
-        {/* Subtle decorative line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/60 to-primary"></div>
-        <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Create an Account</h1>
-        <p className="text-muted-foreground text-sm">Join Sellads Advertising to book premium OOH media.</p>
-      </div>
-      
-      <form onSubmit={handleSignup} className="p-8 space-y-6">
-        <div className="space-y-4">
-          
+    <div className="w-full max-w-md bg-white border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div className="p-8 border-b border-border bg-slate-50/70 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+        <div className="flex items-center justify-between">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input 
-                type="text" 
-                name="name"
-                placeholder="John Doe"
-                required
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
-              />
-            </div>
+            <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Staff Access Only</h1>
+            <p className="text-muted-foreground text-xs">Customer self-registration is disabled.</p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input 
-                type="email" 
-                name="email"
-                placeholder="you@company.com"
-                required
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input 
-                type="password" 
-                name="password"
-                placeholder="Create a strong password"
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input 
-                type="password" 
-                name="confirmPassword"
-                placeholder="Re-enter your password"
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
-              />
-            </div>
+          <div className="h-11 w-11 rounded-xl bg-blue-100 text-blue-700 ring-4 ring-blue-50 flex items-center justify-center">
+            <ShieldCheckIcon className="h-6 w-6" />
           </div>
         </div>
-        
-        {error && (
-          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm text-center">
-            {error}
-          </div>
-        )}
+      </div>
+      
+      <div className="p-8 space-y-6 text-center">
+        <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-600 mx-auto flex items-center justify-center shadow-inner">
+          <LockClosedIcon className="h-7 w-7" />
+        </div>
 
-        <button 
-          type="submit" 
-          disabled={isPending}
-          className="w-full h-12 flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-md hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+        <div className="space-y-2">
+          <h2 className="text-base font-bold text-slate-800">Direct Registration Disabled</h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
+            Account creation is restricted to authorized personnel. Admin and Staff accounts are provisioned exclusively by the Super Administrator.
+          </p>
+        </div>
+
+        <div className="p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-left text-xs text-blue-900 leading-relaxed">
+          <span className="font-bold block mb-0.5">Need Access?</span>
+          If you are an authorized staff member requiring login credentials, please contact the primary Super Administrator.
+        </div>
+
+        <Link
+          href="/login"
+          className="w-full h-11 flex items-center justify-center gap-2 rounded-lg bg-blue-600 text-white font-bold text-sm shadow-md hover:bg-blue-700 transition-all active:scale-[0.98]"
         >
-          {isPending ? "Creating account..." : "Sign up"}
-        </button>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary font-medium hover:underline">
-            Sign in
-          </Link>
-        </p>
-      </form>
+          <span>Go to Management Login</span>
+          <ArrowRightIcon className="h-4 w-4" />
+        </Link>
+      </div>
     </div>
   );
 }

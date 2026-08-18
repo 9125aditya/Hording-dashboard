@@ -36,9 +36,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} ${michroma.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
+      <body suppressHydrationWarning className="min-h-full flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
         {children}
       </body>
     </html>

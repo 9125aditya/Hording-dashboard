@@ -37,13 +37,11 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <header className="sticky top-0 z-50 w-full bg-[#f4f8fb] border-b border-slate-200/70 shadow-sm">
         <div className="container flex h-16 md:h-20 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Sellads Advertising" className="h-9 md:h-12 w-auto object-contain" />
+            <img src="/logo.png" alt="Sellads Advertising" className="h-9 md:h-12 w-auto object-contain mix-blend-multiply" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
             <Link href="/catalog" className="hover:text-red-600 transition-colors">Catalogue</Link>
-            <Link href="/#services" className="hover:text-red-600 transition-colors">Services</Link>
-            <Link href="/#clients" className="hover:text-red-600 transition-colors">Clients</Link>
             <Link href="/careers" className="hover:text-red-600 transition-colors">Careers</Link>
             <Link href="/contact" className="hover:text-red-600 transition-colors">Enquiry</Link>
           </nav>
@@ -84,8 +82,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             
             {/* Brand Column */}
             <div className="col-span-1 md:col-span-1">
-              <Link href="/" className="inline-block mb-6 bg-white rounded-xl p-2 shadow-sm">
-                <img src="/logo.png" alt="Sellads Advertising" className="h-16 md:h-20 w-auto object-contain" />
+              <Link href="/" className="inline-block mb-6 bg-white rounded-xl p-2 shadow-sm hover:opacity-95 transition-opacity">
+                <img src="/logo.png" alt="Sellads Advertising" className="h-14 md:h-16 w-auto object-contain" />
               </Link>
               <p className="text-[13px] text-blue-100 leading-relaxed pr-4 font-medium opacity-90">
                 Premium outdoor media inventory across Maharashtra. Hoardings, billboards, and brand campaigns that drive reach.
@@ -102,12 +100,12 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                 {user ? (
                   <>
                     <Link
-                      href={isAdmin ? "/dashboard" : "/catalog"}
+                      href="/dashboard"
                       className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#fab935] text-slate-900 font-bold text-[14px] hover:bg-[#f2a81d] transition-all shadow-sm"
                     >
-                      <span>{isAdmin ? "Go to Dashboard" : "Browse Catalogue"}</span>
+                      <span>Go to Dashboard</span>
                       <span className="text-[10px] bg-slate-900/15 px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">
-                        {userName || 'User'}
+                        {userName || 'Staff'}
                       </span>
                     </Link>
                     <form action={logout}>
@@ -121,7 +119,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                   </>
                 ) : (
                   <Link href="/login" className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#fab935] text-slate-900 font-bold text-[15px] hover:bg-[#f2a81d] transition-colors shadow-sm">
-                    Login
+                    Admin Login
                   </Link>
                 )}
               </div>
@@ -143,29 +141,22 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
             {/* Offices */}
             <div className="md:col-span-2">
-              <h3 className="font-extrabold text-[#fab935] mb-6 uppercase tracking-wider text-[11px]">Offices</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <h3 className="font-extrabold text-[#fab935] mb-6 uppercase tracking-wider text-[15px]">Offices</h3>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="p-4 border border-blue-800/60 rounded-xl bg-[#021857] hover:bg-[#031d68] transition-colors cursor-default">
-                  <h4 className="font-bold text-[13.5px] mb-1.5 text-white">Nagpur</h4>
+                  <h4 className="font-bold text-[15.5px] mb-1.5 text-white">Nagpur</h4>
                   <p className="text-[12.5px] text-blue-200/70 leading-relaxed font-medium">123, Bhagwaghar Layout, Dharampeth, Nagpur<br/>440010</p>
                 </div>
-                <div className="p-4 border border-blue-800/60 rounded-xl bg-[#021857] hover:bg-[#031d68] transition-colors cursor-default">
-                  <h4 className="font-bold text-[13.5px] mb-1.5 text-white">Amravati</h4>
-                  <p className="text-[12.5px] text-blue-200/70 leading-relaxed font-medium">4, Rajapeth Market, Amravati<br/>444601</p>
-                </div>
-                <div className="p-4 border border-blue-800/60 rounded-xl bg-[#021857] hover:bg-[#031d68] transition-colors cursor-default">
-                  <h4 className="font-bold text-[13.5px] mb-1.5 text-white">Chandrapur</h4>
-                  <p className="text-[12.5px] text-blue-200/70 leading-relaxed font-medium">Super Market Complex, Chandrapur<br/>442401</p>
-                </div>
-                <div className="p-4 border border-blue-800/60 rounded-xl bg-[#021857] hover:bg-[#031d68] transition-colors cursor-default">
-                  <h4 className="font-bold text-[13.5px] mb-1.5 text-white">Pune</h4>
-                  <p className="text-[12.5px] text-blue-200/70 leading-relaxed font-medium">Phase 1, Hinjewadi, Pune<br/>411057</p>
-                </div>
+              
+               
+               
               </div>
+              <h3 className="font-extrabold text-[#fab935] mb-6 mt-8 uppercase tracking-wider text-[15px]">Contacts</h3>
               <div className="mt-5 text-[12.5px] text-blue-300 font-medium">
-                <a href="mailto:hello@outreachooh.in" className="hover:text-white transition-colors">hello@outreachooh.in</a>
-                <span className="mx-2 text-blue-500">•</span>
-                <a href="tel:+919000000000" className="hover:text-white transition-colors">+91 90000 00000</a>
+                <a href="mailto:truesignmedia@gmail.com" className="block mb-3 hover:text-white transition-colors">truesignmedia@gmail.com</a>
+                
+                <a href="tel:+919765556861" className="block mb-2 hover:text-white transition-colors">+91 9765556861</a>
+                <a href="tel:+919765556859" className="block mb-3 hover:text-white transition-colors">+91 9765556859</a>
               </div>
             </div>
 
@@ -173,7 +164,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
           <div className="pt-8 border-t border-blue-800/60 text-center">
             <p className="text-[11.5px] font-medium text-blue-300/60 uppercase tracking-wide">
-              © {new Date().getFullYear()} Sellads Outdoor Advertising. All rights reserved. <Link href="/admin/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
+              © {new Date().getFullYear()} Sellads Outdoor Advertising. All rights reserved. <Link href="/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
             </p>
           </div>
         </div>

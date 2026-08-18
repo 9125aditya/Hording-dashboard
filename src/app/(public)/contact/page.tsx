@@ -90,7 +90,7 @@ function ContactFormInner() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Email us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Our team usually responds within 2 hours.</p>
-                    <a href="mailto:hello@outreachooh.in" className="font-medium text-primary hover:underline">hello@outreachooh.in</a>
+                    <a href="mailto:truesignmedia@gmail.com" className="font-medium text-primary hover:underline">truesignmedia@gmail.com</a>
                   </div>
                 </div>
               </AnimateOnScroll>
@@ -101,7 +101,10 @@ function ContactFormInner() {
                   <div>
                     <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">Call us</h3>
                     <p className="text-muted-foreground text-sm mb-2">Mon-Sat from 10am to 7pm IST.</p>
-                    <a href="tel:+919000000000" className="font-medium text-primary hover:underline">+91 90000 00000</a>
+                    <div className="flex flex-col gap-1">
+                      <a href="tel:+919765556861" className="font-medium text-primary hover:underline">+91 9765556861</a>
+                      <a href="tel:+919765556859" className="font-medium text-primary hover:underline">+91 9765556859</a>
+                    </div>
                   </div>
                 </div>
               </AnimateOnScroll>

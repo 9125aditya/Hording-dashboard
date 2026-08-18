@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { logout } from "@/backend/actions/auth-actions";
-import { ArrowRightOnRectangleIcon, Squares2X2Icon, UserCircleIcon, ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowRightOnRectangleIcon, Squares2X2Icon, UserCircleIcon, ChevronDownIcon, ArrowPathIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 
 interface PublicUserNavProps {
   user: {
@@ -40,28 +40,31 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
     return (
       <Link
         href="/login"
-        className="h-10 px-5 rounded-full border border-slate-200 bg-white text-slate-800 text-[13.5px] font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-xs ml-1"
+        className="h-10 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-[13px] font-bold flex items-center gap-1.5 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-xs ml-1"
       >
-        Login
+        <ShieldCheckIcon className="h-4 w-4 text-slate-500" />
+        <span>Admin Login</span>
       </Link>
     );
   }
 
   const userInitial = (user.name || user.email || 'A')[0].toUpperCase();
-  const displayRole = user.role === 'super_admin' ? 'Super Admin' : user.role === 'admin' ? 'Admin' : user.role === 'public' ? 'Customer' : user.role.replace('_', ' ');
+  const displayRole = user.role === 'super_admin' 
+    ? 'Super Admin' 
+    : user.role === 'admin' 
+    ? 'Admin' 
+    : user.role.replace('_', ' ');
 
   return (
     <div className="flex items-center gap-2 relative" ref={dropdownRef}>
-      {/* Desktop direct Quick Dashboard Link for convenience */}
-      {isAdmin && (
-        <Link
-          href="/dashboard"
-          className="hidden lg:flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/70 text-xs font-bold transition-colors shadow-xs"
-        >
-          <Squares2X2Icon className="h-3.5 w-3.5" />
-          Dashboard
-        </Link>
-      )}
+      {/* Desktop direct Quick Dashboard Link */}
+      <Link
+        href="/dashboard"
+        className="hidden lg:flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/70 text-xs font-bold transition-colors shadow-xs"
+      >
+        <Squares2X2Icon className="h-3.5 w-3.5" />
+        Dashboard
+      </Link>
 
       {/* User Profile Pill & Dropdown Trigger */}
       <button
@@ -75,7 +78,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
         </div>
         <div className="flex flex-col text-left">
           <span className="text-[13px] font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight truncate max-w-[100px]">
-            {user.name || 'User'}
+            {user.name || 'Staff'}
           </span>
           <span className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider leading-none">
             {displayRole}
@@ -107,41 +110,28 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
           <div className="px-4 py-2.5 border-b border-slate-100">
             <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
             {user.email && <p className="text-[11px] text-slate-500 truncate">{user.email}</p>}
-            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-slate-100 text-slate-600 uppercase">
+            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-50 text-blue-700 uppercase">
               {displayRole}
             </span>
           </div>
 
           <div className="py-1">
-            {isAdmin ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
-                >
-                  <Squares2X2Icon className="h-4 w-4 text-slate-400" />
-                  Admin Dashboard
-                </Link>
-                <Link
-                  href="/profile"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
-                >
-                  <UserCircleIcon className="h-4 w-4 text-slate-400" />
-                  Profile Settings
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/catalog"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
-              >
-                <Squares2X2Icon className="h-4 w-4 text-slate-400" />
-                Browse Catalogue
-              </Link>
-            )}
+            <Link
+              href="/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
+            >
+              <Squares2X2Icon className="h-4 w-4 text-slate-400" />
+              Management Dashboard
+            </Link>
+            <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors"
+            >
+              <UserCircleIcon className="h-4 w-4 text-slate-400" />
+              Profile Settings
+            </Link>
           </div>
 
           <div className="pt-1 border-t border-slate-100">

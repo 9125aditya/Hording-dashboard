@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin, LayoutGrid, Package } from "lucide-react";
+import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin, LayoutGrid, Package, FileSpreadsheet } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import ActiveLink from "@/frontend/components/ActiveLink";
 import { logout } from "@/backend/actions/auth-actions";
@@ -9,17 +9,30 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   let user = null;
   let role = 'public';
   let profileName = '';
+  let enquiryCount = 0;
+  let totalEnquiryCount = 0;
+  let pendingCount = 0;
+
   try {
     const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-    user = data?.user || null;
+    const { data: authData } = await supabase.auth.getUser();
+    user = authData?.user || null;
     
     if (user) {
-      const { data: profile } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
-      if (profile) {
-        role = profile.role;
-        profileName = profile.name;
+      const [profileRes, eCountRes, totalECountRes, pCountRes] = await Promise.all([
+        supabase.from('profiles').select('name, role').eq('id', user.id).single(),
+        supabase.from('enquiries').select('*', { count: 'exact', head: true }).eq('status', 'New'),
+        supabase.from('enquiries').select('*', { count: 'exact', head: true }),
+        supabase.from('admin_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+      ]);
+
+      if (profileRes.data) {
+        role = profileRes.data.role;
+        profileName = profileRes.data.name;
       }
+      enquiryCount = eCountRes.count || 0;
+      totalEnquiryCount = totalECountRes.count || 0;
+      pendingCount = pCountRes.count || 0;
     }
   } catch (error) {
     console.error("Admin Layout Supabase Error:", error);
@@ -30,31 +43,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const userInitial = (userName[0] || user?.email?.[0] || 'A').toUpperCase();
   const avatarBase64 = user?.user_metadata?.avatar_base64 || null;
 
-  // Fetch nav counts
-  let enquiryCount = 0;
-  let totalEnquiryCount = 0;
-  let pendingCount = 0;
-  try {
-    if (user) {
-      const supabase2 = await createClient();
-      const [{ count: eCount }, { count: totalECount }, { count: pCount }] = await Promise.all([
-        supabase2.from('enquiries').select('*', { count: 'exact', head: true }).eq('status', 'New'),
-        supabase2.from('enquiries').select('*', { count: 'exact', head: true }),
-        supabase2.from('admin_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-      ]);
-      enquiryCount = eCount || 0;
-      totalEnquiryCount = totalECount || 0;
-      pendingCount = pCount || 0;
-    }
-  } catch {}
-
   return (
     <div className="min-h-full flex w-full bg-gray-50/80">
       {/* Light Sidebar */}
       <aside className="w-[220px] hidden md:flex flex-col bg-white border-r border-gray-200 fixed inset-y-0 left-0 z-40">
         <div className="px-5 pt-6 pb-5">
           <Link href="/dashboard" className="flex items-center">
-            <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain" />
+            <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain mix-blend-multiply" />
           </Link>
         </div>
 
@@ -63,10 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <LayoutDashboard className="mr-3 h-[18px] w-[18px]" />
             Dashboard
           </ActiveLink>
-          <ActiveLink href="/inventory">
-            <LayoutGrid className="mr-3 h-[18px] w-[18px]" />
-            Inventory
-          </ActiveLink>
+
           <ActiveLink href="/status">
             <CheckCircle className="mr-3 h-[18px] w-[18px]" />
             Update Status
@@ -76,18 +68,30 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Package className="mr-3 h-[18px] w-[18px]" />
             Flex Inventory
           </ActiveLink>
+
           <ActiveLink href="/admin-map">
             <Map className="mr-3 h-[18px] w-[18px]" />
             Map View
           </ActiveLink>
+
+          <ActiveLink href="/inventory">
+            <LayoutGrid className="mr-3 h-[18px] w-[18px]" />
+            Inventory
+          </ActiveLink>
+
           <ActiveLink href="/enquiries">
             <MessageSquare className="mr-3 h-[18px] w-[18px]" />
             Enquiries
-            {totalEnquiryCount > 0 && (
+            {enquiryCount > 0 && (
               <span className="ml-auto text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
-                {enquiryCount > 0 ? `${enquiryCount} new` : totalEnquiryCount}
+                {enquiryCount} new
               </span>
             )}
+          </ActiveLink>
+
+          <ActiveLink href="/quotations">
+            <FileSpreadsheet className="mr-3 h-[18px] w-[18px]" />
+            Quotation Builder
           </ActiveLink>
           {isSuperAdmin && (
             <>
@@ -150,20 +154,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <AdminMobileMenu isSuperAdmin={isSuperAdmin} enquiryCount={enquiryCount} totalEnquiryCount={totalEnquiryCount} pendingCount={pendingCount} />
           </div>
           <div className="flex items-center gap-3">
-            {totalEnquiryCount > 0 && (
+            {enquiryCount > 0 && (
               <Link
                 href="/enquiries"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
-                title={`${totalEnquiryCount} Total Enquiries (${enquiryCount} New)`}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-xs animate-in fade-in"
+                title={`${enquiryCount} New Unhandled Enquiries`}
               >
-                <MessageSquare className="w-3.5 h-3.5" />
+                <MessageSquare className="w-3.5 h-3.5 text-indigo-600" />
                 <span>
-                  {totalEnquiryCount} {totalEnquiryCount === 1 ? 'Enquiry' : 'Enquiries'}
-                  {enquiryCount > 0 && (
-                    <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-600 text-white rounded-full text-[10px] font-bold leading-none">
-                      {enquiryCount} new
-                    </span>
-                  )}
+                  <span className="font-bold">{enquiryCount}</span> {enquiryCount === 1 ? 'New Enquiry' : 'New Enquiries'}
                 </span>
               </Link>
             )}

@@ -2,9 +2,22 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const adminRoutes = [
+    '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance', '/admin/permissions', '/admin/status', '/admin/flex-inventory', '/admin/quotations',
+    '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance', '/permissions', '/status', '/flex-inventory', '/quotations'
+  ];
+  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
+
+  // Fast path: if not an admin route, bypass Supabase auth network calls entirely!
+  if (!isAdminRoute) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
-  })
+  });
 
   try {
     const supabase = createServerClient(
@@ -13,79 +26,56 @@ export async function middleware(request: NextRequest) {
       {
         cookies: {
           getAll() {
-            return request.cookies.getAll()
+            return request.cookies.getAll();
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
             supabaseResponse = NextResponse.next({
               request,
-            })
+            });
             cookiesToSet.forEach(({ name, value, options }) =>
               supabaseResponse.cookies.set(name, value, options)
-            )
+            );
           },
         },
       }
-    )
+    );
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
-    const { pathname } = request.nextUrl
-
-    const adminRoutes = [
-      '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance', '/admin/permissions',
-      '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance', '/permissions'
-    ];
-    const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
-
-    if (isAdminRoute) {
-      if (!user) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
-      }
-      
-      // Fetch user role
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      const role = profile?.role || 'public';
-      
-      // Rule: Public users cannot access ANY admin routes
-      if (role === 'public') {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-        return NextResponse.redirect(url)
-      }
-      
-      // Rule: Only super_admin can access Staff Management, Approvals, and Permissions
-      const isSuperAdminRoute = pathname.startsWith('/admin/staff') || pathname.startsWith('/staff') || pathname.startsWith('/admin/approvals') || pathname.startsWith('/approvals') || pathname.startsWith('/admin/permissions') || pathname.startsWith('/permissions');
-      if (isSuperAdminRoute && role !== 'super_admin') {
-        const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
-      }
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
     }
-    return supabaseResponse
+    
+    // Fetch user role
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    const role = profile?.role || 'public';
+    
+    // Rule: Public users cannot access ANY admin routes
+    if (role === 'public') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+    
+    // Rule: Only super_admin can access Staff Management, Approvals, and Permissions
+    const isSuperAdminRoute = pathname.startsWith('/admin/staff') || pathname.startsWith('/staff') || pathname.startsWith('/admin/approvals') || pathname.startsWith('/approvals') || pathname.startsWith('/admin/permissions') || pathname.startsWith('/permissions');
+    if (isSuperAdminRoute && role !== 'super_admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
   } catch (error) {
-    // If Supabase throws an error (e.g. missing env variables), we shouldn't crash the whole site.
-    // We just return next() for public routes, but for protected routes we probably want to redirect.
     console.error("Middleware Supabase Error:", error);
-    
-    const { pathname } = request.nextUrl
-    const adminRoutes = [
-      '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance', '/admin/permissions',
-      '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance', '/permissions'
-    ];
-    const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
-    
-    if (isAdminRoute) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-    
-    return supabaseResponse
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 }
 

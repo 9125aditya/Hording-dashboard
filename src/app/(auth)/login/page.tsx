@@ -2,10 +2,18 @@
 
 import { useTransition, useState } from "react";
 import { loginUser } from "@/backend/actions/auth-actions";
-import { LockClosedIcon, UserCircleIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
+import { 
+  LockClosedIcon, 
+  UserCircleIcon, 
+  EyeIcon, 
+  EyeSlashIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+  ShieldExclamationIcon
+} from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
+  const [loginType, setLoginType] = useState<"admin" | "super_admin">("admin");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +22,8 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
+    formData.set("loginType", loginType);
+    
     startTransition(async () => {
       const res = await loginUser(formData);
       if (res?.error) {
@@ -23,19 +33,88 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-      <div className="p-8 border-b border-border bg-slate-50/50 relative overflow-hidden">
-        {/* Subtle decorative line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/60 to-primary"></div>
-        <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Welcome Back</h1>
-        <p className="text-muted-foreground text-sm">Sign in to your Sellads account.</p>
-      </div>
+    <div suppressHydrationWarning className="w-full max-w-md bg-white border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
       
+      {/* Header */}
+      <div suppressHydrationWarning className="p-7 border-b border-border bg-slate-50/70 relative overflow-hidden">
+        <div className={`absolute top-0 left-0 w-full h-1.5 transition-all duration-300 ${
+          loginType === "super_admin" 
+            ? "bg-gradient-to-r from-purple-600 via-indigo-600 to-amber-500" 
+            : "bg-gradient-to-r from-blue-600 to-indigo-600"
+        }`} />
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">
+              {loginType === "super_admin" ? "Super Admin Portal" : "Admin Portal"}
+            </h1>
+            <p className="text-muted-foreground text-xs mt-1">
+              {loginType === "super_admin" 
+                ? "Executive governance & staff management" 
+                : "Operational management & inventory tools"}
+            </p>
+          </div>
 
-      <form onSubmit={handleLogin} className="px-8 py-6 space-y-6">
+          <div className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all ${
+            loginType === "super_admin" 
+              ? "bg-purple-100 text-purple-700 ring-4 ring-purple-50" 
+              : "bg-blue-100 text-blue-700 ring-4 ring-blue-50"
+          }`}>
+            {loginType === "super_admin" ? (
+              <SparklesIcon className="h-6 w-6" />
+            ) : (
+              <ShieldCheckIcon className="h-6 w-6" />
+            )}
+          </div>
+        </div>
+
+        {/* 2 Role Options: Admin vs Super Admin */}
+        <div suppressHydrationWarning className="mt-5 grid grid-cols-2 p-1 bg-slate-200/70 rounded-xl gap-1">
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => {
+              setLoginType("admin");
+              setError(null);
+            }}
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              loginType === "admin"
+                ? "bg-white text-blue-700 shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            <ShieldCheckIcon className="h-4 w-4" />
+            <span>Admin / Staff</span>
+          </button>
+
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => {
+              setLoginType("super_admin");
+              setError(null);
+            }}
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              loginType === "super_admin"
+                ? "bg-gradient-to-r from-purple-700 to-indigo-700 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            <SparklesIcon className="h-4 w-4" />
+            <span>Super Admin</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Form */}
+      <form suppressHydrationWarning onSubmit={handleLogin} className="p-7 space-y-5">
+        <input type="hidden" name="loginType" value={loginType} />
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              {loginType === "super_admin" ? "Super Admin Email" : "Admin / Staff Email"}
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <UserCircleIcon className="h-5 w-5 text-muted-foreground" />
@@ -43,14 +122,15 @@ export default function LoginPage() {
               <input 
                 type="email" 
                 name="email"
-                placeholder="you@company.com"
+                placeholder={loginType === "super_admin" ? "superadmin@sellads.in" : "admin@sellads.in"}
                 required
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm text-foreground" 
               />
             </div>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <LockClosedIcon className="h-5 w-5 text-muted-foreground" />
@@ -58,14 +138,14 @@ export default function LoginPage() {
               <input 
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 required
-                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+                className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm text-foreground" 
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
@@ -74,7 +154,7 @@ export default function LoginPage() {
         </div>
         
         {error && (
-          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm text-center">
+          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs leading-relaxed text-center animate-in fade-in duration-150">
             {error}
           </div>
         )}
@@ -82,17 +162,31 @@ export default function LoginPage() {
         <button 
           type="submit" 
           disabled={isPending}
-          className="w-full h-12 flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-md hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+          className={`w-full h-11 flex items-center justify-center rounded-lg font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none cursor-pointer ${
+            loginType === "super_admin"
+              ? "bg-gradient-to-r from-purple-700 via-indigo-600 to-indigo-700 text-white hover:brightness-110 shadow-purple-600/20"
+              : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/20"
+          }`}
         >
-          {isPending ? "Authenticating..." : "Admin Login"}
+          {isPending ? (
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              Authenticating...
+            </span>
+          ) : (
+            <span>
+              {loginType === "super_admin" ? "Sign In as Super Admin" : "Sign In as Admin"}
+            </span>
+          )}
         </button>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-primary font-medium hover:underline">
-            Sign up
-          </Link>
-        </p>
+        {/* Security Notice */}
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center text-slate-400">
+          <ShieldExclamationIcon className="h-4 w-4 text-slate-400" />
+          <p className="text-[11px] font-medium">
+            Authorized personnel only. Access is strictly managed.
+          </p>
+        </div>
       </form>
     </div>
   );

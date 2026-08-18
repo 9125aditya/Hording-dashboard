@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Squares2X2Icon, MapIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, XMarkIcon, Bars3Icon, ArrowTopRightOnSquareIcon, CheckCircleIcon, ShieldCheckIcon, UsersIcon, MapPinIcon, CubeIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon, MapIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, XMarkIcon, Bars3Icon, ArrowTopRightOnSquareIcon, CheckCircleIcon, ShieldCheckIcon, UsersIcon, MapPinIcon, CubeIcon, DocumentChartBarIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, totalEnquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; totalEnquiryCount?: number; pendingCount?: number }) {
@@ -38,7 +38,7 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
           >
             <div className="px-5 py-5 flex items-center justify-between border-b border-gray-100">
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center">
-                <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain" />
+                <img src="/logo.png" alt="Logo" className="h-9 w-auto object-contain mix-blend-multiply" />
               </Link>
               <button onClick={() => setIsOpen(false)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                 <XMarkIcon className="h-5 w-5" />
@@ -49,28 +49,30 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
               <Link href="/dashboard" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <Squares2X2Icon className="mr-3 h-[18px] w-[18px]" /> Dashboard
               </Link>
-              <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
-                <MapPinIcon className="mr-3 h-[18px] w-[18px]" /> Inventory
-              </Link>
               <Link href="/status" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <CheckCircleIcon className="mr-3 h-[18px] w-[18px]" /> Update Status
               </Link>
-
               <Link href="/flex-inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <CubeIcon className="mr-3 h-[18px] w-[18px]" /> Flex Inventory
               </Link>
               <Link href="/admin-map" onClick={() => setIsOpen(false)} className={navLinkClass}>
                 <MapIcon className="mr-3 h-[18px] w-[18px]" /> Map View
               </Link>
+              <Link href="/inventory" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <MapPinIcon className="mr-3 h-[18px] w-[18px]" /> Inventory
+              </Link>
               <Link href="/enquiries" onClick={() => setIsOpen(false)} className={`${navLinkClass} justify-between`}>
                 <span className="flex items-center">
                   <ChatBubbleLeftIcon className="mr-3 h-[18px] w-[18px]" /> Enquiries
                 </span>
-                {totalEnquiryCount > 0 && (
+                {enquiryCount > 0 && (
                   <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
-                    {enquiryCount > 0 ? `${enquiryCount} new` : totalEnquiryCount}
+                    {enquiryCount} new
                   </span>
                 )}
+              </Link>
+              <Link href="/quotations" onClick={() => setIsOpen(false)} className={navLinkClass}>
+                <DocumentChartBarIcon className="mr-3 h-[18px] w-[18px]" /> Quotation Builder
               </Link>
               {isSuperAdmin && (
                 <>

@@ -118,64 +118,128 @@ export async function addApplication(formData: FormData) {
 // ==========================================
 
 export async function updateEnquiryStatus(id: string, status: string) {
-  const supabase = await createClient();
-  const { user } = await getUserAndRole(supabase);
-  await requireRole(supabase, ['admin', 'super_admin']);
-
-  const { error } = await supabase
-    .from("enquiries")
-    .update({ status })
-    .eq("id", id);
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
     
-  if (error) return { error: error.message };
+    const adminClient = getAdminSupabase();
+    let userRole = 'public';
+    const userId = user?.id || null;
 
-  // Log to action history
-  const adminClient = getAdminSupabase();
-  await adminClient.from("admin_requests").insert([{
-    action_type: 'UPDATE_ENQUIRY_STATUS',
-    entity_id: null,
-    payload: { enquiry_id: id, status },
-    requested_by: user.id,
-    status: 'APPROVED',
-    resolved_at: new Date().toISOString(),
-    resolved_by: user.id,
-  }]);
+    if (user) {
+      const { data: profile } = await adminClient
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      userRole = profile?.role || 'public';
+    }
 
-  revalidatePath("/enquiries");
-  revalidatePath("/", "layout");
-  return { success: true };
+    const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+    
+    // Check permissions
+    if (!user || !adminRoles.includes(userRole)) {
+      return { 
+        error: "Insufficient permissions: Please log in with an authorized Admin or Super Admin account." 
+      };
+    }
+
+    const { error } = await adminClient
+      .from("enquiries")
+      .update({ status })
+      .eq("id", id);
+      
+    if (error) {
+      console.error("updateEnquiryStatus DB error:", error);
+      return { error: error.message };
+    }
+
+    // Log to action history (best-effort)
+    try {
+      await adminClient.from("admin_requests").insert([{
+        action_type: 'UPDATE_ENQUIRY_STATUS',
+        entity_id: null,
+        payload: { enquiry_id: id, status },
+        requested_by: userId,
+        status: 'APPROVED',
+        resolved_at: new Date().toISOString(),
+        resolved_by: userId,
+      }]);
+    } catch (logErr) {
+      console.warn("Could not log enquiry status to admin_requests:", logErr);
+    }
+
+    revalidatePath("/enquiries");
+    revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (err: any) {
+    console.error("updateEnquiryStatus exception:", err);
+    return { error: err?.message || "Failed to update enquiry status." };
+  }
 }
 
 export async function addEnquiryNote(id: string, currentMessage: string, noteText: string, isReply: boolean = false) {
-  const supabase = await createClient();
-  const { user } = await getUserAndRole(supabase);
-  await requireRole(supabase, ['admin', 'super_admin']);
-
-  const timestamp = new Date().toLocaleString('en-IN');
-  const prefix = isReply ? "SENT REPLY" : "INTERNAL NOTE";
-  const updatedMessage = `${currentMessage}\n\n[${prefix} - ${timestamp}]\n${noteText}`;
-
-  const { error } = await supabase
-    .from("enquiries")
-    .update({ message: updatedMessage })
-    .eq("id", id);
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
     
-  if (error) return { error: error.message };
+    const adminClient = getAdminSupabase();
+    let userRole = 'public';
+    const userId = user?.id || null;
 
-  // Log to action history
-  const adminClient = getAdminSupabase();
-  await adminClient.from("admin_requests").insert([{
-    action_type: isReply ? 'ENQUIRY_REPLY' : 'ENQUIRY_NOTE',
-    entity_id: null,
-    payload: { enquiry_id: id, note: noteText, is_reply: isReply },
-    requested_by: user.id,
-    status: 'APPROVED',
-    resolved_at: new Date().toISOString(),
-    resolved_by: user.id,
-  }]);
+    if (user) {
+      const { data: profile } = await adminClient
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      userRole = profile?.role || 'public';
+    }
 
-  revalidatePath("/enquiries");
-  return { success: true };
+    const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
+    
+    if (!user || !adminRoles.includes(userRole)) {
+      return { 
+        error: "Insufficient permissions: Please log in with an authorized Admin or Super Admin account." 
+      };
+    }
+
+    const timestamp = new Date().toLocaleString('en-IN');
+    const prefix = isReply ? "SENT REPLY" : "INTERNAL NOTE";
+    const updatedMessage = `${currentMessage}\n\n[${prefix} - ${timestamp}]\n${noteText}`;
+
+    const { error } = await adminClient
+      .from("enquiries")
+      .update({ message: updatedMessage })
+      .eq("id", id);
+      
+    if (error) {
+      console.error("addEnquiryNote error:", error);
+      return { error: error.message };
+    }
+
+    // Log to action history (best-effort)
+    try {
+      await adminClient.from("admin_requests").insert([{
+        action_type: isReply ? 'ENQUIRY_REPLY' : 'ENQUIRY_NOTE',
+        entity_id: null,
+        payload: { enquiry_id: id, note: noteText, is_reply: isReply },
+        requested_by: userId,
+        status: 'APPROVED',
+        resolved_at: new Date().toISOString(),
+        resolved_by: userId,
+      }]);
+    } catch (logErr) {
+      console.warn("Could not log note to admin_requests:", logErr);
+    }
+
+    revalidatePath("/enquiries");
+    return { success: true };
+  } catch (err: any) {
+    console.error("addEnquiryNote exception:", err);
+    return { error: err?.message || "Failed to add note." };
+  }
 }
 
 // ==========================================

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bars3Icon, XMarkIcon, Squares2X2Icon, ChatBubbleLeftIcon, UsersIcon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Squares2X2Icon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 
 export default function PublicMobileMenu({
@@ -51,7 +51,7 @@ export default function PublicMobileMenu({
           <div className="absolute inset-y-0 right-0 w-[80vw] max-w-[320px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <img src="/logo.png" alt="Sellads Advertising" className="h-9 w-auto object-contain" />
+              <img src="/logo.png" alt="Sellads Advertising" className="h-9 w-auto object-contain mix-blend-multiply" />
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-slate-500 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
@@ -68,9 +68,9 @@ export default function PublicMobileMenu({
                   {(userName || 'A')[0].toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-900 truncate">{userName || 'Admin'}</p>
+                  <p className="text-sm font-bold text-slate-900 truncate">{userName || 'Staff'}</p>
                   <p className="text-[11px] text-slate-500 font-medium capitalize">
-                    {role === 'super_admin' ? 'Super Admin' : role || 'User'}
+                    {role === 'super_admin' ? 'Super Admin' : role === 'admin' ? 'Admin' : role?.replace('_', ' ') || 'Staff'}
                   </p>
                 </div>
               </div>
@@ -83,15 +83,6 @@ export default function PublicMobileMenu({
               </Link>
               <Link href="/catalog" onClick={() => setIsOpen(false)} className={linkClass}>
                 <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Catalogue
-              </Link>
-              <Link href="/contact" onClick={() => setIsOpen(false)} className={linkClass}>
-                <EnvelopeIcon className="h-4 w-4 text-slate-400 shrink-0" /> Enquiry
-              </Link>
-              <Link href="/#services" onClick={() => setIsOpen(false)} className={linkClass}>
-                <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Services
-              </Link>
-              <Link href="/#clients" onClick={() => setIsOpen(false)} className={linkClass}>
-                <UsersIcon className="h-4 w-4 text-slate-400 shrink-0" /> Clients
               </Link>
               <Link href="/careers" onClick={() => setIsOpen(false)} className={linkClass}>
                 <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Careers
@@ -109,20 +100,18 @@ export default function PublicMobileMenu({
               </Link>
               {hasUser ? (
                 <>
-                  {isAdmin && (
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full h-11 rounded-full bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm"
-                    >
-                      <Squares2X2Icon className="h-4 w-4" /> Go to Dashboard
-                    </Link>
-                  )}
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full h-11 rounded-full bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm"
+                  >
+                    <Squares2X2Icon className="h-4 w-4" /> Go to Dashboard
+                  </Link>
                   <form action={logout}>
                     <button
                       type="submit"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
                     >
                       <ArrowRightOnRectangleIcon className="h-4 w-4" /> Sign Out
                     </button>
@@ -132,9 +121,10 @@ export default function PublicMobileMenu({
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors"
                 >
-                  Login
+                  <ShieldCheckIcon className="h-4 w-4 text-slate-500" />
+                  <span>Admin Login</span>
                 </Link>
               )}
             </div>

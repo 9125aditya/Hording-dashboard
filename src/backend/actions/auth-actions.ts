@@ -1,64 +1,104 @@
 "use server";
 
 import { createClient } from "@/backend/db/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 
 export async function signupUser(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const name = formData.get("name") as string;
-  
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-      }
-    }
-  });
-  
-  if (error) {
-    return { error: error.message };
-  }
-  
-  // By default, successful signup logs them in or sends an email confirmation.
-  // Since we don't have email confirmation required right now, we can redirect them.
-  redirect("/catalog");
+  // Public customer self-registration is disabled.
+  return { 
+    error: "Customer self-registration is disabled. Staff accounts must be created by the Super Administrator in Staff Management." 
+  };
 }
 
 export async function loginUser(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
+  const loginType = (formData.get("loginType") as string) || "admin";
   let redirectPath: string | null = null;
 
   try {
     const supabase = await createClient();
 
+    let authDataResult = null;
     const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    
+
     if (error) {
-      return { error: error.message };
+      // Auto-heal "Email not confirmed" error using service role key
+      if (error.message.toLowerCase().includes("email not confirmed") && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const adminSupabase = createAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { autoRefreshToken: false, persistSession: false } }
+        );
+        const { data: usersData } = await adminSupabase.auth.admin.listUsers();
+        const foundUser = usersData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+        if (foundUser) {
+          await adminSupabase.auth.admin.updateUserById(foundUser.id, { email_confirm: true });
+          // Retry sign-in now that email is confirmed
+          const retry = await supabase.auth.signInWithPassword({ email, password });
+          if (retry.error) {
+            return { error: retry.error.message };
+          }
+          authDataResult = retry.data;
+        } else {
+          return { error: error.message };
+        }
+      } else {
+        return { error: error.message };
+      }
+    } else {
+      authDataResult = authData;
     }
-    
-    // Check user role from profiles to determine redirect
+
+    if (!authDataResult?.user) {
+      return { error: "Authentication failed. Please check your credentials." };
+    }
+
+    // Check user role from profiles
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', authData.user.id)
+      .eq('id', authDataResult.user.id)
       .single();
-      
+
+    const userRole = profile?.role || 'public';
     const adminRoles = ['admin', 'super_admin', 'backoffice', 'marketing', 'execution_head'];
-    if (adminRoles.includes(profile?.role)) {
+
+    // Enforce Admin and Super Admin authentication only — reject public customer logins
+    if (userRole === 'public' || !adminRoles.includes(userRole)) {
+      await supabase.auth.signOut();
+      return {
+        error: "Access Denied: Only authorized Admin and Super Administrator accounts can log in."
+      };
+    }
+
+    // Role-specific login portal constraints
+    if (loginType === 'super_admin') {
+      if (userRole !== 'super_admin') {
+        await supabase.auth.signOut();
+        return {
+          error: "Access Denied: This account is not authorized as a Super Administrator. Only the primary Super Admin can access this portal."
+        };
+      }
       redirectPath = "/dashboard";
     } else {
-      redirectPath = "/catalog";
+      // Standard Admin / Staff portal
+      if (!adminRoles.includes(userRole)) {
+        await supabase.auth.signOut();
+        return {
+          error: "Access Denied: Authorized Admin or Staff credentials required."
+        };
+      }
+      redirectPath = "/dashboard";
     }
   } catch (err: any) {
+    if (err?.message?.includes("NEXT_REDIRECT")) {
+      throw err;
+    }
     console.error("Login Exception:", err);
     return { error: "Authentication service is unreachable. Please check your connection or contact support." };
   }
@@ -77,7 +117,7 @@ export async function logout() {
 export async function updateProfile(name: string, avatarBase64?: string) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+
   if (authError || !user) {
     return { error: "Not authenticated" };
   }
@@ -91,13 +131,13 @@ export async function updateProfile(name: string, avatarBase64?: string) {
   if (error) {
     return { error: error.message };
   }
-  
+
   // Update auth metadata (name and avatar)
   const metadataUpdate: any = { full_name: name };
   if (avatarBase64) {
     metadataUpdate.avatar_base64 = avatarBase64;
   }
-  
+
   await supabase.auth.updateUser({
     data: metadataUpdate
   });

@@ -72,7 +72,7 @@ export default function PublicHomePage() {
             </AnimateOnScroll>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <AnimateOnScroll animation="fade-up" delay={100} className="h-full">
               <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 text-slate-900 opacity-[0.03] font-black text-[140px] leading-none -mt-10 -mr-4 select-none group-hover:opacity-[0.05] transition-opacity duration-300">01</div>
@@ -95,20 +95,6 @@ export default function PublicHomePage() {
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight relative z-10">Digital Marketing</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium relative z-10">Social media, Google Ads, SEO and online campaigns that complement your outdoor presence.</p>
-                <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
-                  Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll animation="fade-up" delay={300} className="h-full">
-              <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 h-full flex flex-col group hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 text-slate-900 opacity-[0.03] font-black text-[140px] leading-none -mt-10 -mr-4 select-none group-hover:opacity-[0.05] transition-opacity duration-300">03</div>
-                <div className="mb-6 relative z-10">
-                  <CalendarIcon className="h-8 w-8 text-[#fab935]" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight relative z-10">Event Branding</h3>
-                <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium relative z-10">Exhibitions, launches, conferences — end-to-end branding and on-ground activations.</p>
                 <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
                   Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>

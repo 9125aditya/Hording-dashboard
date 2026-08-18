@@ -1,7 +1,22 @@
 "use client";
 
 import { useState, useEffect, useTransition, useMemo, useDeferredValue } from "react";
-import { Search, CheckCircle2, XCircle, Mail, Clock, ArrowLeft, Phone, Loader2, Building } from "lucide-react";
+import { 
+  Search, 
+  CheckCircle2, 
+  XCircle, 
+  Mail, 
+  Clock, 
+  ArrowLeft, 
+  Phone, 
+  Loader2, 
+  Building, 
+  FileSpreadsheet, 
+  Sparkles, 
+  RotateCcw,
+  Check
+} from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/backend/db/client";
 import { updateEnquiryStatus, addEnquiryNote } from "@/backend/actions/actions";
 
@@ -13,18 +28,18 @@ type Enquiry = {
   phone: string;
   site: string;
   siteId: string;
-  status: string;
+  status: "New" | "Contacted" | "Converted" | "Lost" | string;
   date: string;
   message: string;
 };
 
 const statusStyle = (status: string) => {
   switch (status) {
-    case "New": return "bg-indigo-100 text-indigo-700";
-    case "Contacted": return "bg-amber-100 text-amber-700";
-    case "Converted": return "bg-emerald-100 text-emerald-700";
-    case "Lost": return "bg-gray-100 text-gray-500";
-    default: return "bg-gray-100 text-gray-500";
+    case "New": return "bg-indigo-100 text-indigo-700 border border-indigo-200";
+    case "Contacted": return "bg-amber-100 text-amber-800 border border-amber-200";
+    case "Converted": return "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+    case "Lost": return "bg-rose-50 text-rose-600 border border-rose-200";
+    default: return "bg-gray-100 text-gray-600 border border-gray-200";
   }
 };
 
@@ -34,16 +49,65 @@ export default function EnquiriesClient() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted">("All");
+  const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted" | "Converted" | "Lost">("All");
   const [replyText, setReplyText] = useState("");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
 
-  const handleStatusChange = (id: string, status: string) => {
-    // Optimistic update for instant feedback
-    setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, status } : e)));
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((current) => (current === msg ? null : current));
+    }, 4000);
+  };
+
+  const fetchEnquiries = async () => {
+    const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
+    if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setEnquiries(data.map((e: any) => ({
+        id: e.id,
+        name: e.name || 'Unknown Lead',
+        company: e.company || 'Private Client',
+        email: e.email || '',
+        phone: e.phone || '',
+        site: e.message?.includes('[Preferred Site:') ? e.message.split('[Preferred Site:')[1]?.split(']')[0]?.trim() : 'General Inquiry',
+        siteId: e.id.substring(0, 8),
+        status: e.status || 'New',
+        date: new Date(e.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        message: e.message || ''
+      })));
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchEnquiries();
+  }, []);
+
+  const handleStatusChange = (id: string, newStatus: "New" | "Contacted" | "Converted" | "Lost") => {
+    // 1. Optimistically update local state for immediate UI feedback
+    setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e)));
+    
+    if (newStatus === "Contacted") {
+      showToast("Lead marked as Contacted 📞");
+    } else if (newStatus === "Converted") {
+      showToast("Lead successfully Converted to Client! 🎉");
+    } else if (newStatus === "New") {
+      showToast("Lead status reset to New 🔄");
+    } else {
+      showToast("Lead status updated to Lost");
+    }
+
+    // 2. Perform server action update
     startTransition(async () => {
-      await updateEnquiryStatus(id, status);
+      const res = await updateEnquiryStatus(id, newStatus);
+      if (res?.error) {
+        showToast(`Failed to update status: ${res.error}`);
+        // Revert on failure
+        fetchEnquiries();
+      }
     });
   };
 
@@ -52,50 +116,31 @@ export default function EnquiriesClient() {
     const eq = enquiries.find(e => e.id === selectedId);
     if (!eq) return;
 
-    const timestamp = new Date().toLocaleString('en-IN');
-    const updatedMsg = `${eq.message || ''}\n\n[INTERNAL NOTE - ${timestamp}]\n${replyText}`;
-    const textToSave = replyText;
+    const timestamp = new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
+    const updatedMsg = `${eq.message || ''}\n\n[INTERNAL NOTE - ${timestamp}]\n${replyText.trim()}`;
+    const textToSave = replyText.trim();
 
     // Optimistic update
     setEnquiries(prev => prev.map(e => e.id === selectedId ? { ...e, message: updatedMsg } : e));
     setReplyText("");
+    showToast("Internal note added to lead thread 📝");
 
     startTransition(async () => {
-      await addEnquiryNote(selectedId, eq.message || '', textToSave, false);
+      const res = await addEnquiryNote(selectedId, eq.message || '', textToSave, false);
+      if (res?.error) {
+        showToast(`Failed to save note: ${res.error}`);
+        fetchEnquiries();
+      }
     });
   };
-
-
-
-  useEffect(() => {
-    async function fetchEnquiries() {
-      const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
-      if (data) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setEnquiries(data.map((e: any) => ({
-          id: e.id,
-          name: e.name || 'Unknown',
-          company: e.company || '',
-          email: e.email || '',
-          phone: e.phone || '',
-          site: 'Various',
-          siteId: 'Multiple',
-          status: e.status,
-          date: new Date(e.created_at).toLocaleDateString(),
-          message: e.message || ''
-        })));
-      }
-      setLoading(false);
-    }
-    fetchEnquiries();
-  }, [supabase]);
 
   const filteredEnquiries = useMemo(() => {
     const lowerQuery = deferredSearchQuery.toLowerCase();
     return enquiries.filter(eq => {
       const matchesSearch = (eq.name || '').toLowerCase().includes(lowerQuery) || 
                             (eq.email || '').toLowerCase().includes(lowerQuery) || 
-                            (eq.company || '').toLowerCase().includes(lowerQuery);
+                            (eq.company || '').toLowerCase().includes(lowerQuery) ||
+                            (eq.phone || '').toLowerCase().includes(lowerQuery);
       const matchesTab = activeTab === "All" || eq.status === activeTab;
       return matchesSearch && matchesTab;
     });
@@ -104,77 +149,130 @@ export default function EnquiriesClient() {
   const selected = enquiries.find((e) => e.id === selectedId) ?? null;
 
   return (
-    <div className="space-y-6 max-w-[1100px] mx-auto h-[calc(100vh-8rem)] flex flex-col">
+    <div className="space-y-6 max-w-[1200px] mx-auto h-[calc(100vh-8rem)] flex flex-col relative">
+      
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-800 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <Sparkles className="h-4 w-4 text-[#fab935]" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Enquiries</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage leads from the public catalog</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Enquiries & Leads</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage, follow up, and convert campaign inquiries from clients</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link 
+            href="/quotations" 
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors shadow-xs"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            <span>Open Quotations Tool</span>
+          </Link>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl flex flex-1 overflow-hidden">
+      {/* Main Split Layout */}
+      <div className="bg-white border border-gray-200 rounded-xl flex flex-1 overflow-hidden shadow-xs">
 
         {/* Inbox List (Left Panel) */}
-        <div className={`w-full md:w-[360px] lg:w-[400px] border-r border-gray-200 flex-col ${selected ? "hidden md:flex" : "flex"}`}>
-          <div className="p-4 border-b border-gray-200">
+        <div className={`w-full md:w-[360px] lg:w-[420px] border-r border-gray-200 flex-col ${selected ? "hidden md:flex" : "flex"}`}>
+          <div className="p-4 border-b border-gray-200 bg-slate-50/50">
+            {/* Search Input */}
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search leads..."
+                placeholder="Search by name, email, company, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-10 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+                className="w-full h-9 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all shadow-xs"
               />
             </div>
-            <div className="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
-              {(["All", "New", "Contacted"] as const).map(tab => (
-                <button 
-                  key={tab}
-                  onClick={() => setActiveTab(tab)} 
-                  className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    activeTab === tab 
-                      ? "bg-indigo-600 text-white" 
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {tab} {tab === "All" ? enquiries.length : enquiries.filter(e => e.status === tab).length}
-                </button>
-              ))}
+
+            {/* Filter Tabs */}
+            <div className="flex gap-1.5 mt-3 overflow-x-auto hide-scrollbar pb-0.5">
+              {(["All", "New", "Contacted", "Converted", "Lost"] as const).map(tab => {
+                const count = tab === "All" ? enquiries.length : enquiries.filter(e => e.status === tab).length;
+                return (
+                  <button 
+                    key={tab}
+                    onClick={() => setActiveTab(tab)} 
+                    className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      activeTab === tab 
+                        ? tab === "Converted" 
+                          ? "bg-emerald-600 text-white shadow-xs" 
+                          : tab === "Contacted"
+                          ? "bg-amber-600 text-white shadow-xs"
+                          : tab === "Lost"
+                          ? "bg-rose-600 text-white shadow-xs"
+                          : "bg-indigo-600 text-white shadow-xs"
+                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <span>{tab}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      activeTab === tab 
+                        ? "bg-white/20 text-white" 
+                        : "bg-gray-100 text-gray-600"
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          {/* Leads List */}
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
             {loading ? (
-              <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-indigo-500" /></div>
+              <div className="p-10 flex flex-col items-center justify-center gap-2 text-gray-400">
+                <Loader2 className="animate-spin h-6 w-6 text-indigo-600" />
+                <span className="text-xs">Loading leads...</span>
+              </div>
             ) : filteredEnquiries.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 text-sm">No enquiries found.</div>
+              <div className="p-10 text-center text-gray-400 text-xs flex flex-col items-center gap-2">
+                <Mail className="h-8 w-8 text-gray-300" />
+                <span>No enquiries found in &quot;{activeTab}&quot; tab.</span>
+              </div>
             ) : (
               filteredEnquiries.map((eq) => (
                 <button
                   key={eq.id}
                   onClick={() => setSelectedId(eq.id)}
-                  className={`w-full text-left p-4 border-b border-gray-100 cursor-pointer transition-all ${
+                  className={`w-full text-left p-4 cursor-pointer transition-all ${
                     eq.id === selectedId 
-                      ? "bg-indigo-50 border-l-[3px] border-l-indigo-600" 
-                      : "hover:bg-gray-50"
+                      ? "bg-indigo-50/70 border-l-4 border-l-indigo-600" 
+                      : "hover:bg-gray-50/80"
                   }`}
                 >
                   <div className="flex justify-between items-start mb-1.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                        eq.status === "Converted" 
+                          ? "bg-emerald-100 text-emerald-700" 
+                          : eq.status === "Contacted"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-indigo-100 text-indigo-700"
+                      }`}>
                         {eq.name[0]?.toUpperCase() || '?'}
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-gray-900">{eq.name}</h4>
-                        <p className="text-xs text-gray-500">{eq.company}</p>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-xs text-gray-900 truncate">{eq.name}</h4>
+                        <p className="text-[11px] text-gray-500 truncate">{eq.company}</p>
                       </div>
                     </div>
-                    <span className="text-[11px] text-gray-400 whitespace-nowrap ml-2">{eq.date}</span>
+                    <span className="text-[10px] text-gray-400 whitespace-nowrap ml-2 font-medium">{eq.date}</span>
                   </div>
-                  <div className="flex justify-between items-center gap-2 ml-[42px]">
-                    <span className="text-xs text-gray-500 truncate">{eq.message?.substring(0, 60) || 'No message'}...</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider whitespace-nowrap ${statusStyle(eq.status)}`}>
+
+                  <div className="flex justify-between items-center gap-2 ml-[34px]">
+                    <span className="text-[11.5px] text-gray-500 truncate">{eq.message?.substring(0, 50) || 'No message provided'}...</span>
+                    <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap ${statusStyle(eq.status)}`}>
                       {eq.status}
                     </span>
                   </div>
@@ -188,9 +286,9 @@ export default function EnquiriesClient() {
         <div className={`flex-1 flex-col bg-white relative ${selected ? "flex" : "hidden md:flex"}`}>
           {selected ? (
             <>
-              {/* Header */}
-              <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div className="flex items-center gap-3">
+              {/* Header with Interactive Action Buttons */}
+              <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-slate-50/40">
+                <div className="flex items-center gap-3 min-w-0">
                   <button
                     onClick={() => setSelectedId(null)}
                     className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0"
@@ -198,87 +296,171 @@ export default function EnquiriesClient() {
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </button>
-                  <div className="h-11 w-11 rounded-full bg-indigo-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                  <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-lg font-bold text-white shadow-xs flex-shrink-0 ${
+                    selected.status === "Converted"
+                      ? "bg-emerald-600"
+                      : selected.status === "Contacted"
+                      ? "bg-amber-600"
+                      : "bg-indigo-600"
+                  }`}>
                     {selected.name[0]?.toUpperCase() || '?'}
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">{selected.name}</h2>
-                    <p className="text-sm text-gray-500">{selected.company}</p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-bold text-gray-900 truncate">{selected.name}</h2>
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${statusStyle(selected.status)}`}>
+                        {selected.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium truncate">{selected.company}</p>
                   </div>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+
+                {/* Status Action Buttons */}
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  {/* CONTACTED BUTTON */}
                   <button 
                     onClick={() => handleStatusChange(selected.id, "Contacted")}
                     disabled={isPending}
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-all disabled:opacity-50">
-                    <Clock className="mr-2 h-4 w-4 text-amber-500" /> Contacted
+                    title="Mark lead as Contacted"
+                    className={`inline-flex h-9 items-center justify-center rounded-lg px-3.5 text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50 ${
+                      selected.status === "Contacted"
+                        ? "bg-amber-600 text-white ring-2 ring-amber-400/40"
+                        : "bg-white border border-amber-200 text-amber-800 hover:bg-amber-50 hover:border-amber-300"
+                    }`}
+                  >
+                    {selected.status === "Contacted" ? (
+                      <Check className="mr-1.5 h-3.5 w-3.5" />
+                    ) : (
+                      <Clock className="mr-1.5 h-3.5 w-3.5 text-amber-600" />
+                    )}
+                    <span>{selected.status === "Contacted" ? "Contacted ✓" : "Mark Contacted"}</span>
                   </button>
+
+                  {/* CONVERT BUTTON */}
                   <button 
                     onClick={() => handleStatusChange(selected.id, "Converted")}
                     disabled={isPending}
-                    className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 transition-all disabled:opacity-50">
-                    <CheckCircle2 className="mr-2 h-4 w-4" /> Convert
+                    title="Convert lead to customer"
+                    className={`inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50 ${
+                      selected.status === "Converted"
+                        ? "bg-emerald-700 text-white ring-2 ring-emerald-400/40"
+                        : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20"
+                    }`}
+                  >
+                    <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                    <span>{selected.status === "Converted" ? "Converted Deal ✓" : "Convert Lead"}</span>
                   </button>
+
+                  {/* RESET TO NEW / LOST */}
+                  {selected.status !== "New" && (
+                    <button 
+                      onClick={() => handleStatusChange(selected.id, "New")}
+                      disabled={isPending}
+                      title="Reset status to New"
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+
                   <button 
                     onClick={() => handleStatusChange(selected.id, "Lost")}
                     disabled={isPending}
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-all disabled:opacity-50">
+                    title="Mark lead as Lost"
+                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-2.5 text-xs transition-all cursor-pointer disabled:opacity-50 ${
+                      selected.status === "Lost"
+                        ? "bg-rose-600 text-white border-rose-600"
+                        : "border-gray-200 bg-white text-gray-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                    }`}
+                  >
                     <XCircle className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              {/* Body */}
-              <div className="p-5 flex-1 overflow-y-auto">
-                {/* Contact Info */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h3>
-                    <div className="space-y-2.5">
-                      <p className="text-sm flex items-center gap-2 text-gray-700">
-                        <Mail className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" /> {selected.email}
+              {/* Converted Callout Banner */}
+              {selected.status === "Converted" && (
+                <div className="mx-5 mt-4 p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-900">Lead Successfully Converted!</p>
+                      <p className="text-[11px] text-emerald-700">Generate a custom billboard quotation or campaign proposal for {selected.company || selected.name}.</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/quotations"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-xs shrink-0"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5" />
+                    <span>Create Proposal</span>
+                  </Link>
+                </div>
+              )}
+
+              {/* Body Content */}
+              <div className="p-5 flex-1 overflow-y-auto space-y-6">
+                {/* Contact Info Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Client Contact</h3>
+                    <div className="space-y-2.5 text-xs text-gray-700">
+                      <p className="flex items-center gap-2">
+                        <Mail className="h-3.5 w-3.5 text-indigo-500 flex-shrink-0" />
+                        <a href={`mailto:${selected.email}`} className="text-indigo-600 hover:underline font-medium truncate">{selected.email || 'No email'}</a>
                       </p>
-                      <p className="text-sm flex items-center gap-2 text-gray-700">
-                        <Phone className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" /> {selected.phone}
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                        <a href={`tel:${selected.phone}`} className="font-medium hover:underline">{selected.phone || 'No phone number'}</a>
                       </p>
-                      <p className="text-sm flex items-center gap-2 text-gray-700">
-                        <Building className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" /> {selected.company}
+                      <p className="flex items-center gap-2">
+                        <Building className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                        <span className="font-medium">{selected.company || 'Not provided'}</span>
                       </p>
                     </div>
                   </div>
-                  <div className="bg-indigo-50 rounded-xl p-4">
-                    <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-3">Interest</h3>
-                    <div className="space-y-2">
-                      <p className="text-sm text-indigo-700"><span className="text-indigo-500">Site:</span> <strong>{selected.site}</strong></p>
-                      <p className="text-sm text-indigo-700"><span className="text-indigo-500">ID:</span> <span className="font-mono text-xs">{selected.siteId}</span></p>
+
+                  <div className="bg-indigo-50/70 rounded-xl p-4 border border-indigo-100">
+                    <h3 className="text-[11px] font-bold text-indigo-800 uppercase tracking-wider mb-3">Campaign Scope</h3>
+                    <div className="space-y-2 text-xs text-indigo-900">
+                      <p><span className="text-indigo-600 font-semibold">Preferred Location:</span> <strong className="text-indigo-950">{selected.site}</strong></p>
+                      <p><span className="text-indigo-600 font-semibold">Received On:</span> <span className="font-medium">{selected.date}</span></p>
+                      <p><span className="text-indigo-600 font-semibold">Lead ID:</span> <span className="font-mono text-[10.5px] bg-indigo-100 px-1.5 py-0.5 rounded">{selected.siteId}</span></p>
                     </div>
                   </div>
                 </div>
 
-                {/* Message */}
+                {/* Message & Activity Thread */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Message</h3>
-                  <div className="bg-white border border-gray-200 rounded-xl p-5">
-                    <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">{selected.message}</p>
+                  <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2.5">Inquiry & Activity Thread</h3>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-xs">
+                    <p className="text-xs leading-relaxed text-gray-800 whitespace-pre-wrap font-sans">
+                      {selected.message || 'No initial message included with this enquiry.'}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Reply Box */}
-              <div className="p-4 border-t border-gray-200">
+              {/* Internal Note Box */}
+              <div className="p-4 border-t border-gray-200 bg-slate-50/50">
                 <div className="relative">
                   <textarea 
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Write an internal note for your team..." 
-                    className="w-full p-3 pr-3 sm:pr-24 pb-12 sm:pb-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 min-h-[80px] resize-none transition-all" 
+                    placeholder="Add an internal note or follow-up summary for the team..." 
+                    className="w-full p-3 pr-24 pb-3 rounded-xl border border-gray-200 bg-white text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[75px] resize-none transition-all shadow-xs" 
                   />
                   <div className="absolute right-3 bottom-3 flex gap-2">
                     <button 
                       onClick={handleAddNote}
-                      disabled={!replyText.trim()}
-                      className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-all">
-                      Add Note
+                      disabled={!replyText.trim() || isPending}
+                      className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                    >
+                      {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                      <span>Save Note</span>
                     </button>
                   </div>
                 </div>
@@ -286,9 +468,9 @@ export default function EnquiriesClient() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8">
-              <Mail className="h-14 w-14 text-gray-200 mb-4" />
-              <p className="text-gray-500 font-medium">Select an enquiry to view details</p>
-              <p className="text-xs text-gray-400 mt-1">Choose from the list on the left</p>
+              <Mail className="h-12 w-12 text-gray-200 mb-3" />
+              <p className="text-sm font-bold text-gray-700">Select an enquiry to view details</p>
+              <p className="text-xs text-gray-400 mt-1">Choose a lead from the left inbox list to change status, add notes, or convert.</p>
             </div>
           )}
         </div>

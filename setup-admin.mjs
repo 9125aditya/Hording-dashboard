@@ -1,12 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
+import fs from 'fs';
+
+if (fs.existsSync('.env.local')) {
+  dotenv.config({ path: '.env.local' });
+} else if (fs.existsSync('.env')) {
+  dotenv.config({ path: '.env' });
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const email = process.env.ADMIN_EMAIL || 'anjalisri2707@gmail.com';
+const email = process.env.ADMIN_EMAIL || 'anjalisri2708@gmail.com';
 const password = process.env.ADMIN_PASSWORD || 'password123';
 
 async function createAdmin() {
