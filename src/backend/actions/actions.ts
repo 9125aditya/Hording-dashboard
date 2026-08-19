@@ -481,10 +481,10 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
 
     // If updating, delete removed images from storage
     if (siteId) {
-      const { data: oldSite } = await supabase.from('sites').select('images').eq('site_id', siteId).single();
-      if (oldSite && oldSite.images) {
-        const oldImages: string[] = oldSite.images;
-        const removedUrls = oldImages.filter(url => !finalImages.includes(url));
+      const { data: oldSite } = await supabase.from('sites').select('photos').eq('site_id', siteId).single();
+      if (oldSite && oldSite.photos) {
+        const oldPhotos: string[] = oldSite.photos;
+        const removedUrls = oldPhotos.filter(url => !finalImages.includes(url));
         if (removedUrls.length > 0) {
           const pathsToRemove = removedUrls.map(url => {
             // Extract the relative path after the bucket name
@@ -545,7 +545,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
       
       // Images array
-      images: finalImages,
+      photos: finalImages,
     };
 
     // Log the action for history
