@@ -29,6 +29,7 @@ interface SiteData {
   status: string;
   size: string;
   type: string;
+  photos?: string[];
 }
 
 interface MapPageClientProps {
@@ -163,7 +164,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                     {selectedSite.status}
                   </div>
                   <img
-                    src="https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80"
+                    src={selectedSite.photos?.[0] ?? "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=600&q=80"}
                     alt={selectedSite.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
