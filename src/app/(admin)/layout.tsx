@@ -2,6 +2,8 @@ import Link from "next/link";
 import { LayoutDashboard, Map, MessageSquare, Users, LogOut, ExternalLink, CheckCircle, Shield, MapPin, LayoutGrid, Package, FileSpreadsheet } from "lucide-react";
 import AdminMobileMenu from "@/frontend/components/AdminMobileMenu";
 import ActiveLink from "@/frontend/components/ActiveLink";
+import AdminLogoutButton from "@/frontend/components/AdminLogoutButton";
+import TabSessionManager from "@/frontend/components/TabSessionManager";
 import { logout } from "@/backend/actions/auth-actions";
 import { createClient } from "@/backend/db/server";
 
@@ -45,6 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-full flex w-full bg-gray-50/80">
+      <TabSessionManager />
       {/* Light Sidebar */}
       <aside className="w-[220px] hidden md:flex flex-col bg-white border-r border-gray-200 fixed inset-y-0 left-0 z-40">
         <div className="px-5 pt-6 pb-5">
@@ -106,9 +109,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </ActiveLink>
               <ActiveLink href="/permissions">
                 <Shield className="mr-3 h-[18px] w-[18px]" />
-                Access Control
+                Permissions
               </ActiveLink>
-
             </>
           )}
         </nav>
@@ -121,12 +123,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         <div className="px-3 mb-2">
-          <form action={logout}>
-            <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full transition-all duration-200 text-slate-500 hover:bg-red-50 hover:text-red-600">
-              <LogOut className="mr-3 h-[18px] w-[18px]" />
-              Sign Out
-            </button>
-          </form>
+          <AdminLogoutButton />
         </div>
 
         {/* User Profile at bottom */}
@@ -180,16 +177,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               )}
             </Link>
             <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-            <form action={logout}>
-              <button
-                type="submit"
-                title="Sign Out"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors border border-gray-200 cursor-pointer"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </form>
+            <AdminLogoutButton 
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors border border-gray-200 cursor-pointer"
+              iconClassName="h-3.5 w-3.5"
+              label="Sign Out"
+            />
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto animate-in fade-in duration-300">

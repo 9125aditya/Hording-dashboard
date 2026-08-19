@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bars3Icon, XMarkIcon, Squares2X2Icon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
+import { clearTabSession } from "@/frontend/components/TabSessionManager";
 
 export default function PublicMobileMenu({
   hasUser,
@@ -107,7 +108,7 @@ export default function PublicMobileMenu({
                   >
                     <Squares2X2Icon className="h-4 w-4" /> Go to Dashboard
                   </Link>
-                  <form action={logout}>
+                  <form action={logout} onSubmit={() => clearTabSession()}>
                     <button
                       type="submit"
                       onClick={() => setIsOpen(false)}

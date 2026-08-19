@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { User, Mail, Shield, Save, Loader2, LogOut } from "lucide-react";
 import { updateProfile, logout } from "@/backend/actions/auth-actions";
+import { clearTabSession } from "@/frontend/components/TabSessionManager";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
@@ -145,7 +146,7 @@ export default function ProfileForm({ initialData }: { initialData: { name: stri
             Save Changes
           </button>
 
-          <form action={logout}>
+          <form action={logout} onSubmit={() => clearTabSession()}>
             <button
               type="submit"
               className="inline-flex items-center justify-center h-10 px-4 rounded-lg border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50 hover:border-red-300 text-sm font-semibold transition-all cursor-pointer"

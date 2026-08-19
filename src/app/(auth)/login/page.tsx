@@ -50,7 +50,7 @@ export default function LoginPage() {
             </h1>
             <p className="text-muted-foreground text-xs mt-1">
               {loginType === "super_admin" 
-                ? "Executive governance & staff management" 
+                ? "Executive governance & system administration" 
                 : "Operational management & inventory tools"}
             </p>
           </div>

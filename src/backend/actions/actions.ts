@@ -117,6 +117,32 @@ export async function addApplication(formData: FormData) {
 // ADMIN ENQUIRIES ACTIONS
 // ==========================================
 
+export async function getEnquiriesList() {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: "Unauthorized", data: [] };
+    }
+
+    const adminClient = getAdminSupabase();
+    const { data, error } = await adminClient
+      .from('enquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("getEnquiriesList DB error:", error);
+      return { error: error.message, data: [] };
+    }
+
+    return { data: data || [] };
+  } catch (err: any) {
+    console.error("getEnquiriesList exception:", err);
+    return { error: err?.message || "Failed to fetch enquiries", data: [] };
+  }
+}
+
 export async function updateEnquiryStatus(id: string, status: string) {
   try {
     const supabase = await createClient();

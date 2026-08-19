@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Squares2X2Icon, MapIcon, ChatBubbleLeftIcon, ArrowRightOnRectangleIcon, XMarkIcon, Bars3Icon, ArrowTopRightOnSquareIcon, CheckCircleIcon, ShieldCheckIcon, UsersIcon, MapPinIcon, CubeIcon, DocumentChartBarIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
+import { clearTabSession } from "@/frontend/components/TabSessionManager";
 
 export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0, totalEnquiryCount = 0, pendingCount = 0 }: { isSuperAdmin?: boolean; enquiryCount?: number; totalEnquiryCount?: number; pendingCount?: number }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -101,8 +102,8 @@ export default function AdminMobileMenu({ isSuperAdmin = false, enquiryCount = 0
             </div>
 
             <div className="p-3 border-t border-gray-100">
-              <form action={logout}>
-                <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+              <form action={logout} onSubmit={() => clearTabSession()}>
+                <button type="submit" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg w-full text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer">
                   <ArrowRightOnRectangleIcon className="mr-3 h-[18px] w-[18px]" /> Sign Out
                 </button>
               </form>

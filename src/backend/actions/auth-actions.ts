@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export async function signupUser(formData: FormData) {
   // Public customer self-registration is disabled.
   return { 
-    error: "Customer self-registration is disabled. Staff accounts must be created by the Super Administrator in Staff Management." 
+    error: "Customer self-registration is disabled. Staff accounts must be created by the Super Administrator." 
   };
 }
 
@@ -70,7 +70,7 @@ export async function loginUser(formData: FormData) {
 
     // Enforce Admin and Super Admin authentication only — reject public customer logins
     if (userRole === 'public' || !adminRoles.includes(userRole)) {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       return {
         error: "Access Denied: Only authorized Admin and Super Administrator accounts can log in."
       };
@@ -79,7 +79,7 @@ export async function loginUser(formData: FormData) {
     // Role-specific login portal constraints
     if (loginType === 'super_admin') {
       if (userRole !== 'super_admin') {
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: 'local' });
         return {
           error: "Access Denied: This account is not authorized as a Super Administrator. Only the primary Super Admin can access this portal."
         };
@@ -88,7 +88,7 @@ export async function loginUser(formData: FormData) {
     } else {
       // Standard Admin / Staff portal
       if (!adminRoles.includes(userRole)) {
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: 'local' });
         return {
           error: "Access Denied: Authorized Admin or Staff credentials required."
         };
@@ -110,7 +110,7 @@ export async function loginUser(formData: FormData) {
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: 'local' });
   redirect("/");
 }
 

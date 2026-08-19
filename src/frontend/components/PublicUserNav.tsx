@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { logout } from "@/backend/actions/auth-actions";
+import { clearTabSession } from "@/frontend/components/TabSessionManager";
 import { ArrowRightOnRectangleIcon, Squares2X2Icon, UserCircleIcon, ChevronDownIcon, ArrowPathIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 
 interface PublicUserNavProps {
@@ -31,6 +32,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
 
   const handleLogout = (e: React.FormEvent) => {
     e.preventDefault();
+    clearTabSession();
     startLogoutTransition(async () => {
       await logout();
     });

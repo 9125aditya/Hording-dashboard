@@ -14,11 +14,12 @@ import {
   FileSpreadsheet, 
   Sparkles, 
   RotateCcw,
+  RefreshCw,
   Check
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/backend/db/client";
-import { updateEnquiryStatus, addEnquiryNote } from "@/backend/actions/actions";
+import { updateEnquiryStatus, addEnquiryNote, getEnquiriesList } from "@/backend/actions/actions";
 
 type Enquiry = {
   id: string;
@@ -62,24 +63,45 @@ export default function EnquiriesClient() {
     }, 4000);
   };
 
-  const fetchEnquiries = async () => {
-    const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
-    if (data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setEnquiries(data.map((e: any) => ({
-        id: e.id,
-        name: e.name || 'Unknown Lead',
-        company: e.company || 'Private Client',
-        email: e.email || '',
-        phone: e.phone || '',
-        site: e.message?.includes('[Preferred Site:') ? e.message.split('[Preferred Site:')[1]?.split(']')[0]?.trim() : 'General Inquiry',
-        siteId: e.id.substring(0, 8),
-        status: e.status || 'New',
-        date: new Date(e.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-        message: e.message || ''
-      })));
+  const fetchEnquiries = async (isManualRefresh = false) => {
+    setLoading(true);
+    try {
+      // 1. Try server action first for complete RBAC privileges
+      const res = await getEnquiriesList();
+      let records = res?.data;
+
+      // 2. Fallback to client Supabase if needed
+      if (!records || records.length === 0) {
+        const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
+        if (data && data.length > 0) records = data;
+      }
+
+      if (records) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setEnquiries(records.map((e: any) => ({
+          id: e.id,
+          name: e.name || 'Unknown Lead',
+          company: e.company || 'Private Client',
+          email: e.email || '',
+          phone: e.phone || '',
+          site: e.message?.includes('[Preferred Site:') ? e.message.split('[Preferred Site:')[1]?.split(']')[0]?.trim() : 'General Inquiry',
+          siteId: e.id.substring(0, 8),
+          status: e.status || 'New',
+          date: new Date(e.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          message: e.message || ''
+        })));
+        if (isManualRefresh) {
+          showToast("Leads refreshed from database 🔄");
+        }
+      }
+    } catch (err) {
+      console.error("fetchEnquiries error:", err);
+      if (isManualRefresh) {
+        showToast("Could not refresh leads.");
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -165,7 +187,16 @@ export default function EnquiriesClient() {
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Enquiries & Leads</h1>
           <p className="text-sm text-gray-500 mt-1">Manage, follow up, and convert campaign inquiries from clients</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => fetchEnquiries(true)}
+            disabled={loading}
+            title="Reload latest leads from database"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50 hover:text-indigo-600 hover:border-gray-300 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-indigo-600" : "text-gray-500"}`} />
+            <span>Refresh</span>
+          </button>
           <Link 
             href="/quotations" 
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors shadow-xs"
@@ -352,29 +383,32 @@ export default function EnquiriesClient() {
                     <span>{selected.status === "Converted" ? "Converted Deal ✓" : "Convert Lead"}</span>
                   </button>
 
-                  {/* RESET TO NEW / LOST */}
+                  {/* REOPEN AS NEW BUTTON */}
                   {selected.status !== "New" && (
                     <button 
                       onClick={() => handleStatusChange(selected.id, "New")}
                       disabled={isPending}
-                      title="Reset status to New"
-                      className="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer disabled:opacity-50"
+                      title="Reopen lead and reset status to New"
+                      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
                     >
-                      <RotateCcw className="h-3.5 w-3.5" />
+                      <RotateCcw className="h-3.5 w-3.5 text-gray-400" />
+                      <span>Reopen (New)</span>
                     </button>
                   )}
 
+                  {/* MARK LOST BUTTON */}
                   <button 
                     onClick={() => handleStatusChange(selected.id, "Lost")}
                     disabled={isPending}
                     title="Mark lead as Lost"
-                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-2.5 text-xs transition-all cursor-pointer disabled:opacity-50 ${
+                    className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs ${
                       selected.status === "Lost"
-                        ? "bg-rose-600 text-white border-rose-600"
-                        : "border-gray-200 bg-white text-gray-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                        ? "bg-rose-600 text-white border-rose-600 font-bold"
+                        : "border-gray-200 bg-white text-gray-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
                     }`}
                   >
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="h-3.5 w-3.5 text-rose-500" />
+                    <span>{selected.status === "Lost" ? "Lost ✕" : "Mark Lost"}</span>
                   </button>
                 </div>
               </div>

@@ -5,8 +5,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const adminRoutes = [
-    '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/staff', '/admin/approvals', '/admin/attendance', '/admin/permissions', '/admin/status', '/admin/flex-inventory', '/admin/quotations',
-    '/dashboard', '/inventory', '/enquiries', '/staff', '/admin-map', '/approvals', '/attendance', '/permissions', '/status', '/flex-inventory', '/quotations'
+    '/admin/dashboard', '/admin/inventory', '/admin/enquiries', '/admin/approvals', '/admin/attendance', '/admin/permissions', '/admin/status', '/admin/flex-inventory', '/admin/quotations',
+    '/dashboard', '/inventory', '/enquiries', '/admin-map', '/approvals', '/attendance', '/permissions', '/status', '/flex-inventory', '/quotations'
   ];
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
 
@@ -62,8 +62,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    // Rule: Only super_admin can access Staff Management, Approvals, and Permissions
-    const isSuperAdminRoute = pathname.startsWith('/admin/staff') || pathname.startsWith('/staff') || pathname.startsWith('/admin/approvals') || pathname.startsWith('/approvals') || pathname.startsWith('/admin/permissions') || pathname.startsWith('/permissions');
+    // Rule: Only super_admin can access Approvals and Permissions
+    const isSuperAdminRoute = pathname.startsWith('/admin/approvals') || pathname.startsWith('/approvals') || pathname.startsWith('/admin/permissions') || pathname.startsWith('/permissions');
     if (isSuperAdminRoute && role !== 'super_admin') {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';

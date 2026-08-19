@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import PublicMobileMenu from "@/frontend/components/PublicMobileMenu";
 import PublicUserNav from "@/frontend/components/PublicUserNav";
-import { logout } from "@/backend/actions/auth-actions";
+import AdminLogoutButton from "@/frontend/components/AdminLogoutButton";
+import TabSessionManager from "@/frontend/components/TabSessionManager";
 import { createClient } from "@/backend/db/server";
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +34,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
   return (
     <div className="min-h-full flex flex-col bg-[#f4f8fb] text-slate-900 font-sans">
+      <TabSessionManager />
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 w-full bg-[#f4f8fb] border-b border-slate-200/70 shadow-sm">
         <div className="container flex h-16 md:h-20 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
@@ -108,14 +110,11 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                         {userName || 'Staff'}
                       </span>
                     </Link>
-                    <form action={logout}>
-                      <button
-                        type="submit"
-                        className="inline-flex items-center justify-center px-4 py-3 rounded-full border border-blue-400/40 text-blue-200 hover:bg-white/10 hover:text-white text-[13.5px] font-semibold transition-colors cursor-pointer"
-                      >
-                        Sign Out
-                      </button>
-                    </form>
+                    <AdminLogoutButton
+                      className="inline-flex items-center justify-center px-4 py-3 rounded-full border border-blue-400/40 text-blue-200 hover:bg-white/10 hover:text-white text-[13.5px] font-semibold transition-colors cursor-pointer"
+                      showIcon={false}
+                      label="Sign Out"
+                    />
                   </>
                 ) : (
                   <Link href="/login" className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#fab935] text-slate-900 font-bold text-[15px] hover:bg-[#f2a81d] transition-colors shadow-sm">
