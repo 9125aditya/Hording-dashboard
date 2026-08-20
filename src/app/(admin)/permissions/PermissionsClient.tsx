@@ -1,78 +1,222 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Shield, ShieldCheck, Loader2, AlertCircle, User, Briefcase, Eye, Pencil, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
-import { updateUserDetails, deleteAdminUser } from "@/backend/actions/admin-actions";
+import {
+  updateUserDetails,
+  deleteAdminUser,
+} from "@/backend/actions/admin-actions";
+import {
+  AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  Loader2,
+  Pencil,
+  Shield,
+  Trash2,
+  UserCog,
+  X,
+} from "lucide-react";
 
 type Profile = {
   id: string;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   role: string;
-  permissions?: string[];
+  permissions?: string[] | null;
 };
 
-type PermItem = {
-  id: string;      // e.g. "manage_users"
-  label: string;
-  desc: string;
-  hasWrite: boolean;
-};
-
-type PermGroup = {
-  group: string;
-  icon: string;
-  items: PermItem[];
-};
-
-const PERMISSION_GROUPS: PermGroup[] = [
+const PERMISSION_GROUPS = [
   {
-    group: "Manage Users",
-    icon: "👥",
+    group: "Dashboard",
+    icon: "📊",
     items: [
-      { id: "manage_users", label: "Manage Users", desc: "View staff list / Add, edit, deactivate users", hasWrite: true },
+      {
+        id: "dashboard.overview",
+        label: "Dashboard Overview",
+        desc: "View dashboard statistics and overview",
+        hasWrite: false,
+      },
     ],
   },
   {
-    group: "Flex Inventory",
-    icon: "📦",
+    group: "Site Management",
+    icon: "📍",
     items: [
-      { id: "flex_inventory", label: "Flex Inventory", desc: "View flex inventory / Edit flex inventory entries", hasWrite: true },
+      {
+        id: "sites.list",
+        label: "Sites List",
+        desc: "View all hoarding sites",
+        hasWrite: true,
+      },
+      {
+        id: "sites.create",
+        label: "Create Sites",
+        desc: "Add new hoarding sites",
+        hasWrite: true,
+      },
+      {
+        id: "sites.edit",
+        label: "Edit Sites",
+        desc: "Modify existing hoarding sites",
+        hasWrite: true,
+      },
+      {
+        id: "sites.delete",
+        label: "Delete Sites",
+        desc: "Remove hoarding sites",
+        hasWrite: true,
+      },
+    ],
+  },
+  {
+    group: "Map",
+    icon: "🗺️",
+    items: [
+      {
+        id: "map.view",
+        label: "View Map",
+        desc: "View hoarding locations on the map",
+        hasWrite: false,
+      },
+      {
+        id: "map.edit",
+        label: "Edit Map",
+        desc: "Modify site locations and map data",
+        hasWrite: true,
+      },
+    ],
+  },
+  {
+    group: "Catalog",
+    icon: "📚",
+    items: [
+      {
+        id: "catalog.view",
+        label: "View Catalog",
+        desc: "View the public hoarding catalog",
+        hasWrite: false,
+      },
+      {
+        id: "catalog.edit",
+        label: "Edit Catalog",
+        desc: "Manage catalog details and visibility",
+        hasWrite: true,
+      },
     ],
   },
   {
     group: "Quotations",
     icon: "📄",
     items: [
-      { id: "quotations", label: "Quotations", desc: "View quotations / Create and edit quotations", hasWrite: true },
+      {
+        id: "quotations.list",
+        label: "View Quotations",
+        desc: "View quotations and quotation history",
+        hasWrite: false,
+      },
+      {
+        id: "quotations.create",
+        label: "Create Quotations",
+        desc: "Create new quotations",
+        hasWrite: true,
+      },
+      {
+        id: "quotations.edit",
+        label: "Edit Quotations",
+        desc: "Modify existing quotations",
+        hasWrite: true,
+      },
+      {
+        id: "quotations.delete",
+        label: "Delete Quotations",
+        desc: "Delete quotations",
+        hasWrite: true,
+      },
     ],
   },
   {
-    group: "User Activities",
-    icon: "📋",
+    group: "Customers",
+    icon: "👥",
     items: [
-      { id: "user_activities", label: "User Activities", desc: "View activity logs (read-only)", hasWrite: false },
+      {
+        id: "customers.list",
+        label: "View Customers",
+        desc: "View customer information",
+        hasWrite: false,
+      },
+      {
+        id: "customers.create",
+        label: "Create Customers",
+        desc: "Add new customers",
+        hasWrite: true,
+      },
+      {
+        id: "customers.edit",
+        label: "Edit Customers",
+        desc: "Modify customer information",
+        hasWrite: true,
+      },
+      {
+        id: "customers.delete",
+        label: "Delete Customers",
+        desc: "Delete customers",
+        hasWrite: true,
+      },
     ],
   },
   {
-    group: "Site Enquiries",
-    icon: "💬",
+    group: "Staff",
+    icon: "🧑‍💼",
     items: [
-      { id: "site_enquiries", label: "Site Enquiries", desc: "View enquiries / Respond and close enquiries", hasWrite: true },
+      {
+        id: "staff.list",
+        label: "View Staff",
+        desc: "View staff members",
+        hasWrite: false,
+      },
+      {
+        id: "staff.create",
+        label: "Create Staff",
+        desc: "Add new staff members",
+        hasWrite: true,
+      },
+      {
+        id: "staff.edit",
+        label: "Edit Staff",
+        desc: "Modify staff information",
+        hasWrite: true,
+      },
+      {
+        id: "staff.delete",
+        label: "Delete Staff",
+        desc: "Remove staff members",
+        hasWrite: true,
+      },
     ],
   },
   {
     group: "Site Details",
-    icon: "🏗️",
+    icon: "🏢",
     items: [
-      { id: "site_details.basic", label: "Basic Info", desc: "View / Edit site name, city, area, type", hasWrite: true },
-      { id: "site_details.location", label: "Location", desc: "View / Edit address, maps link, coordinates", hasWrite: true },
-      { id: "site_details.dimensions", label: "Dimensions", desc: "View / Edit size, quantity, total sq ft, printable size", hasWrite: true },
-      { id: "site_details.electricity", label: "Electricity", desc: "View / Edit consumer no., consumer name, bill & due dates", hasWrite: true },
-      { id: "site_details.financials", label: "Financials & Rates", desc: "View / Edit net rate, DCPM rate, agency rate", hasWrite: true },
-      { id: "site_details.landlord", label: "Landlord Info", desc: "View / Edit landlord name, contact, rent amount", hasWrite: true },
-      { id: "site_details.photos", label: "Photos", desc: "View / Upload and delete site photos", hasWrite: true },
-      { id: "site_details.status", label: "Availability Status", desc: "View / Change site availability status", hasWrite: true },
+      {
+        id: "site_details.basic",
+        label: "Basic Information",
+        desc: "View / Edit site details",
+        hasWrite: true,
+      },
+      {
+        id: "site_details.photos",
+        label: "Photos",
+        desc: "View / Upload and delete site photos",
+        hasWrite: true,
+      },
+      {
+        id: "site_details.status",
+        label: "Availability Status",
+        desc: "View / Change site availability status",
+        hasWrite: true,
+      },
     ],
   },
 ];
@@ -80,55 +224,93 @@ const PERMISSION_GROUPS: PermGroup[] = [
 // Flatten all permission IDs for display purposes
 function getAllPermissionLabels(): Record<string, string> {
   const map: Record<string, string> = {};
+
   for (const group of PERMISSION_GROUPS) {
     for (const item of group.items) {
       map[`${item.id}.read`] = `${item.label} (Read)`;
-      if (item.hasWrite) map[`${item.id}.write`] = `${item.label} (Write)`;
+
+      if (item.hasWrite) {
+        map[`${item.id}.write`] = `${item.label} (Write)`;
+      }
     }
   }
+
   return map;
 }
 
-export default function PermissionsClient({ profiles }: { profiles: Profile[] }) {
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+export default function PermissionsClient({
+  profiles,
+}: {
+  profiles: Profile[];
+}) {
+  const [selectedProfile, setSelectedProfile] =
+    useState<Profile | null>(null);
+
   const [activePermissions, setActivePermissions] = useState<string[]>([]);
   const [editName, setEditName] = useState("");
   const [editRole, setEditRole] = useState("");
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(PERMISSION_GROUPS.map(g => g.group)));
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    new Set(PERMISSION_GROUPS.map((g) => g.group))
+  );
+
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const permissionLabels = getAllPermissionLabels();
+
   const handleDelete = (userId: string, userName: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete ${userName}? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${userName}? This action cannot be undone.`
+      )
+    ) {
       return;
     }
+
     setDeletingId(userId);
+
     startTransition(async () => {
-      const res = await deleteAdminUser(userId);
-      if (!res?.success) {
-        alert(res?.error || "Failed to delete user.");
+      try {
+        const res = await deleteAdminUser(userId);
+
+        if (!res?.success) {
+          alert(res?.error || "Failed to delete user.");
+        }
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert(
+          err instanceof Error
+            ? err.message
+            : "Unexpected error while deleting user."
+        );
+      } finally {
+        setDeletingId(null);
       }
-      setDeletingId(null);
     });
   };
-
-  const permissionLabels = getAllPermissionLabels();
 
   const openModal = (profile: Profile) => {
     setSelectedProfile(profile);
     setActivePermissions(profile.permissions || []);
-    setEditName(profile.name);
-    setEditRole(profile.role);
+    setEditName(profile.name ?? "");
+    setEditRole(profile.role ?? "");
     setError(null);
-    setExpandedGroups(new Set(PERMISSION_GROUPS.map(g => g.group)));
+
+    setExpandedGroups(
+      new Set(PERMISSION_GROUPS.map((g) => g.group))
+    );
   };
 
-  const hasPermission = (permId: string) => activePermissions.includes(permId);
+  const hasPermission = (permId: string) =>
+    activePermissions.includes(permId);
 
   const togglePermission = (permId: string) => {
-    setActivePermissions(prev =>
-      prev.includes(permId) ? prev.filter(p => p !== permId) : [...prev, permId]
+    setActivePermissions((prev) =>
+      prev.includes(permId)
+        ? prev.filter((p) => p !== permId)
+        : [...prev, permId]
     );
   };
 
@@ -136,15 +318,19 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
   const toggleWrite = (itemId: string) => {
     const readId = `${itemId}.read`;
     const writeId = `${itemId}.write`;
+
     const hasWrite = hasPermission(writeId);
 
     if (hasWrite) {
-      // Remove write only
-      setActivePermissions(prev => prev.filter(p => p !== writeId));
+      setActivePermissions((prev) =>
+        prev.filter((p) => p !== writeId)
+      );
     } else {
-      // Grant both read and write
-      setActivePermissions(prev => {
-        const next = prev.filter(p => p !== readId && p !== writeId);
+      setActivePermissions((prev) => {
+        const next = prev.filter(
+          (p) => p !== readId && p !== writeId
+        );
+
         return [...next, readId, writeId];
       });
     }
@@ -154,41 +340,88 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
   const toggleRead = (itemId: string) => {
     const readId = `${itemId}.read`;
     const writeId = `${itemId}.write`;
+
     const hasRead = hasPermission(readId);
 
     if (hasRead) {
-      // Remove both read and write
-      setActivePermissions(prev => prev.filter(p => p !== readId && p !== writeId));
+      setActivePermissions((prev) =>
+        prev.filter(
+          (p) => p !== readId && p !== writeId
+        )
+      );
     } else {
-      // Grant read only
-      setActivePermissions(prev => [...prev.filter(p => p !== readId), readId]);
+      setActivePermissions((prev) => [
+        ...prev.filter((p) => p !== readId),
+        readId,
+      ]);
     }
   };
 
   const toggleGroup = (groupName: string) => {
-    setExpandedGroups(prev => {
+    setExpandedGroups((prev) => {
       const next = new Set(prev);
-      if (next.has(groupName)) next.delete(groupName);
-      else next.add(groupName);
+
+      if (next.has(groupName)) {
+        next.delete(groupName);
+      } else {
+        next.add(groupName);
+      }
+
       return next;
     });
   };
 
   const handleSave = () => {
     if (!selectedProfile) return;
+
     setError(null);
 
-    if (!editName.trim()) {
+    const trimmedName = editName.trim();
+
+    if (!trimmedName) {
       setError("Name cannot be empty.");
       return;
     }
 
     startTransition(async () => {
-      const res = await updateUserDetails(selectedProfile.id, editName, editRole, activePermissions);
-      if (res?.success) {
-        setSelectedProfile(null);
-      } else {
-        setError(res?.error || "Failed to update user details.");
+      console.log("Saving permissions:", {
+        userId: selectedProfile.id,
+        name: trimmedName,
+        role: editRole,
+        permissions: activePermissions,
+      });
+
+      try {
+        const res = await updateUserDetails(
+          selectedProfile.id,
+          trimmedName,
+          editRole,
+          activePermissions
+        );
+
+        console.log("Save response:", res);
+
+        if (res?.success) {
+          alert("Permissions saved successfully!");
+          setSelectedProfile(null);
+        } else {
+          const errorMessage =
+            res?.error || "Failed to update user details.";
+
+          console.error("Save failed:", errorMessage);
+          setError(errorMessage);
+          alert(errorMessage);
+        }
+      } catch (err) {
+        console.error("Unexpected save error:", err);
+
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Unexpected error while saving permissions.";
+
+        setError(errorMessage);
+        alert(errorMessage);
       }
     });
   };
@@ -201,78 +434,111 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
             <tr>
               <th className="px-6 py-4">Employee</th>
               <th className="px-6 py-4">Role</th>
-              <th className="px-6 py-4">Granted Permissions</th>
-              <th className="px-6 py-4 text-right">Actions</th>
+              <th className="px-6 py-4">
+                Granted Permissions
+              </th>
+              <th className="px-6 py-4 text-right">
+                Actions
+              </th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-gray-100">
-            {profiles.map(profile => {
-              const isSuperAdmin = profile.role === 'super_admin';
+            {profiles.map((profile) => {
+              const isSuperAdmin =
+                profile.role === "super_admin";
+
               const perms = profile.permissions || [];
 
               return (
-                <tr key={profile.id} className="hover:bg-gray-50/60 transition-colors">
+                <tr
+                  key={profile.id}
+                  className="hover:bg-gray-50/60 transition-colors"
+                >
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{profile.name}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">{profile.email}</div>
+                    <div className="font-medium text-gray-900">
+                      {profile.name}
+                    </div>
+
+                    <div className="text-gray-500 text-xs mt-0.5">
+                      {profile.email}
+                    </div>
                   </td>
+
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                      isSuperAdmin
-                        ? 'bg-purple-100 text-purple-700'
-                        : profile.role === 'admin'
-                        ? 'bg-indigo-100 text-indigo-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {profile.role.replace(/_/g, ' ')}
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                        isSuperAdmin
+                          ? "bg-purple-100 text-purple-700"
+                          : profile.role === "admin"
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      {profile.role}
                     </span>
                   </td>
+
                   <td className="px-6 py-4">
                     {isSuperAdmin ? (
-                      <span className="text-xs text-purple-600 font-semibold flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5" /> All Access
+                      <span className="text-sm text-purple-600 font-medium">
+                        Full Access
                       </span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1 max-w-md">
-                        {perms.length === 0 ? (
-                          <span className="text-gray-400 text-xs italic">No permissions granted</span>
-                        ) : (
-                          perms.slice(0, 6).map(p => (
-                            <span key={p} className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold whitespace-nowrap ${
-                              p.endsWith('.write')
-                                ? 'bg-amber-50 border border-amber-200 text-amber-700'
-                                : 'bg-sky-50 border border-sky-200 text-sky-700'
-                            }`}>
-                              {permissionLabels[p] || p}
-                            </span>
-                          ))
-                        )}
-                        {perms.length > 6 && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500 border border-gray-200">
-                            +{perms.length - 6} more
+                    ) : perms.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {perms.slice(0, 3).map((permission) => (
+                          <span
+                            key={permission}
+                            className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs"
+                          >
+                            {permissionLabels[permission] || permission}
+                          </span>
+                        ))}
+
+                        {perms.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs">
+                            +{perms.length - 3} more
                           </span>
                         )}
                       </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">
+                        No permissions
+                      </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
+
+                  <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => openModal(profile)}
-                        disabled={isSuperAdmin}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
                       >
-                        <Shield className="w-3.5 h-3.5" />
-                        Manage Rights
+                        <UserCog className="w-3.5 h-3.5" />
+                        Manage
                       </button>
-                      <button
-                        onClick={() => handleDelete(profile.id, profile.name)}
-                        disabled={isSuperAdmin || deletingId === profile.id}
-                        className="inline-flex items-center justify-center p-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        title="Delete User"
-                      >
-                        {deletingId === profile.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      </button>
+
+                      {!isSuperAdmin && (
+                        <button
+                          onClick={() =>
+                            handleDelete(
+                              profile.id,
+                              profile.name || profile.email || "this user"
+                            )
+                          }
+                          disabled={
+                            deletingId === profile.id || isPending
+                          }
+                          className="inline-flex items-center justify-center p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete user"
+                        >
+                          {deletingId === profile.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -282,147 +548,193 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
         </table>
       </div>
 
-      {/* Modal */}
       {selectedProfile && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl border shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="p-6 border-b bg-gradient-to-r from-indigo-50 to-white flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setSelectedProfile(null)}
+          />
+
+          <div className="relative z-10 w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="p-5 border-b flex items-start justify-between">
               <div>
-                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-indigo-600" />
-                  Manage Rights
+                <h2 className="text-lg font-bold text-gray-900">
+                  Manage Permissions
                 </h2>
-                <p className="text-sm text-gray-500 mt-0.5">{selectedProfile.name} · {selectedProfile.email}</p>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Configure access for {selectedProfile.email}
+                </p>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-200 rounded text-sky-700 font-semibold">
-                  <Eye className="w-3 h-3" /> Read
-                </span>
-                <span className="flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded text-amber-700 font-semibold">
-                  <Pencil className="w-3 h-3" /> Write
-                </span>
-              </div>
+
+              <button
+                onClick={() => setSelectedProfile(null)}
+                className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Scrollable Body */}
-            <div className="overflow-y-auto flex-1 p-6 space-y-6">
-              {/* User Details */}
-              <div className="grid grid-cols-2 gap-4 pb-5 border-b border-gray-100">
+            <div className="p-5 overflow-y-auto flex-1 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <User className="h-3 w-3" /> Full Name
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Name
                   </label>
+
                   <input
-                    type="text"
                     value={editName}
-                    onChange={e => setEditName(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    onChange={(e) =>
+                      setEditName(e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Briefcase className="h-3 w-3" /> Role
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Role
                   </label>
+
                   <select
                     value={editRole}
-                    onChange={e => setEditRole(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    onChange={(e) =>
+                      setEditRole(e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option value="public">Public / Client</option>
+                    <option value="public">Public</option>
                     <option value="admin">Admin</option>
-                    <option value="backoffice">Backoffice</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="execution_head">Execution Head</option>
-                    <option value="super_admin">Super Admin</option>
+                    <option value="super_admin">
+                      Super Admin
+                    </option>
                   </select>
                 </div>
               </div>
 
-              {/* Permission Groups */}
               <div className="space-y-3">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Access Permissions</p>
-                {PERMISSION_GROUPS.map(group => {
-                  const isExpanded = expandedGroups.has(group.group);
+                {PERMISSION_GROUPS.map((group) => {
+                  const isExpanded =
+                    expandedGroups.has(group.group);
+
                   return (
-                    <div key={group.group} className="border border-gray-200 rounded-xl overflow-hidden">
-                      {/* Group Header */}
+                    <div
+                      key={group.group}
+                      className="border border-gray-200 rounded-lg overflow-hidden"
+                    >
                       <button
                         type="button"
-                        onClick={() => toggleGroup(group.group)}
+                        onClick={() =>
+                          toggleGroup(group.group)
+                        }
                         className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
                       >
                         <span className="flex items-center gap-2 text-sm font-semibold text-gray-800">
                           <span>{group.icon}</span>
                           {group.group}
                         </span>
-                        {isExpanded
-                          ? <ChevronDown className="w-4 h-4 text-gray-400" />
-                          : <ChevronRight className="w-4 h-4 text-gray-400" />
-                        }
+
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        )}
                       </button>
 
-                      {/* Group Items */}
                       {isExpanded && (
                         <div className="divide-y divide-gray-100">
-                          {/* Legend row */}
                           <div className="px-4 py-2 bg-white grid grid-cols-[1fr_80px_80px] gap-2 items-center">
-                            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Permission</span>
-                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-0.5"><Eye className="w-3 h-3" />Read</span>
-                            <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-0.5"><Pencil className="w-3 h-3" />Write</span>
+                            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+                              Permission
+                            </span>
+
+                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-0.5">
+                              <Eye className="w-3 h-3" />
+                              Read
+                            </span>
+
+                            <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-0.5">
+                              <Pencil className="w-3 h-3" />
+                              Write
+                            </span>
                           </div>
-                          {group.items.map(item => {
+
+                          {group.items.map((item) => {
                             const readId = `${item.id}.read`;
                             const writeId = `${item.id}.write`;
-                            const hasRead = hasPermission(readId);
-                            const hasWrite = hasPermission(writeId);
+
+                            const hasRead =
+                              hasPermission(readId);
+
+                            const hasWrite =
+                              hasPermission(writeId);
+
                             return (
                               <div
                                 key={item.id}
                                 className={`px-4 py-3 grid grid-cols-[1fr_80px_80px] gap-2 items-center transition-colors ${
-                                  hasRead || hasWrite ? 'bg-indigo-50/30' : 'bg-white hover:bg-gray-50/60'
+                                  hasRead || hasWrite
+                                    ? "bg-indigo-50/30"
+                                    : "bg-white hover:bg-gray-50/60"
                                 }`}
                               >
                                 <div>
-                                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                                  <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {item.label}
+                                  </p>
+
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {item.desc}
+                                  </p>
                                 </div>
-                                {/* Read Toggle */}
+
                                 <div className="flex justify-center">
                                   <button
                                     type="button"
-                                    onClick={() => toggleRead(item.id)}
+                                    onClick={() =>
+                                      toggleRead(item.id)
+                                    }
                                     className={`w-10 h-6 rounded-full transition-all relative focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                                       hasRead
-                                        ? 'bg-sky-500 focus:ring-sky-400'
-                                        : 'bg-gray-200 focus:ring-gray-400'
+                                        ? "bg-sky-500 focus:ring-sky-400"
+                                        : "bg-gray-200 focus:ring-gray-400"
                                     }`}
-                                    title={hasRead ? 'Remove Read access' : 'Grant Read access'}
                                   >
-                                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
-                                      hasRead ? 'left-4' : 'left-0.5'
-                                    }`} />
+                                    <span
+                                      className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                                        hasRead
+                                          ? "left-4"
+                                          : "left-0.5"
+                                      }`}
+                                    />
                                   </button>
                                 </div>
-                                {/* Write Toggle */}
+
                                 <div className="flex justify-center">
                                   {item.hasWrite ? (
                                     <button
                                       type="button"
-                                      onClick={() => toggleWrite(item.id)}
+                                      onClick={() =>
+                                        toggleWrite(item.id)
+                                      }
                                       className={`w-10 h-6 rounded-full transition-all relative focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                                         hasWrite
-                                          ? 'bg-amber-500 focus:ring-amber-400'
-                                          : 'bg-gray-200 focus:ring-gray-400'
+                                          ? "bg-amber-500 focus:ring-amber-400"
+                                          : "bg-gray-200 focus:ring-gray-400"
                                       }`}
-                                      title={hasWrite ? 'Remove Write access' : 'Grant Write access (also grants Read)'}
                                     >
-                                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
-                                        hasWrite ? 'left-4' : 'left-0.5'
-                                      }`} />
+                                      <span
+                                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                                          hasWrite
+                                            ? "left-4"
+                                            : "left-0.5"
+                                        }`}
+                                      />
                                     </button>
                                   ) : (
-                                    <span className="text-xs text-gray-300 italic">N/A</span>
+                                    <span className="text-xs text-gray-300 italic">
+                                      N/A
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -443,7 +755,6 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
               )}
             </div>
 
-            {/* Footer */}
             <div className="p-4 border-t bg-gray-50/50 flex justify-end gap-3">
               <button
                 onClick={() => setSelectedProfile(null)}
@@ -451,12 +762,18 @@ export default function PermissionsClient({ profiles }: { profiles: Profile[] })
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleSave}
                 disabled={isPending}
                 className="inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
               >
-                {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Shield className="w-4 h-4 mr-2" />}
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Shield className="w-4 h-4 mr-2" />
+                )}
+
                 Save Permissions
               </button>
             </div>
