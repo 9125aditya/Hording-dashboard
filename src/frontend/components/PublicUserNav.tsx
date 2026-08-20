@@ -74,7 +74,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
           <span className="text-[13px] font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight truncate max-w-[160px]">
             {user.name || 'Staff'}
           </span>
-          <span className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider leading-none">
+          <span className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider leading-none whitespace-nowrap">
             {displayRole}
           </span>
         </div>
@@ -104,7 +104,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
           <div className="px-4 py-2.5 border-b border-slate-100">
             <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
             {user.email && <p className="text-[11px] text-slate-500 truncate">{user.email}</p>}
-            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-50 text-blue-700 uppercase">
+            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-50 text-blue-700 uppercase whitespace-nowrap">
               {displayRole}
             </span>
           </div>
