@@ -129,7 +129,7 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
             <Zap className="w-4 h-4 text-yellow-500" /> Electricity
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {renderField("Consumer No.", site.electricity_consumer_no)}
+            {renderField("Electricity Consumer No.", site.electricity_consumer_no)}
             {renderField("Consumer Name", site.electricity_consumer_name)}
             {renderField("Bill Date", site.electricity_bill_date)}
             {renderField("Due Date", site.electricity_due_date)}

@@ -303,7 +303,7 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Consumer Number</label>
+              <label className="text-sm font-medium">Electricity Consumer No.</label>
               <input name="electricity_consumer_no" defaultValue={site?.electricity_consumer_no} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div className="space-y-2">

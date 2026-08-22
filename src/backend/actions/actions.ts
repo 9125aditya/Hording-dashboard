@@ -1,36 +1,37 @@
 "use server";
 
 import { createClient } from "@/backend/db/server";
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { getAdminSupabase } from "@/backend/db/admin";
 import { revalidatePath } from "next/cache";
-
-const getAdminSupabase = () => {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-}
 
 // ==========================================
 // RBAC HELPER
 // ==========================================
 
-async function getUserAndRole(supabase: any) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+export async function getUserAndRole(supabase: any) {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error("Unauthorized: Please log in to perform this action.");
   
-  const { data: profile } = await supabase.from('profiles').select('role, permissions').eq('id', user.id).single();
-  const role = profile?.role || 'public';
+  const adminClient = getAdminSupabase();
+  const { data: profile } = await adminClient
+    .from('profiles')
+    .select('role, permissions')
+    .eq('id', user.id)
+    .single();
+
+  const role = profile?.role || user.user_metadata?.role || 'public';
   const permissions = profile?.permissions || [];
   return { user, role, permissions };
 }
 
-async function requireRole(supabase: any, allowedRoles: string[]) {
+export async function requireRole(supabase: any, allowedRoles: string[]) {
   const { role } = await getUserAndRole(supabase);
   
-  if (!allowedRoles.includes(role)) {
-    throw new Error("Insufficient permissions");
+  const normalizedRole = (role || '').toLowerCase();
+  const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
+  
+  if (!normalizedAllowed.includes(normalizedRole) && normalizedRole !== 'super_admin') {
+    throw new Error(`Insufficient permissions: user role '${role}' is not authorized.`);
   }
 }
 

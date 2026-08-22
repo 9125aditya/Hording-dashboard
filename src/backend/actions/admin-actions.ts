@@ -1,22 +1,7 @@
 "use server";
 
-import { createClient } from '@supabase/supabase-js';
+import { getAdminSupabase } from '@/backend/db/admin';
 import { revalidatePath } from 'next/cache';
-
-// This client uses the Service Role Key to bypass RLS and Auth restrictions.
-// IT MUST ONLY BE USED ON THE SERVER.
-const getAdminSupabase = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  );
-}
 
 function serializeError(err: any): string {
   if (!err) return "Unknown Error";

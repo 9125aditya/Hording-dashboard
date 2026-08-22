@@ -106,13 +106,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     {pendingCount}
                   </span>
                 )}
-                <ActiveLink href="/permissions">
-                  <Shield className="mr-3 h-[18px] w-[18px]" />
-                  Permissions
-                </ActiveLink>
-              </>
+              </ActiveLink>
+              <ActiveLink href="/permissions">
+                <Shield className="mr-3 h-[18px] w-[18px]" />
+                Permissions
+              </ActiveLink>
+            </>
           )}
-            </nav>
+        </nav>
 
           <div className="px-3 mb-2">
             <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">

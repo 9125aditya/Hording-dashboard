@@ -2,15 +2,7 @@
 
 import { createClient } from "@/backend/db/server";
 import { revalidatePath } from "next/cache";
-
-async function getUserAndRole(supabase: any) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  const role = profile?.role || 'public';
-  return { user, role };
-}
+import { getUserAndRole } from "./actions";
 
 // ==========================================
 // SUPER ADMIN APPROVAL ACTIONS
