@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     const supabase = await createClient();
     const { data: authData } = await supabase.auth.getUser();
     user = authData?.user || null;
-    
+
     if (user) {
       const [profileRes, eCountRes, totalECountRes, pCountRes] = await Promise.all([
         supabase.from('profiles').select('name, role').eq('id', user.id).single(),
@@ -106,42 +106,41 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     {pendingCount}
                   </span>
                 )}
-              </ActiveLink>
-              <ActiveLink href="/permissions">
-                <Shield className="mr-3 h-[18px] w-[18px]" />
-                Permissions
-              </ActiveLink>
-            </>
+                <ActiveLink href="/permissions">
+                  <Shield className="mr-3 h-[18px] w-[18px]" />
+                  Permissions
+                </ActiveLink>
+              </>
           )}
-        </nav>
+            </nav>
 
-        <div className="px-3 mb-2">
-          <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">
-            <ExternalLink className="mr-3 h-[18px] w-[18px]" />
-            View Live Site
-          </Link>
-        </div>
+          <div className="px-3 mb-2">
+            <Link href="/" target="_blank" className="flex items-center px-3 py-2.5 text-[13.5px] font-medium rounded-lg transition-all duration-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700">
+              <ExternalLink className="mr-3 h-[18px] w-[18px]" />
+              View Live Site
+            </Link>
+          </div>
 
-        <div className="px-3 mb-2">
-          <AdminLogoutButton />
-        </div>
+          <div className="px-3 mb-2">
+            <AdminLogoutButton />
+          </div>
 
-        {/* User Profile at bottom */}
-        <div className="px-4 py-4 border-t border-gray-100 mt-auto hover:bg-gray-50 transition-colors">
-          <Link href="/profile" className="flex items-center gap-3">
-            {avatarBase64 ? (
-              <img src={avatarBase64} alt="Avatar" className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
-            ) : (
-              <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                {userInitial}
+          {/* User Profile at bottom */}
+          <div className="px-4 py-4 border-t border-gray-100 mt-auto hover:bg-gray-50 transition-colors">
+            <Link href="/profile" className="flex items-center gap-3">
+              {avatarBase64 ? (
+                <img src={avatarBase64} alt="Avatar" className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
+              ) : (
+                <div className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                  {userInitial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{userName}</p>
+                <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
               </div>
-            )}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{userName}</p>
-              <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
-            </div>
-          </Link>
-        </div>
+            </Link>
+          </div>
       </aside>
 
       {/* Main Content */}
@@ -177,7 +176,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               )}
             </Link>
             <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-            <AdminLogoutButton 
+            <AdminLogoutButton
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors border border-gray-200 cursor-pointer"
               iconClassName="h-3.5 w-3.5"
               label="Sign Out"
