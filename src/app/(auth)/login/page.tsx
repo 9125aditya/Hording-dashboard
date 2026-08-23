@@ -7,8 +7,6 @@ import {
   UserCircleIcon, 
   EyeIcon, 
   EyeSlashIcon,
-  ShieldCheckIcon,
-  SparklesIcon,
   ShieldExclamationIcon
 } from "@heroicons/react/24/outline";
 
@@ -54,18 +52,6 @@ export default function LoginPage() {
                 : "Operational management & inventory tools"}
             </p>
           </div>
-
-          <div className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all ${
-            loginType === "super_admin" 
-              ? "bg-purple-100 text-purple-700 ring-4 ring-purple-50" 
-              : "bg-blue-100 text-blue-700 ring-4 ring-blue-50"
-          }`}>
-            {loginType === "super_admin" ? (
-              <SparklesIcon className="h-6 w-6" />
-            ) : (
-              <ShieldCheckIcon className="h-6 w-6" />
-            )}
-          </div>
         </div>
 
         {/* 2 Role Options: Admin vs Super Admin */}
@@ -77,13 +63,12 @@ export default function LoginPage() {
               setLoginType("admin");
               setError(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               loginType === "admin"
                 ? "bg-white text-blue-700 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <ShieldCheckIcon className="h-4 w-4" />
             <span>Admin / Staff</span>
           </button>
 
@@ -94,13 +79,12 @@ export default function LoginPage() {
               setLoginType("super_admin");
               setError(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               loginType === "super_admin"
                 ? "bg-gradient-to-r from-purple-700 to-indigo-700 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <SparklesIcon className="h-4 w-4" />
             <span>Super Admin</span>
           </button>
         </div>
