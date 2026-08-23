@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bars3Icon, XMarkIcon, Squares2X2Icon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, Squares2X2Icon, BriefcaseIcon, HomeIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import { logout } from "@/backend/actions/auth-actions";
 import { clearTabSession } from "@/frontend/components/TabSessionManager";
 
@@ -122,9 +122,8 @@ export default function PublicMobileMenu({
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors"
+                  className="flex items-center justify-center w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors"
                 >
-                  <ShieldCheckIcon className="h-4 w-4 text-slate-500" />
                   <span>Admin Login</span>
                 </Link>
               )}

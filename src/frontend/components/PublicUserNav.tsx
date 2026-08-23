@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { logout } from "@/backend/actions/auth-actions";
 import { clearTabSession } from "@/frontend/components/TabSessionManager";
-import { ArrowRightOnRectangleIcon, Squares2X2Icon, UserCircleIcon, ChevronDownIcon, ArrowPathIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { ArrowRightOnRectangleIcon, Squares2X2Icon, UserCircleIcon, ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
 interface PublicUserNavProps {
   user: {
@@ -42,9 +42,8 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
     return (
       <Link
         href="/login"
-        className="h-10 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-[13px] font-bold flex items-center gap-1.5 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-xs ml-1"
+        className="h-10 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-[13px] font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-xs ml-1"
       >
-        <ShieldCheckIcon className="h-4 w-4 text-slate-500" />
         <span>Admin Login</span>
       </Link>
     );

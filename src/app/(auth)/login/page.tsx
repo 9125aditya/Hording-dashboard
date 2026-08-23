@@ -6,8 +6,7 @@ import {
   LockClosedIcon, 
   UserCircleIcon, 
   EyeIcon, 
-  EyeSlashIcon,
-  ShieldExclamationIcon
+  EyeSlashIcon
 } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
@@ -165,8 +164,7 @@ export default function LoginPage() {
         </button>
 
         {/* Security Notice */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center text-slate-400">
-          <ShieldExclamationIcon className="h-4 w-4 text-slate-400" />
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-center text-center text-slate-400">
           <p className="text-[11px] font-medium">
             Authorized personnel only. Access is strictly managed.
           </p>
