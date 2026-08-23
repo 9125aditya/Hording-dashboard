@@ -29,7 +29,7 @@ type Enquiry = {
   phone: string;
   site: string;
   siteId: string;
-  status: "New" | "Contacted" | "Converted" | "Lost" | string;
+  status: "New" | "Contacted" | "Converted" | "Ignored" | string;
   date: string;
   message: string;
 };
@@ -39,7 +39,8 @@ const statusStyle = (status: string) => {
     case "New": return "bg-indigo-100 text-indigo-700 border border-indigo-200";
     case "Contacted": return "bg-amber-100 text-amber-800 border border-amber-200";
     case "Converted": return "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
-    case "Lost": return "bg-rose-50 text-rose-600 border border-rose-200";
+    case "Ignored":
+    case "Lost": return "bg-slate-100 text-slate-600 border border-slate-200";
     default: return "bg-gray-100 text-gray-600 border border-gray-200";
   }
 };
@@ -50,7 +51,7 @@ export default function EnquiriesClient() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted" | "Converted" | "Lost">("All");
+  const [activeTab, setActiveTab] = useState<"All" | "New" | "Contacted" | "Converted" | "Ignored">("All");
   const [replyText, setReplyText] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -78,18 +79,22 @@ export default function EnquiriesClient() {
 
       if (records) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setEnquiries(records.map((e: any) => ({
-          id: e.id,
-          name: e.name || 'Unknown Lead',
-          company: e.company || 'Private Client',
-          email: e.email || '',
-          phone: e.phone || '',
-          site: e.message?.includes('[Preferred Site:') ? e.message.split('[Preferred Site:')[1]?.split(']')[0]?.trim() : 'General Inquiry',
-          siteId: e.id.substring(0, 8),
-          status: e.status || 'New',
-          date: new Date(e.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-          message: e.message || ''
-        })));
+        setEnquiries(records.map((e: any) => {
+          let status = e.status || 'New';
+          if (status === 'Lost') status = 'Ignored';
+          return {
+            id: e.id,
+            name: e.name || 'Unknown Lead',
+            company: e.company || 'Private Client',
+            email: e.email || '',
+            phone: e.phone || '',
+            site: e.message?.includes('[Preferred Site:') ? e.message.split('[Preferred Site:')[1]?.split(']')[0]?.trim() : 'General Inquiry',
+            siteId: e.id.substring(0, 8),
+            status,
+            date: new Date(e.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+            message: e.message || ''
+          };
+        }));
         if (isManualRefresh) {
           showToast("Leads refreshed from database 🔄");
         }
@@ -108,7 +113,7 @@ export default function EnquiriesClient() {
     fetchEnquiries();
   }, []);
 
-  const handleStatusChange = (id: string, newStatus: "New" | "Contacted" | "Converted" | "Lost") => {
+  const handleStatusChange = (id: string, newStatus: "New" | "Contacted" | "Converted" | "Ignored") => {
     // 1. Optimistically update local state for immediate UI feedback
     setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e)));
     
@@ -118,8 +123,8 @@ export default function EnquiriesClient() {
       showToast("Lead successfully Converted to Client! 🎉");
     } else if (newStatus === "New") {
       showToast("Lead status reset to New 🔄");
-    } else {
-      showToast("Lead status updated to Lost");
+    } else if (newStatus === "Ignored") {
+      showToast("Lead marked as Ignored 👁️‍🗨️");
     }
 
     // 2. Perform server action update
@@ -227,7 +232,7 @@ export default function EnquiriesClient() {
 
             {/* Filter Tabs */}
             <div className="flex gap-1.5 mt-3 overflow-x-auto hide-scrollbar pb-0.5">
-              {(["All", "New", "Contacted", "Converted", "Lost"] as const).map(tab => {
+              {(["All", "New", "Contacted", "Converted", "Ignored"] as const).map(tab => {
                 const count = tab === "All" ? enquiries.length : enquiries.filter(e => e.status === tab).length;
                 return (
                   <button 
@@ -239,8 +244,8 @@ export default function EnquiriesClient() {
                           ? "bg-emerald-600 text-white shadow-xs" 
                           : tab === "Contacted"
                           ? "bg-amber-600 text-white shadow-xs"
-                          : tab === "Lost"
-                          ? "bg-rose-600 text-white shadow-xs"
+                          : tab === "Ignored"
+                          ? "bg-slate-700 text-white shadow-xs"
                           : "bg-indigo-600 text-white shadow-xs"
                         : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
                     }`}
@@ -289,6 +294,8 @@ export default function EnquiriesClient() {
                           ? "bg-emerald-100 text-emerald-700" 
                           : eq.status === "Contacted"
                           ? "bg-amber-100 text-amber-800"
+                          : eq.status === "Ignored"
+                          ? "bg-slate-100 text-slate-700"
                           : "bg-indigo-100 text-indigo-700"
                       }`}>
                         {eq.name[0]?.toUpperCase() || '?'}
@@ -332,6 +339,8 @@ export default function EnquiriesClient() {
                       ? "bg-emerald-600"
                       : selected.status === "Contacted"
                       ? "bg-amber-600"
+                      : selected.status === "Ignored"
+                      ? "bg-slate-700"
                       : "bg-indigo-600"
                   }`}>
                     {selected.name[0]?.toUpperCase() || '?'}
@@ -365,7 +374,7 @@ export default function EnquiriesClient() {
                     ) : (
                       <Clock className="mr-1.5 h-3.5 w-3.5 text-amber-600" />
                     )}
-                    <span>{selected.status === "Contacted" ? "Contacted ✓" : "Mark Contacted"}</span>
+                    <span>{selected.status === "Contacted" ? "Contacted" : "Mark Contacted"}</span>
                   </button>
 
                   {/* CONVERT BUTTON */}
@@ -380,7 +389,7 @@ export default function EnquiriesClient() {
                     }`}
                   >
                     <CheckCircle2 className="mr-1.5 h-4 w-4" />
-                    <span>{selected.status === "Converted" ? "Converted Deal ✓" : "Convert Lead"}</span>
+                    <span>{selected.status === "Converted" ? "Converted" : "Convert Lead"}</span>
                   </button>
 
                   {/* REOPEN AS NEW BUTTON */}
@@ -396,19 +405,19 @@ export default function EnquiriesClient() {
                     </button>
                   )}
 
-                  {/* MARK LOST BUTTON */}
+                  {/* MARK IGNORED BUTTON */}
                   <button 
-                    onClick={() => handleStatusChange(selected.id, "Lost")}
+                    onClick={() => handleStatusChange(selected.id, "Ignored")}
                     disabled={isPending}
-                    title="Mark lead as Lost"
-                    className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs ${
-                      selected.status === "Lost"
-                        ? "bg-rose-600 text-white border-rose-600 font-bold"
-                        : "border-gray-200 bg-white text-gray-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                    title="Mark lead as Ignored"
+                    className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-xs ${
+                      selected.status === "Ignored"
+                        ? "bg-slate-700 text-white border-slate-700 ring-2 ring-slate-400/40"
+                        : "border-gray-200 bg-white text-gray-600 hover:text-slate-800 hover:border-gray-300 hover:bg-gray-50"
                     }`}
                   >
-                    <XCircle className="h-3.5 w-3.5 text-rose-500" />
-                    <span>{selected.status === "Lost" ? "Lost ✕" : "Mark Lost"}</span>
+                    <XCircle className={`h-3.5 w-3.5 ${selected.status === "Ignored" ? "text-white" : "text-gray-400"}`} />
+                    <span>{selected.status === "Ignored" ? "Ignored" : "Mark Ignored"}</span>
                   </button>
                 </div>
               </div>

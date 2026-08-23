@@ -171,11 +171,20 @@ export async function updateEnquiryStatus(id: string, status: string) {
       };
     }
 
-    const { error } = await adminClient
+    let { error } = await adminClient
       .from("enquiries")
       .update({ status })
       .eq("id", id);
       
+    // Fallback to 'Lost' if the database enum has not yet been altered to include 'Ignored'
+    if (error && error.code === '22P02' && status === 'Ignored') {
+      const fallback = await adminClient
+        .from("enquiries")
+        .update({ status: 'Lost' })
+        .eq("id", id);
+      error = fallback.error;
+    }
+
     if (error) {
       console.error("updateEnquiryStatus DB error:", error);
       return { error: error.message };

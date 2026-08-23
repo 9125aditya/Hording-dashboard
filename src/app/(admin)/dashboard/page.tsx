@@ -148,9 +148,11 @@ export default async function DashboardPage() {
                 New: 'bg-indigo-100 text-indigo-700 border-indigo-200',
                 Contacted: 'bg-amber-100 text-amber-700 border-amber-200',
                 Converted: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                Lost: 'bg-gray-100 text-gray-600 border-gray-200',
+                Ignored: 'bg-slate-100 text-slate-600 border-slate-200',
+                Lost: 'bg-slate-100 text-slate-600 border-slate-200',
               };
-              const statusClass = statusColors[eq.status] || 'bg-gray-100 text-gray-600 border-gray-200';
+              const displayStatus = eq.status === 'Lost' ? 'Ignored' : (eq.status || 'New');
+              const statusClass = statusColors[displayStatus] || 'bg-gray-100 text-gray-600 border-gray-200';
               const formattedDate = eq.created_at ? new Date(eq.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
 
               return (
@@ -169,7 +171,7 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusClass}`}>
-                      {eq.status || 'New'}
+                      {displayStatus}
                     </span>
                   </div>
 
