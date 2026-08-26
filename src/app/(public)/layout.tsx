@@ -37,10 +37,17 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <TabSessionManager />
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 w-full bg-[#f4f8fb] border-b border-slate-200/70 shadow-sm">
-        <div className="container flex h-20 md:h-24 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
-          <Link href="/" className="flex items-center py-1">
-            <img src="/logo.png" alt="Sellads Advertising" className="h-12 md:h-16 w-auto object-contain mix-blend-multiply" />
-          </Link>
+        <div className="container flex h-20 md:h-24 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between relative">
+          {/* Logo - Centered and enlarged on mobile, left on desktop */}
+          <div className="flex items-center justify-center flex-1 md:flex-initial">
+            <Link href="/" className="flex items-center py-1">
+              <img 
+                src="/logo.png" 
+                alt="Sellads Advertising" 
+                className="h-14 sm:h-16 md:h-16 w-auto object-contain mix-blend-multiply" 
+              />
+            </Link>
+          </div>
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
             <Link href="/catalog" className="hover:text-red-600 transition-colors">Catalogue</Link>
@@ -65,7 +72,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               />
             </div>
             
-            <div className="md:hidden">
+            <div className="md:hidden absolute right-4">
               <PublicMobileMenu hasUser={!!user} isAdmin={isAdmin} userName={userName} role={role} />
             </div>
           </div>

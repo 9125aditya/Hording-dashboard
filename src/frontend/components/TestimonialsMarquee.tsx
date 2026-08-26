@@ -16,7 +16,7 @@ const TESTIMONIALS = [
     company: "Zest Retail"
   },
   {
-    quote: "We were able to coordinate our product launch across Mumbai, Pune, and Nagpur effortlessly using their premium inventory.",
+    quote: "We were able to coordinate our product launch across Wardha, Amravati, and Nagpur effortlessly using their premium inventory.",
     author: "Vikram Singh",
     role: "Head of Growth",
     company: "UrbanDrive"

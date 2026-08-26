@@ -34,7 +34,7 @@ export default function PublicHomePage() {
               
               <AnimateOnScroll animation="fade-right" delay={200} duration={700}>
                 <p className="text-[15px] md:text-[17px] text-slate-500 mb-4 md:mb-10 max-w-[500px] leading-relaxed font-medium">
-                  Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Pune. Browse inventory, pick your sites, and get personalized rates.
+                  Premium hoardings and billboards across Nagpur, Amravati, Chandrapur, and Wardha. Browse inventory, pick your sites, and get personalized rates.
                 </p>
               </AnimateOnScroll>
               

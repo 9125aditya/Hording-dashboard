@@ -119,7 +119,7 @@ export default function HomeSearchBar() {
       {/* Quick City Suggestion Chips */}
       <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1 text-xs no-scrollbar">
         <span className="text-slate-400 font-medium whitespace-nowrap">Popular:</span>
-        {["Nagpur", "Amravati", "Chandrapur", "Pune"].map((city) => (
+        {["Nagpur", "Amravati", "Chandrapur", "Wardha"].map((city) => (
           <button
             key={city}
             onClick={() => {
