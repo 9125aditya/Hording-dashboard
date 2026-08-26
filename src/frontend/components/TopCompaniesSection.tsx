@@ -202,7 +202,7 @@ export default function TopCompaniesSection() {
         {/* 1. HEADING & SUBHEADING (Clean, Professional, No extra tag) */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-3">
-            Top Companies
+            Top Companies We&apos;ve Worked With
           </h2>
           <p className="text-base sm:text-lg text-slate-500 font-medium">
             Leading brands choose TrueSign Media for their Branding Solutions.
