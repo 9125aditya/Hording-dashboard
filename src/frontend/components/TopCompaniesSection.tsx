@@ -270,8 +270,8 @@ export default function TopCompaniesSection() {
               <span>All Industries</span>
             </button>
 
-            {/* Individual category pills with toggle on click */}
-            {CATEGORIES_DATA.map((cat) => {
+            {/* Category pills with toggle on click */}
+            {CATEGORIES_DATA.slice(0, 4).map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
               return (
@@ -301,11 +301,11 @@ export default function TopCompaniesSection() {
           </div>
         </div>
 
-        {/* 4. CATEGORIZED COMPANIES DISPLAY */}
+        {/* 4. CATEGORIZED COMPANIES DISPLAY (1 SINGLE LAYER OF 4 COLUMNS) */}
         {selectedCategory === "all" ? (
-          /* OVERVIEW MODE: 4-Column Grid of Categories showing Top 3 Companies each */
+          /* OVERVIEW MODE: Single 1-layer row of 4 Category Columns */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {CATEGORIES_DATA.map((category) => {
+            {CATEGORIES_DATA.slice(0, 4).map((category) => {
               const Icon = category.icon;
               const topThree = category.companies.slice(0, 3);
 
