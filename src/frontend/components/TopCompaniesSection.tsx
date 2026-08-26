@@ -15,7 +15,8 @@ import {
   ShoppingBag,
   CheckCircle2,
   ChevronRight,
-  Layers
+  Layers,
+  X
 } from "lucide-react";
 
 export type Company = {
@@ -190,6 +191,10 @@ export default function TopCompaniesSection() {
   // 'all' represents overview mode where all category columns are visible
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategory(prev => prev === categoryId ? "all" : categoryId);
+  };
+
   const activeCategoryObj = CATEGORIES_DATA.find(c => c.id === selectedCategory);
 
   return (
@@ -250,7 +255,7 @@ export default function TopCompaniesSection() {
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-purple-600" />
               <h3 className="text-xs sm:text-sm font-bold text-slate-600 uppercase tracking-wider">
-                Select Category to View All Brands:
+                Click to open/close a category:
               </h3>
             </div>
             {selectedCategory !== "all" && (
@@ -277,19 +282,20 @@ export default function TopCompaniesSection() {
               <span>All Categories</span>
             </button>
 
-            {/* Individual category pills */}
+            {/* Individual category pills with toggle on click */}
             {CATEGORIES_DATA.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => toggleCategory(cat.id)}
                   className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
                     isSelected
                       ? "bg-purple-600 text-white shadow-md shadow-purple-500/20 scale-[1.02]"
                       : "bg-purple-100/70 text-purple-900 hover:bg-purple-200/80 border border-purple-200/60 hover:scale-[1.01]"
                   }`}
+                  title={isSelected ? "Click again to close" : `Click to view all ${cat.name}`}
                 >
                   <Icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-purple-700"}`} />
                   <span>{cat.name}</span>
@@ -298,6 +304,9 @@ export default function TopCompaniesSection() {
                   }`}>
                     {cat.companies.length}
                   </span>
+                  {isSelected && (
+                    <X className="w-3.5 h-3.5 text-white/80 hover:text-white ml-0.5" />
+                  )}
                 </button>
               );
             })}
@@ -320,8 +329,9 @@ export default function TopCompaniesSection() {
                   {/* Column Header / Category Subheading */}
                   <div>
                     <button
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => toggleCategory(category.id)}
                       className="w-full flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-200 text-left cursor-pointer group-hover:text-purple-700 transition-colors"
+                      title={`Click to open/view all ${category.name}`}
                     >
                       <div className="flex items-center gap-2.5">
                         <div className={`w-8 h-8 rounded-lg ${category.bgLight} ${category.color} flex items-center justify-center font-bold`}>
@@ -342,8 +352,9 @@ export default function TopCompaniesSection() {
                       {topThree.map((company, idx) => (
                         <div
                           key={idx}
-                          onClick={() => setSelectedCategory(category.id)}
+                          onClick={() => toggleCategory(category.id)}
                           className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-xs hover:border-purple-400 hover:shadow-sm transition-all cursor-pointer flex flex-col"
+                          title={`Click to open all ${category.name} brands`}
                         >
                           <div className="flex items-center justify-between gap-2 mb-1">
                             <span className="font-bold text-sm text-slate-900 tracking-tight">
@@ -367,7 +378,7 @@ export default function TopCompaniesSection() {
 
                   {/* "View all X companies in this category" button */}
                   <button
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => toggleCategory(category.id)}
                     className="mt-4 pt-3 border-t border-slate-200/80 w-full flex items-center justify-center gap-1.5 text-xs font-bold text-purple-700 hover:text-purple-900 cursor-pointer group-hover:underline"
                   >
                     <span>View all {category.companies.length} {category.shortName} brands</span>
@@ -411,8 +422,10 @@ export default function TopCompaniesSection() {
                   <button
                     onClick={() => setSelectedCategory("all")}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer self-start sm:self-auto"
+                    title="Close and return to all categories"
                   >
-                    ← All Categories Overview
+                    <X className="w-4 h-4 text-purple-600" />
+                    <span>Close &amp; View All</span>
                   </button>
                 </div>
               </div>
