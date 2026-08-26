@@ -49,7 +49,7 @@ export async function sendBookingConfirmationEmail(payload: BookingEmailPayload)
           <tr>
             <td style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 32px 30px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
-                SellAds OOH Media
+                TrueSign Media
               </h1>
               <p style="margin: 6px 0 0 0; color: #c7d2fe; font-size: 14px;">
                 Hoarding Reservation &amp; Booking Confirmation
@@ -128,7 +128,7 @@ export async function sendBookingConfirmationEmail(payload: BookingEmailPayload)
           <tr>
             <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 30px; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #64748b;">
-                SellAds Outdoor Advertising Services · Nagpur &amp; Pan-India<br>
+                TrueSign Media · Nagpur &amp; Pan-India<br>
                 For immediate assistance, please reply directly to this email or contact your executive.
               </p>
             </td>
@@ -156,7 +156,7 @@ Please confirm your reservation within 5 days by opening:
 ${confirmationLink}
 
 Thank you,
-SellAds OOH Media
+TrueSign Media
     `.trim();
 
     // Check if SMTP environment variables are present
@@ -164,7 +164,7 @@ SellAds OOH Media
     const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
-    const smtpFrom = process.env.SMTP_FROM || `"SellAds Media" <${smtpUser || "noreply@sellads.in"}>`;
+    const smtpFrom = process.env.SMTP_FROM || `"TrueSign Media" <${smtpUser || "noreply@sellads.in"}>`;
 
     if (smtpHost && smtpUser && smtpPass) {
       const transporter = nodemailer.createTransport({

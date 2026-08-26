@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} Sellads. All rights reserved.
+        &copy; {new Date().getFullYear()} TrueSign Media. All rights reserved.
       </footer>
     </div>
   );

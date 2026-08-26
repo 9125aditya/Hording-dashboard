@@ -278,6 +278,10 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
               <label className="text-sm font-medium">Agency Rate</label>
               <input type="number" name="agency_rate" defaultValue={site?.agency_rate} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" readOnly />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Mounting Charges (₹)</label>
+              <input type="number" name="mounting_charges" defaultValue={site?.mounting_charges} className="w-full h-10 px-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 5000" />
+            </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Landlord Name</label>

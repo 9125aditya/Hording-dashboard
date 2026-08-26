@@ -35,12 +35,12 @@ function CatalogFilters({ sites }: { sites: any[] }) {
           <div className="flex flex-col gap-4 mb-8 pb-6 border-b border-border">
             {/* Top Row: Type Pills & Search */}
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-              <div className="flex w-full md:w-auto items-center gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+              <div className="flex w-full md:w-auto items-center gap-2.5 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
                 {types.map(t => (
                   <button 
                     key={t}
                     onClick={() => setActiveType(t as string)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-95 ${activeType === t ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted text-muted-foreground hover:bg-secondary hover:text-secondary-foreground'}`}
+                    className={`whitespace-nowrap px-5 py-2.5 rounded-full text-[14px] font-bold transition-all active:scale-95 cursor-pointer ${activeType === t ? 'bg-[#dd3333] text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'}`}
                   >
                     {t === "All" ? "All Types" : t as string}
                   </button>
@@ -52,10 +52,10 @@ function CatalogFilters({ sites }: { sites: any[] }) {
                 <select 
                   value={activeArea} 
                   onChange={(e) => setActiveArea(e.target.value)}
-                  className="h-10 px-4 rounded-full border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent flex-1 sm:flex-none"
+                  className="h-12 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 flex-1 sm:flex-none shadow-xs cursor-pointer"
                 >
                   {areas.map(a => (
-                    <option key={a as string} value={a as string}>{a === "All" ? "All Cities" : a as string}</option>
+                    <option key={a as string} value={a as string} className="text-sm py-1.5">{a === "All" ? "All Cities" : a as string}</option>
                   ))}
                 </select>
 
@@ -63,27 +63,27 @@ function CatalogFilters({ sites }: { sites: any[] }) {
                 <select 
                   value={activeLit} 
                   onChange={(e) => setActiveLit(e.target.value)}
-                  className="h-10 px-4 rounded-full border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent flex-1 sm:flex-none"
+                  className="h-12 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 flex-1 sm:flex-none shadow-xs cursor-pointer"
                 >
                   {litTypes.map(l => (
-                    <option key={l as string} value={l as string}>{l === "All" ? "All Lighting" : l as string}</option>
+                    <option key={l as string} value={l as string} className="text-sm py-1.5">{l === "All" ? "All Lighting" : l as string}</option>
                   ))}
                 </select>
 
                 {/* Search Bar */}
-                <div className="relative w-full sm:w-64">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative w-full sm:w-72">
+                  <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                   <input 
                     type="text" 
                     placeholder="Search name or city..." 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full h-10 pl-9 pr-4 rounded-full border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
+                    className="w-full h-12 pl-11 pr-4 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-shadow shadow-xs"
                   />
                   {search && (
                     <button
                       onClick={() => setSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer"
                     >
                       ✕
                     </button>

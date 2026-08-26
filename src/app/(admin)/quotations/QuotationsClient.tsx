@@ -22,7 +22,9 @@ import {
   Sparkles,
   Info,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Percent,
+  AlertCircle
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import pptxgen from "pptxgenjs";
@@ -30,6 +32,7 @@ import pptxgen from "pptxgenjs";
 type SiteItem = {
   id: number;
   uuid: string;
+  code?: string;
   name: string;
   city: string;
   area: string;
@@ -40,19 +43,55 @@ type SiteItem = {
   net_rate: number;
   agency_rate: number;
   dcpm_rate: number;
+  mounting_charges?: number;
   images: string[];
   photo: string;
   maps_link: string;
   remarks: string;
 };
 
+function getCityAbbreviation(city: string) {
+  const c = (city || "Nagpur").trim().toUpperCase();
+  if (c.startsWith("NAGPUR")) return "NGP";
+  if (c.startsWith("MUMBAI")) return "MUM";
+  if (c.startsWith("PUNE")) return "PUN";
+  if (c.startsWith("DELHI")) return "DEL";
+  if (c.startsWith("HYDERABAD")) return "HYD";
+  if (c.startsWith("BANGALORE") || c.startsWith("BENGALURU")) return "BLR";
+  if (c.startsWith("CHANDRAPUR")) return "CHP";
+  if (c.startsWith("AMRAVATI")) return "AMR";
+  if (c.startsWith("WARDHA")) return "WRD";
+  if (c.startsWith("NASHIK")) return "NSK";
+  if (c.startsWith("AURANGABAD") || c.startsWith("SAMBHAJINAGAR")) return "CSN";
+  return c.slice(0, 3).toUpperCase();
+}
+
+function getMediaTypeAbbreviation(type: string) {
+  const t = (type || "Hoarding").trim().toUpperCase();
+  if (t.includes("GANTRY")) return "G";
+  if (t.includes("UNIPOLE")) return "U";
+  if (t.includes("KIOSK")) return "K";
+  if (t.includes("METRO") || t.includes("PILLAR")) return "M";
+  if (t.includes("SHELTER") || t.includes("BUS")) return "B";
+  return "H"; // Hoarding default
+}
+
+function getSiteCode(site: SiteItem, fallbackIndex: number = 1): string {
+  if (site.code) return site.code;
+  const cityCode = getCityAbbreviation(site.city);
+  const mediaCode = getMediaTypeAbbreviation(site.type);
+  const serial = String(fallbackIndex).padStart(3, '0');
+  return `${cityCode}/${mediaCode}/${serial}`;
+}
+
 type SelectedSite = SiteItem & {
   customRate: number;
+  discountPercent?: number;
   customNotes: string;
 };
 
 const AVAILABLE_COLUMNS = [
-  { id: "uuid", label: "Site ID / Code", default: true },
+  { id: "code", label: "Site Code (e.g. NGP/H/001)", default: true },
   { id: "name", label: "Site Name", default: true },
   { id: "city", label: "City", default: true },
   { id: "area", label: "Area / Location", default: true },
@@ -60,8 +99,10 @@ const AVAILABLE_COLUMNS = [
   { id: "type", label: "Media Type", default: true },
   { id: "lit_type", label: "Illumination", default: true },
   { id: "status", label: "Availability Status", default: false },
-  { id: "customRate", label: "Quoted Rate (₹/month)", default: true },
   { id: "net_rate", label: "Standard / Card Rate (₹)", default: false },
+  { id: "mounting_charges", label: "Mounting Charges (₹)", default: false },
+  { id: "discountPercent", label: "Discount (%)", default: false },
+  { id: "customRate", label: "Quoted Rate (₹/month)", default: true },
   { id: "customNotes", label: "Custom Proposal Remarks", default: true },
 ];
 
@@ -69,10 +110,12 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
   // Campaign & Client Info State
   const [clientName, setClientName] = useState("");
   const [campaignName, setCampaignName] = useState("");
-  const [preparedBy, setPreparedBy] = useState("Sellads Outdoor Advertising");
+  const [preparedBy, setPreparedBy] = useState("TrueSign Media");
   const [quotationDate, setQuotationDate] = useState(new Date().toISOString().split("T")[0]);
   const [validityDays, setValidityDays] = useState("15 Days");
   const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [includeGst, setIncludeGst] = useState<boolean>(false);
+  const gstRate = 18; // 18% GST
 
   // Site Picker State
   const [search, setSearch] = useState("");
@@ -105,16 +148,17 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
   // Filtered Site List in Picker
   const filteredSites = useMemo(() => {
-    return initialSites.filter(site => {
+    return initialSites.filter((site, index) => {
       if (selectedCity !== "All" && site.city?.toLowerCase() !== selectedCity.toLowerCase()) return false;
       if (selectedType !== "All" && site.type?.toLowerCase() !== selectedType.toLowerCase()) return false;
       if (selectedStatus !== "All" && site.status?.toLowerCase() !== selectedStatus.toLowerCase()) return false;
       if (search.trim()) {
         const query = search.toLowerCase();
+        const siteCode = (site.code || getSiteCode(site, index + 1)).toLowerCase();
         const matchName = site.name?.toLowerCase().includes(query);
         const matchCity = site.city?.toLowerCase().includes(query);
         const matchArea = site.area?.toLowerCase().includes(query);
-        const matchCode = site.uuid?.toLowerCase().includes(query);
+        const matchCode = site.uuid?.toLowerCase().includes(query) || siteCode.includes(query);
         if (!matchName && !matchCity && !matchArea && !matchCode) return false;
       }
       return true;
@@ -131,13 +175,21 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
     return selectedSitesList.reduce((sum, site) => sum + (Number(site.net_rate) || 0), 0);
   }, [selectedSitesList]);
 
-  const totalQuotedAmount = useMemo(() => {
+  const baseQuotedAmount = useMemo(() => {
     const rawTotal = selectedSitesList.reduce((sum, site) => sum + (Number(site.customRate) || 0), 0);
     if (discountPercent > 0) {
       return Math.round(rawTotal * (1 - discountPercent / 100));
     }
     return rawTotal;
   }, [selectedSitesList, discountPercent]);
+
+  const gstAmount = useMemo(() => {
+    return includeGst ? Math.round(baseQuotedAmount * (gstRate / 100)) : 0;
+  }, [includeGst, baseQuotedAmount, gstRate]);
+
+  const totalQuotedAmount = useMemo(() => {
+    return baseQuotedAmount + gstAmount;
+  }, [baseQuotedAmount, gstAmount]);
 
   // Toggle Site Selection
   const toggleSite = (site: SiteItem) => {
@@ -146,9 +198,11 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       if (updated[site.uuid]) {
         delete updated[site.uuid];
       } else {
+        const cardRate = Number(site.net_rate) || 50000;
         updated[site.uuid] = {
           ...site,
-          customRate: Number(site.net_rate) || 50000,
+          customRate: cardRate,
+          discountPercent: 0,
           customNotes: `Prime visibility at ${site.area || site.city}. High vehicular traffic.`,
         };
       }
@@ -162,9 +216,11 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       const updated = { ...prev };
       filteredSites.forEach(site => {
         if (!updated[site.uuid]) {
+          const cardRate = Number(site.net_rate) || 50000;
           updated[site.uuid] = {
             ...site,
-            customRate: Number(site.net_rate) || 50000,
+            customRate: cardRate,
+            discountPercent: 0,
             customNotes: `Prime visibility at ${site.area || site.city}.`,
           };
         }
@@ -181,11 +237,34 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
   const handleCustomRateChange = (uuid: string, rate: number) => {
     setSelectedSitesMap(prev => {
       if (!prev[uuid]) return prev;
+      const site = prev[uuid];
+      const cardRate = Number(site.net_rate) || rate;
+      const disc = cardRate > 0 && rate < cardRate ? Math.round(((cardRate - rate) / cardRate) * 100) : 0;
       return {
         ...prev,
         [uuid]: {
           ...prev[uuid],
           customRate: rate,
+          discountPercent: disc,
+        },
+      };
+    });
+  };
+
+  // Update Discount % for a Site
+  const handleDiscountPercentChange = (uuid: string, discount: number) => {
+    setSelectedSitesMap(prev => {
+      if (!prev[uuid]) return prev;
+      const site = prev[uuid];
+      const cardRate = Number(site.net_rate) || 50000;
+      const safeDiscount = Math.max(0, Math.min(100, discount));
+      const calculatedRate = safeDiscount > 0 ? Math.round(cardRate * (1 - safeDiscount / 100)) : cardRate;
+      return {
+        ...prev,
+        [uuid]: {
+          ...prev[uuid],
+          discountPercent: safeDiscount,
+          customRate: calculatedRate,
         },
       };
     });
@@ -215,9 +294,34 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       return [...prev, colId];
     });
   };
+    // Helper to parse dimensions and sqft from size string (e.g. "40x20", "40*20", "40 x 20")
+  const parseDimensions = (sizeStr: string) => {
+    if (!sizeStr) return { w: 40, h: 20, sqft: 800 };
+    const matches = sizeStr.match(/(\d+(?:\.\d+)?)\s*(?:[xX*×\/-]|\s*by\s*)\s*(\d+(?:\.\d+)?)/);
+    if (matches) {
+      const w = parseFloat(matches[1]);
+      const h = parseFloat(matches[2]);
+      return { w, h, sqft: Math.round(w * h) };
+    }
+    const single = sizeStr.match(/(\d+(?:\.\d+)?)/);
+    if (single) {
+      const s = parseFloat(single[1]);
+      return { w: s, h: Math.round(s / 2), sqft: Math.round(s * (s / 2)) };
+    }
+    return { w: 40, h: 20, sqft: 800 };
+  };
+
+  // Helper to format lighting type as in Anurag Sir.xlsx (F/L, N.LIT, B/L)
+  const formatLitType = (lit: string) => {
+    const l = (lit || "").toLowerCase();
+    if (l.includes("non") || l.includes("n.lit") || l.includes("unlit")) return "N.LIT";
+    if (l.includes("back") || l.includes("b/l")) return "B/L";
+    if (l.includes("digital") || l.includes("led")) return "Digital";
+    return "F/L";
+  };
 
   // ==========================================
-  // 1. EXCEL EXPORT (.xlsx) - ZERO IMAGES
+  // 1. EXCEL EXPORT (.xlsx) - MATCHING ANURAG SIR.XLSX FORMAT
   // ==========================================
   const handleExportExcel = () => {
     if (selectedSitesList.length === 0) {
@@ -228,110 +332,116 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
     try {
       setIsExporting(true);
 
-      // Build Header Info
-      const headerData: any[][] = [
-        ["SELLADS OUTDOOR ADVERTISING - MEDIA PROPOSAL / QUOTATION"],
+      const formattedDate = quotationDate ? quotationDate.split("-").reverse().join(".") : "22.08.2026";
+      const primaryCity = selectedSitesList[0]?.city || "Nagpur";
+
+      // Build Header Info matching Anurag Sir.xlsx
+      const sheetData: any[][] = [
+        ["Quotation For Advertisement"],
         [],
-        ["Client Name:", clientName || "Valued Client", "Date:", quotationDate],
-        ["Campaign:", campaignName || "Outdoor Campaign", "Validity:", validityDays],
-        ["Prepared By:", preparedBy, "Total Sites:", selectedSitesList.length],
+        [`Date - ${formattedDate}`],
         [],
+        ["To,"],
+        [clientName || "Valued Client"],
+        [campaignName || "Marketing Department"],
+        [`${selectedSitesList[0]?.area ? selectedSitesList[0].area + ", " : ""}${primaryCity}`],
+        [],
+        ["Subject: - Quotation of Advertsement"],
+        [],
+        ["We are pleased to submit our media quotation for as under:-"],
+        ["Sr. No", "City", "Hoarding Location ", " LIT/ N.LIT", "Media", "W", "H", "Qty.", "Total Sq. ft.", "DCPM"],
       ];
 
-      // Build Table Columns
-      const headers = AVAILABLE_COLUMNS
-        .filter(c => selectedColumns.includes(c.id))
-        .map(c => c.label);
-
-      const tableRows = selectedSitesList.map((site, index) => {
-        const row: any[] = [];
-        AVAILABLE_COLUMNS.filter(c => selectedColumns.includes(c.id)).forEach(col => {
-          switch (col.id) {
-            case "uuid":
-              row.push(site.uuid);
-              break;
-            case "name":
-              row.push(site.name);
-              break;
-            case "city":
-              row.push(site.city);
-              break;
-            case "area":
-              row.push(site.area || "-");
-              break;
-            case "size":
-              row.push(site.size);
-              break;
-            case "type":
-              row.push(site.type);
-              break;
-            case "lit_type":
-              row.push(site.lit_type);
-              break;
-            case "status":
-              row.push(site.status);
-              break;
-            case "customRate":
-              row.push(Number(site.customRate) || 0);
-              break;
-            case "net_rate":
-              row.push(Number(site.net_rate) || 0);
-              break;
-            case "customNotes":
-              row.push(site.customNotes || "-");
-              break;
-            default:
-              row.push("");
-          }
-        });
-        return row;
+      // Table Rows
+      let grandTotalSqft = 0;
+      selectedSitesList.forEach((site, index) => {
+        const { w, h, sqft } = parseDimensions(site.size);
+        grandTotalSqft += sqft;
+        sheetData.push([
+          index + 1,
+          site.city || primaryCity,
+          `${site.name}${site.area ? " (" + site.area + ")" : ""}`,
+          formatLitType(site.lit_type),
+          site.type || "Hoarding",
+          w,
+          h,
+          1,
+          sqft,
+          Number(site.customRate) || 0
+        ]);
       });
 
       // Total Row
-      const totalRow: any[] = [];
-      let totalQuotedColIndex = -1;
-      AVAILABLE_COLUMNS.filter(c => selectedColumns.includes(c.id)).forEach((col, idx) => {
-        if (idx === 0) {
-          totalRow.push("TOTAL MONTHLY RENTAL");
-        } else if (col.id === "customRate") {
-          totalRow.push(totalQuotedAmount);
-          totalQuotedColIndex = idx;
-        } else if (col.id === "net_rate") {
-          totalRow.push(totalStandardAmount);
-        } else {
-          totalRow.push("");
-        }
-      });
+      sheetData.push([
+        "TOTAL",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        selectedSitesList.length,
+        grandTotalSqft,
+        totalQuotedAmount
+      ]);
 
-      // Combine Sheet Data
-      const wsData = [
-        ...headerData,
-        headers,
-        ...tableRows,
-        [],
-        totalRow,
-        [],
-        ["* Note: Rates are exclusive of GST. Printing & Mounting extra as applicable."],
-        ["* For bookings & confirmations, contact: truesignmedia@gmail.com | +91 9765556861, +91 9765556859"],
-      ];
+      if (includeGst) {
+        sheetData.push([
+          "TOTAL (INCL. 18% GST)",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          totalQuotedAmount
+        ]);
+      }
 
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      sheetData.push([]);
+      sheetData.push(["", "Terms & Conditions :-"]);
+      sheetData.push(["", "1.  All the above mentioned sites are Subject to availability at the time of final booking/written confirmation."]);
+      sheetData.push(["", "2.  Formal Add Release order to be drawn in favour of \"Truesign Media\"."]);
+      sheetData.push(["", "3.  No mid term cancellation will be accepted."]);
+      sheetData.push(["", "4.  Flex torn due to natural calamity or stolen by chance shall not be our responsibility."]);
+      sheetData.push(["", "5.  Flex Mounting Charges @Rs.3/- Per Sq.ft  and Printing Charges for Non lit @ Rs. 09/- Per Sqr. Ft."]);
+      sheetData.push(["", "6.  Rates mentioned above is inclusive of Ground Rent and Municipal Taxes."]);
+      sheetData.push(["", includeGst ? "7.  Rates mentioned above are inclusive of 18.00% GST." : "7.  GST @18.00% extra."]);
+      sheetData.push(["", "8. After completion of the campaign, the flex material may be collected by the party from our office within 7 (seven) days, failing which our"]);
+      sheetData.push(["", "agency shall not be responsible for damage, or loss, and no claim regarding the flex will be entertained there."]);
+      sheetData.push(["", "9. Payment is Advance."]);
+      sheetData.push([]);
+      sheetData.push(["", "Thanking you and looking forward for your favorable reply."]);
+      sheetData.push(["", "Yours truly,"]);
+      sheetData.push(["", preparedBy || "Jatin Dhakre"]);
+      sheetData.push(["", "Mo.no. 9765556859 / 9765556861"]);
+      sheetData.push(["", "Truesign Media"]);
+      sheetData.push(["", "Nagpur"]);
+      sheetData.push([]);
+      sheetData.push(["Office Ad. - 123, Bhagwaghar Layout, Behind Traffic Park, Dharmapeth, Nagpur-440010. Ph: 0712-2544985, E-Mail : samarketing.nagpur@gmail.com"]);
+
+      const ws = XLSX.utils.aoa_to_sheet(sheetData);
 
       // Auto column widths
-      const colWidths = headers.map((h, i) => {
-        let maxLen = h.length;
-        tableRows.forEach(r => {
-          const valStr = String(r[i] || "");
-          if (valStr.length > maxLen) maxLen = valStr.length;
-        });
-        return { wch: Math.min(Math.max(maxLen + 4, 14), 45) };
-      });
-      ws["!cols"] = colWidths;
+      ws["!cols"] = [
+        { wch: 8 },  // Sr. No
+        { wch: 15 }, // City
+        { wch: 45 }, // Hoarding Location
+        { wch: 14 }, // LIT/ N.LIT
+        { wch: 14 }, // Media
+        { wch: 8 },  // W
+        { wch: 8 },  // H
+        { wch: 8 },  // Qty
+        { wch: 15 }, // Total Sq. ft.
+        { wch: 18 }, // DCPM
+      ];
 
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Quotation");
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-      const fileName = `Sellads_Quotation_${(clientName || "Client").replace(/[^a-zA-Z0-9]/g, "_")}_${quotationDate}.xlsx`;
+      const fileName = `Quotation_Advertisement_${(clientName || "Client").replace(/[^a-zA-Z0-9]/g, "_")}_${quotationDate}.xlsx`;
       XLSX.writeFile(wb, fileName);
     } catch (err: any) {
       alert("Failed to export Excel: " + err.message);
@@ -341,7 +451,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
   };
 
   // ==========================================
-  // 2. POWERPOINT EXPORT (.pptx) - EXECUTIVE SLIDES
+  // 2. POWERPOINT EXPORT (.pptx) - MATCHING ANURAG SIR.XLSX OFFICIAL FORMAT
   // ==========================================
   const handleExportPPT = async () => {
     if (selectedSitesList.length === 0) {
@@ -349,84 +459,154 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       return;
     }
 
+    if (!clientName.trim()) {
+      alert("Please enter the Client / Brand Name. It is mandatory for generating the proposal presentation.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (!campaignName.trim()) {
+      alert("Please enter the Campaign Name. It is mandatory for generating the proposal presentation.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     try {
       setIsExporting(true);
+
+      // Load TrueSign Media Logo as base64 for embedding
+      let logoData = "";
+      try {
+        const logoResp = await fetch("/truesign_logo.png");
+        if (logoResp.ok) {
+          const blob = await logoResp.blob();
+          logoData = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+        }
+      } catch (e) {
+        console.warn("Could not load logo for PPT:", e);
+      }
+
       const ppt = new pptxgen();
       
       // Explicit 16:9 Widescreen Canvas: 13.333 inches x 7.50 inches
       ppt.defineLayout({ name: "CUSTOM_16_9", width: 13.333, height: 7.5 });
       ppt.layout = "CUSTOM_16_9";
-      ppt.author = preparedBy;
-      ppt.company = "Sellads Outdoor Advertising";
-      ppt.title = `Outdoor Media Proposal - ${clientName || "Client"}`;
+      ppt.author = preparedBy || "TrueSign Media";
+      ppt.company = "TrueSign Media";
+      ppt.title = `Quotation For Advertisement - ${clientName}`;
 
-      // Color Palette constants
-      const C_NAVY = "03164C";
-      const C_NAVY_LIGHT = "0A2570";
-      const C_GOLD = "FAB935";
-      const C_GOLD_DARK = "D97706";
+      // Professional White & Blue Corporate Color Palette
       const C_WHITE = "FFFFFF";
-      const C_BG_LIGHT = "F4F7FB";
-      const C_BORDER = "E2E8F0";
+      const C_BG_LIGHT = "F8FAFC";
+      const C_NAVY = "0A2540";
+      const C_ROYAL_BLUE = "1E40AF";
+      const C_ACCENT_BLUE = "2563EB";
+      const C_ICE_BLUE = "EFF6FF";
+      const C_BORDER_BLUE = "DBEAFE";
+      const C_BORDER_LIGHT = "E2E8F0";
       const C_TEXT_DARK = "0F172A";
       const C_TEXT_SLATE = "334155";
-      const C_GREEN = "10B981";
+      const C_TEXT_MUTED = "64748B";
 
       const uniqueCities = Array.from(new Set(selectedSitesList.map(s => s.city).filter(Boolean)));
       const citiesStr = uniqueCities.length > 0 ? uniqueCities.join(", ") : "Nagpur";
+      const formattedDate = quotationDate ? quotationDate.split("-").reverse().join(".") : "22.08.2026";
+      const primaryCity = selectedSitesList[0]?.city || "Nagpur";
+
+      let grandTotalSqft = 0;
+      selectedSitesList.forEach(site => {
+        const { sqft } = parseDimensions(site.size);
+        grandTotalSqft += sqft;
+      });
 
       // -------------------------------------------------------------
-      // SLIDE 1: Premium Title & Cover Slide
+      // SLIDE 1: Official Quotation Letter / Cover Slide (Anurag Sir format)
       // -------------------------------------------------------------
       const coverSlide = ppt.addSlide();
-      coverSlide.background = { color: C_NAVY };
+      coverSlide.background = { color: C_WHITE };
 
-      // Left Accent Bars
+      // Top Primary Blue Accent Header Stripe
       coverSlide.addShape(ppt.ShapeType.rect, {
-        x: 0, y: 0, w: 0.35, h: 7.5,
-        fill: { color: C_GOLD },
-      });
-      coverSlide.addShape(ppt.ShapeType.rect, {
-        x: 0.35, y: 0, w: 0.08, h: 7.5,
-        fill: { color: "DC2626" },
+        x: 0, y: 0, w: 13.333, h: 0.18,
+        fill: { color: C_ROYAL_BLUE },
       });
 
-      // Top Tag Pill
+      // Left Vertical Blue Accent Bar
+      coverSlide.addShape(ppt.ShapeType.rect, {
+        x: 0.8, y: 0.65, w: 0.12, h: 2.5,
+        fill: { color: C_ACCENT_BLUE },
+      });
+
+      // Top Category Pill
       coverSlide.addShape(ppt.ShapeType.roundRect, {
-        x: 0.8, y: 0.65, w: 4.2, h: 0.42,
-        fill: { color: C_NAVY_LIGHT },
-        line: { color: "234B9E", width: 1 },
+        x: 1.1, y: 0.65, w: 4.8, h: 0.42,
+        fill: { color: C_ICE_BLUE },
+        line: { color: C_BORDER_BLUE, width: 1 },
       });
-      coverSlide.addText("OUTDOOR MEDIA PROPOSAL · 2026", {
-        x: 0.8, y: 0.65, w: 4.2, h: 0.42,
-        fontSize: 11, fontFace: "Helvetica",
-        bold: true, color: C_GOLD, align: "center", valign: "middle",
-      });
-
-      // Main Proposal Title
-      coverSlide.addText("PREMIUM OUTDOOR MEDIA\nCAMPAIGN PROPOSAL", {
-        x: 0.8, y: 1.35, w: 11.5, h: 1.3,
-        fontSize: 30, fontFace: "Helvetica",
-        bold: true, color: C_WHITE,
-        lineSpacingMultiple: 1.1,
+      coverSlide.addText("TRUESIGN MEDIA · MEDIA QUOTATION", {
+        x: 1.1, y: 0.65, w: 4.8, h: 0.42,
+        fontSize: 10, fontFace: "Helvetica",
+        bold: true, color: C_ROYAL_BLUE, align: "center", valign: "middle",
       });
 
-      // Client Subtitle Box
+      // Main Proposal Title matching Anurag Sir.xlsx
+      coverSlide.addText("Quotation For Advertisement", {
+        x: 1.1, y: 1.2, w: 8.8, h: 0.6,
+        fontSize: 28, fontFace: "Helvetica",
+        bold: true, color: C_NAVY,
+      });
+
+      // Add TrueSign Media Logo on Top Right
+      if (logoData) {
+        try {
+          coverSlide.addImage({
+            data: logoData,
+            x: 10.4, y: 0.65,
+            w: 2.1, h: 2.1,
+            sizing: { type: "contain", w: 2.1, h: 2.1 },
+          });
+        } catch (e) {
+          console.warn("Logo embed error:", e);
+        }
+      }
+
+      // Addressee & Letter Text Container Box
+      coverSlide.addShape(ppt.ShapeType.roundRect, {
+        x: 1.1, y: 1.85, w: 8.8, h: 1.6,
+        fill: { color: C_ICE_BLUE },
+        line: { color: C_BORDER_BLUE, width: 1 },
+      });
+
       coverSlide.addText(
-        `Prepared Exclusively For: ${clientName ? clientName.toUpperCase() : "VALUED BRAND"}${campaignName ? ` · ${campaignName}` : ""}`,
+        [
+          { text: `Date - ${formattedDate}\n`, options: { bold: true, color: C_ROYAL_BLUE, fontSize: 10 } },
+          { text: "To,\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 10 } },
+          { text: `${clientName}\n`, options: { bold: true, color: C_NAVY, fontSize: 11 } },
+          { text: `${campaignName}, ${selectedSitesList[0]?.area ? selectedSitesList[0].area + ", " : ""}${primaryCity}\n`, options: { color: C_TEXT_SLATE, fontSize: 9.5 } },
+          { text: `Subject: - Quotation of Advertsement\n`, options: { bold: true, color: C_ACCENT_BLUE, fontSize: 10 } },
+          { text: "We are pleased to submit our media quotation for as under:-", options: { italic: true, color: C_TEXT_SLATE, fontSize: 9.5 } },
+        ],
         {
-          x: 0.8, y: 2.85, w: 11.5, h: 0.5,
-          fontSize: 17, fontFace: "Helvetica",
-          color: C_GOLD, bold: true,
+          x: 1.3, y: 1.95, w: 8.4, h: 1.4,
+          fontFace: "Helvetica",
+          lineSpacingMultiple: 1.05,
         }
       );
 
-      // Bottom 4 Metric Cards (Exact Proportions with safe margins)
+      // Bottom 4 Metric Showcase Cards
       const metrics = [
-        { label: "TOTAL LOCATIONS", value: `${selectedSitesList.length} Prime Sites` },
+        { label: "TOTAL HOARDINGS", value: `${selectedSitesList.length} Locations` },
+        { label: "TOTAL DISPLAY AREA", value: `${grandTotalSqft.toLocaleString("en-IN")} Sq. ft.` },
         { label: "TARGET CITIES", value: citiesStr },
-        { label: "PROPOSAL DATE", value: `${quotationDate} (${validityDays})` },
-        { label: "MONTHLY INVESTMENT", value: `₹${totalQuotedAmount.toLocaleString("en-IN")}` },
+        {
+          label: includeGst ? "DCPM (INCL. 18% GST)" : "DCPM (MONTHLY TOTAL)",
+          value: `₹${totalQuotedAmount.toLocaleString("en-IN")}`
+        },
       ];
 
       const cardW = 2.72;
@@ -434,98 +614,121 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       metrics.forEach((m, idx) => {
         const cardX = 0.8 + idx * (cardW + cardGap);
         coverSlide.addShape(ppt.ShapeType.roundRect, {
-          x: cardX, y: 3.8, w: cardW, h: 2.2,
-          fill: { color: C_NAVY_LIGHT },
-          line: { color: idx === 3 ? C_GOLD : "1D3D8F", width: idx === 3 ? 1.5 : 1 },
+          x: cardX, y: 3.65, w: cardW, h: 2.3,
+          fill: { color: idx === 3 ? C_ICE_BLUE : C_WHITE },
+          line: { color: idx === 3 ? C_ACCENT_BLUE : C_BORDER_LIGHT, width: idx === 3 ? 1.5 : 1 },
         });
 
         coverSlide.addText(m.label, {
-          x: cardX + 0.18, y: 4.05, w: cardW - 0.36, h: 0.35,
+          x: cardX + 0.2, y: 3.9, w: cardW - 0.4, h: 0.35,
           fontSize: 9.5, fontFace: "Helvetica",
-          bold: true, color: idx === 3 ? C_GOLD : "94A3B8",
+          bold: true, color: idx === 3 ? C_ROYAL_BLUE : C_TEXT_MUTED,
         });
 
         coverSlide.addText(m.value, {
-          x: cardX + 0.18, y: 4.5, w: cardW - 0.36, h: 1.2,
-          fontSize: idx === 3 ? 18 : 15, fontFace: "Helvetica",
-          bold: true, color: idx === 3 ? C_GOLD : C_WHITE,
+          x: cardX + 0.2, y: 4.35, w: cardW - 0.4, h: 1.35,
+          fontSize: idx === 3 ? 18 : 14.5, fontFace: "Helvetica",
+          bold: true, color: idx === 3 ? C_ROYAL_BLUE : C_TEXT_DARK,
           valign: "top",
         });
       });
 
-      // Footer brand
-      coverSlide.addText("SELLADS OUTDOOR ADVERTISING · NAGPUR · TRUESIGNMEDIA@GMAIL.COM · +91 9765556861 / +91 9765556859", {
-        x: 0.8, y: 6.65, w: 11.7, h: 0.35,
-        fontSize: 9, fontFace: "Helvetica",
-        color: "94A3B8", bold: true,
+      // Footer brand bar
+      coverSlide.addShape(ppt.ShapeType.roundRect, {
+        x: 0.8, y: 6.35, w: 11.733, h: 0.65,
+        fill: { color: C_ICE_BLUE },
+        line: { color: C_BORDER_BLUE, width: 1 },
+      });
+
+      coverSlide.addText("TRUESIGN MEDIA · 123, Bhagwaghar Layout, Behind Traffic Park, Dharampeth, Nagpur-440010 · Ph: 0712-2544985 · samarketing.nagpur@gmail.com", {
+        x: 1.0, y: 6.35, w: 11.333, h: 0.65,
+        fontSize: 9.5, fontFace: "Helvetica",
+        color: C_NAVY, bold: true, align: "center", valign: "middle",
       });
 
       // -------------------------------------------------------------
-      // SLIDE 2: Executive Campaign Summary Table
+      // SLIDE 2: Media Quotation & Inventory Matrix (matching Anurag Sir.xlsx)
       // -------------------------------------------------------------
       const summarySlide = ppt.addSlide();
       summarySlide.background = { color: C_BG_LIGHT };
 
-      // Header Banner
+      // Header Banner (Navy Blue)
       summarySlide.addShape(ppt.ShapeType.rect, {
         x: 0, y: 0, w: 13.333, h: 1.1,
         fill: { color: C_NAVY },
       });
-      summarySlide.addText("EXECUTIVE PROPOSAL MATRIX", {
+      summarySlide.addText("MEDIA QUOTATION & INVENTORY MATRIX", {
         x: 0.8, y: 0.18, w: 8.0, h: 0.4,
         fontSize: 18, fontFace: "Helvetica",
         bold: true, color: C_WHITE,
       });
-      summarySlide.addText(`Summary of all ${selectedSitesList.length} proposed media inventory locations`, {
+      summarySlide.addText(`Subject: - Quotation of Advertsement · ${clientName} · ${campaignName}`, {
         x: 0.8, y: 0.6, w: 8.0, h: 0.3,
         fontSize: 11, fontFace: "Helvetica",
-        color: C_GOLD,
+        color: C_BORDER_BLUE,
       });
 
-      // Top Right Total Pill
+      // Top Right Total Investment Pill
       summarySlide.addShape(ppt.ShapeType.roundRect, {
-        x: 8.8, y: 0.2, w: 3.7, h: 0.7,
-        fill: { color: C_GOLD },
+        x: 8.4, y: 0.2, w: 4.1, h: 0.7,
+        fill: { color: C_ICE_BLUE },
+        line: { color: C_ACCENT_BLUE, width: 1.5 },
       });
-      summarySlide.addText(`Total: ₹${totalQuotedAmount.toLocaleString("en-IN")} / Mo`, {
-        x: 8.8, y: 0.2, w: 3.7, h: 0.7,
-        fontSize: 14, fontFace: "Helvetica",
+      summarySlide.addText(`Total: ₹${totalQuotedAmount.toLocaleString("en-IN")} / Mo ${includeGst ? "(Incl. GST)" : ""}`, {
+        x: 8.4, y: 0.2, w: 4.1, h: 0.7,
+        fontSize: 12.5, fontFace: "Helvetica",
         bold: true, color: C_NAVY,
         align: "center", valign: "middle",
       });
 
-      // Summary Table Data
+      // Summary Table Headers exactly matching Anurag Sir.xlsx
       const tableHeaders = [
-        { text: "#", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10, align: "center" as const } },
-        { text: "Site Name & Location", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10 } },
-        { text: "City", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10 } },
-        { text: "Size (W x H)", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10 } },
-        { text: "Type & Illumination", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10 } },
-        { text: "Quoted Rate (₹)", options: { bold: true, fill: { color: C_NAVY }, color: C_WHITE, fontSize: 10, align: "right" as const } },
+        { text: "Sr. No", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "City", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9 } },
+        { text: "Hoarding Location", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9 } },
+        { text: "LIT/ N.LIT", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "Media", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "W", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "H", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "Qty.", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "center" as const } },
+        { text: "Total Sq. ft.", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "right" as const } },
+        { text: "DCPM (₹)", options: { bold: true, fill: { color: C_ROYAL_BLUE }, color: C_WHITE, fontSize: 9, align: "right" as const } },
       ];
 
-      const tableBody = selectedSitesList.map((site, i) => [
-        { text: String(i + 1), options: { align: "center" as const, fontSize: 9.5, color: C_TEXT_SLATE } },
-        { text: site.name, options: { bold: true, fontSize: 9.5, color: C_TEXT_DARK } },
-        { text: site.city, options: { fontSize: 9.5, color: C_TEXT_SLATE } },
-        { text: site.size || "-", options: { fontSize: 9.5, color: C_TEXT_SLATE } },
-        { text: `${site.type} · ${site.lit_type}`, options: { fontSize: 9.5, color: C_TEXT_SLATE } },
-        { text: `₹${(Number(site.customRate) || 0).toLocaleString("en-IN")}`, options: { bold: true, fontSize: 10, color: C_NAVY, align: "right" as const } },
-      ]);
+      const tableBody = selectedSitesList.map((site, i) => {
+        const { w, h, sqft } = parseDimensions(site.size);
+        const bg = i % 2 === 0 ? C_WHITE : "F8FAFC";
+        return [
+          { text: String(i + 1), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: site.city || primaryCity, options: { fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: `${site.name}${site.area ? " (" + site.area + ")" : ""}`, options: { bold: true, fontSize: 9, color: C_TEXT_DARK, fill: { color: bg } } },
+          { text: formatLitType(site.lit_type), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: site.type || "Hoarding", options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: String(w), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: String(h), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: "1", options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: sqft.toLocaleString("en-IN"), options: { align: "right" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
+          { text: `₹${(Number(site.customRate) || 0).toLocaleString("en-IN")}`, options: { bold: true, fontSize: 9.5, color: C_ROYAL_BLUE, align: "right" as const, fill: { color: bg } } },
+        ];
+      });
 
       const tableTotalRow = [
-        { text: "TOTAL", options: { bold: true, fill: { color: "E2E8F0" }, color: C_NAVY, fontSize: 10, align: "center" as const } },
-        { text: "TOTAL MONTHLY CAMPAIGN INVESTMENT", options: { bold: true, fill: { color: "E2E8F0" }, color: C_NAVY, fontSize: 10 } },
-        { text: `${uniqueCities.length} Cities`, options: { fill: { color: "E2E8F0" }, color: C_TEXT_SLATE, fontSize: 9.5 } },
-        { text: "-", options: { fill: { color: "E2E8F0" }, color: C_TEXT_SLATE, fontSize: 9.5, align: "center" as const } },
-        { text: `${selectedSitesList.length} Locations`, options: { bold: true, fill: { color: "E2E8F0" }, color: C_NAVY, fontSize: 9.5 } },
-        { text: `₹${totalQuotedAmount.toLocaleString("en-IN")}`, options: { bold: true, fill: { color: C_GOLD }, color: C_NAVY, fontSize: 10.5, align: "right" as const } },
+        { text: "TOTAL", options: { bold: true, fill: { color: C_ICE_BLUE }, color: C_NAVY, fontSize: 9.5, align: "center" as const } },
+        { text: `${uniqueCities.length} Cities`, options: { fill: { color: C_ICE_BLUE }, color: C_TEXT_SLATE, fontSize: 9 } },
+        { text: `${selectedSitesList.length} Hoarding Sites`, options: { bold: true, fill: { color: C_ICE_BLUE }, color: C_NAVY, fontSize: 9 } },
+        { text: "-", options: { fill: { color: C_ICE_BLUE }, color: C_TEXT_SLATE, fontSize: 9, align: "center" as const } },
+        { text: "-", options: { fill: { color: C_ICE_BLUE }, color: C_TEXT_SLATE, fontSize: 9, align: "center" as const } },
+        { text: "-", options: { fill: { color: C_ICE_BLUE }, color: C_TEXT_SLATE, fontSize: 9, align: "center" as const } },
+        { text: "-", options: { fill: { color: C_ICE_BLUE }, color: C_TEXT_SLATE, fontSize: 9, align: "center" as const } },
+        { text: String(selectedSitesList.length), options: { bold: true, fill: { color: C_ICE_BLUE }, color: C_NAVY, fontSize: 9, align: "center" as const } },
+        { text: `${grandTotalSqft.toLocaleString("en-IN")} sq.ft.`, options: { bold: true, fill: { color: C_ICE_BLUE }, color: C_NAVY, fontSize: 9, align: "right" as const } },
+        { text: `₹${totalQuotedAmount.toLocaleString("en-IN")}`, options: { bold: true, fill: { color: C_ICE_BLUE }, color: C_ROYAL_BLUE, fontSize: 10.5, align: "right" as const } },
       ];
 
       summarySlide.addTable([tableHeaders, ...tableBody, tableTotalRow], {
         x: 0.8, y: 1.35, w: 11.733,
-        rowH: 0.38,
-        colW: [0.6, 4.0, 1.8, 1.8, 1.8, 1.733],
+        rowH: 0.36,
+        colW: [0.6, 1.2, 3.8, 0.9, 1.0, 0.5, 0.5, 0.5, 1.1, 1.633],
         border: { color: "CBD5E1", pt: 0.5 },
         fill: { color: C_WHITE },
       });
@@ -537,7 +740,9 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
         const slide = ppt.addSlide();
         slide.background = { color: C_BG_LIGHT };
 
-        // Top Header Banner
+        const { w, h, sqft } = parseDimensions(site.size);
+
+        // Top Header Banner (Navy Blue)
         slide.addShape(ppt.ShapeType.rect, {
           x: 0, y: 0, w: 13.333, h: 1.1,
           fill: { color: C_NAVY },
@@ -545,43 +750,38 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
         // Left Header: Site Title & Location
         slide.addText(
-          `SITE #${String(index + 1).padStart(2, "0")}: ${site.name.toUpperCase()}`,
+          [
+            { text: `LOCATION ${index + 1} OF ${selectedSitesList.length}: `, options: { bold: true, color: C_BORDER_BLUE, fontSize: 10 } },
+            { text: `${site.name.toUpperCase()}\n`, options: { bold: true, color: C_WHITE, fontSize: 15 } },
+            { text: `📍 ${site.city}${site.area ? " · " + site.area : ""} · Code: ${site.uuid}`, options: { color: "93C5FD", fontSize: 9.5 } },
+          ],
           {
-            x: 0.8, y: 0.15, w: 8.2, h: 0.45,
-            fontSize: 17, fontFace: "Helvetica",
-            bold: true, color: C_WHITE,
+            x: 0.8, y: 0.12, w: 8.2, h: 0.9,
+            fontFace: "Helvetica",
           }
         );
 
-        slide.addText(
-          `${site.city.toUpperCase()}${site.area ? ` · ${site.area.toUpperCase()}` : ""} | INVENTORY ID: ${site.uuid}`,
-          {
-            x: 0.8, y: 0.6, w: 8.2, h: 0.35,
-            fontSize: 11, fontFace: "Helvetica",
-            bold: true, color: C_GOLD,
-          }
-        );
-
-        // Right Header: Gold Price Tag Box
+        // Right Header: White/Blue Price Tag Box
         slide.addShape(ppt.ShapeType.roundRect, {
           x: 9.2, y: 0.18, w: 3.3, h: 0.74,
-          fill: { color: C_GOLD },
+          fill: { color: C_WHITE },
+          line: { color: C_ACCENT_BLUE, width: 1.5 },
         });
         slide.addText(
           `₹${(Number(site.customRate) || 0).toLocaleString("en-IN")} / Mo`,
           {
             x: 9.2, y: 0.18, w: 3.3, h: 0.42,
-            fontSize: 16, fontFace: "Helvetica",
-            bold: true, color: C_NAVY,
+            fontSize: 15.5, fontFace: "Helvetica",
+            bold: true, color: C_ROYAL_BLUE,
             align: "center",
           }
         );
         slide.addText(
-          "+ Applicable GST",
+          includeGst ? "+ 18% GST Included" : "+ Applicable GST",
           {
             x: 9.2, y: 0.58, w: 3.3, h: 0.28,
             fontSize: 8.5, fontFace: "Helvetica",
-            color: "78350F", bold: true,
+            color: C_TEXT_MUTED, bold: true,
             align: "center",
           }
         );
@@ -594,11 +794,10 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
         const photoBoxW = 6.6;
         const photoBoxH = 5.2;
 
-        // Container Card
         slide.addShape(ppt.ShapeType.roundRect, {
           x: photoBoxX, y: photoBoxY, w: photoBoxW, h: photoBoxH,
           fill: { color: C_WHITE },
-          line: { color: C_BORDER, width: 1 },
+          line: { color: C_BORDER_LIGHT, width: 1 },
         });
 
         const sitePhotoUrl = site.photo || "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80";
@@ -626,10 +825,11 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
         slide.addShape(ppt.ShapeType.rect, {
           x: photoBoxX + 0.15, y: photoBoxY + photoBoxH - 0.6,
           w: photoBoxW - 0.3, h: 0.45,
-          fill: { color: C_NAVY },
+          fill: { color: C_ROYAL_BLUE },
         });
-        slide.addText(`📍 ${site.name} · ${site.city}`, {
-          x: photoBoxX + 0.25, y: photoBoxY + photoBoxH - 0.6,
+        const siteCode = site.code || getSiteCode(site, index + 1);
+        slide.addText(`📍 ${site.city}${site.area ? " · " + site.area : ""} | Code: ${siteCode}`, {
+          x: 0.8 + 0.25, y: 1.35 + photoBoxH - 0.45,
           w: photoBoxW - 0.5, h: 0.45,
           fontSize: 10, fontFace: "Helvetica",
           bold: true, color: C_WHITE,
@@ -642,56 +842,63 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
         const rightX = 7.7;
         const rightW = 4.833;
 
-        // Card 1: Technical Media Specs
+        // Card 1: Media Specifications matching Anurag Sir columns
         slide.addShape(ppt.ShapeType.roundRect, {
           x: rightX, y: 1.35, w: rightW, h: 2.8,
           fill: { color: C_WHITE },
-          line: { color: C_BORDER, width: 1 },
+          line: { color: C_BORDER_BLUE, width: 1.5 },
         });
 
-        slide.addText("MEDIA SPECIFICATIONS", {
-          x: rightX + 0.2, y: 1.5, w: rightW - 0.4, h: 0.35,
-          fontSize: 12, fontFace: "Helvetica",
-          bold: true, color: C_NAVY,
+        slide.addShape(ppt.ShapeType.rect, {
+          x: rightX, y: 1.35, w: rightW, h: 0.45,
+          fill: { color: C_ICE_BLUE },
+        });
+        slide.addText(`HOARDING SPECIFICATIONS (${siteCode})`, {
+          x: rightX + 0.2, y: 1.35, w: rightW - 0.4, h: 0.45,
+          fontSize: 10.5, fontFace: "Helvetica",
+          bold: true, color: C_ROYAL_BLUE, valign: "middle",
         });
 
-        // Specs Grid Text
         const specsItems = [
-          { text: "DIMENSIONS / SIZE:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 10 } },
-          { text: `${site.size} (Width × Height)\n\n`, options: { color: C_TEXT_SLATE, fontSize: 11, bold: true } },
+          { text: "SITE CODE:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 9.5 } },
+          { text: `${siteCode}\n\n`, options: { color: C_ROYAL_BLUE, fontSize: 10.5, bold: true } },
 
-          { text: "MEDIA TYPE:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 10 } },
-          { text: `${site.type}\n\n`, options: { color: C_TEXT_SLATE, fontSize: 11 } },
+          { text: "DIMENSIONS (W × H):\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 9.5 } },
+          { text: `${w} ft × ${h} ft  (${sqft.toLocaleString("en-IN")} Total Sq. ft.)\n\n`, options: { color: C_TEXT_SLATE, fontSize: 10.5, bold: true } },
 
-          { text: "ILLUMINATION:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 10 } },
-          { text: `${site.lit_type}\n\n`, options: { color: C_TEXT_SLATE, fontSize: 11 } },
+          { text: "MEDIA TYPE & ILLUMINATION:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 9.5 } },
+          { text: `${site.type || "Hoarding"} · ${formatLitType(site.lit_type)} (${site.lit_type || "Front Lit"})\n\n`, options: { color: C_TEXT_SLATE, fontSize: 10.5 } },
 
-          { text: "AVAILABILITY STATUS:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 10 } },
-          { text: `${site.status}`, options: { color: site.status === "Available" ? C_GREEN : C_GOLD_DARK, fontSize: 11, bold: true } },
+          { text: "DCPM / MONTHLY RATE:\n", options: { bold: true, color: C_TEXT_DARK, fontSize: 9.5 } },
+          { text: `₹${(Number(site.customRate) || 0).toLocaleString("en-IN")} / month`, options: { color: C_ROYAL_BLUE, fontSize: 10.5, bold: true } },
         ];
 
         slide.addText(specsItems, {
-          x: rightX + 0.2, y: 1.85, w: rightW - 0.4, h: 2.1,
+          x: rightX + 0.2, y: 1.85, w: rightW - 0.4, h: 2.2,
           fontFace: "Helvetica",
-          lineSpacingMultiple: 1.0,
+          lineSpacingMultiple: 0.95,
         });
 
-        // Card 2: Strategic Location Highlights & Remarks
+        // Card 2: Visibility & Remarks
         slide.addShape(ppt.ShapeType.roundRect, {
           x: rightX, y: 4.35, w: rightW, h: 2.2,
-          fill: { color: "F8FAFC" },
-          line: { color: "CBD5E1", width: 1 },
+          fill: { color: C_WHITE },
+          line: { color: C_BORDER_LIGHT, width: 1 },
         });
 
-        slide.addText("CAMPAIGN & VISIBILITY HIGHLIGHTS", {
-          x: rightX + 0.2, y: 4.5, w: rightW - 0.4, h: 0.35,
-          fontSize: 11, fontFace: "Helvetica",
-          bold: true, color: C_NAVY,
+        slide.addShape(ppt.ShapeType.rect, {
+          x: rightX, y: 4.35, w: rightW, h: 0.45,
+          fill: { color: "F1F5F9" },
+        });
+        slide.addText("LOCATION & VISIBILITY REMARKS", {
+          x: rightX + 0.2, y: 4.35, w: rightW - 0.4, h: 0.45,
+          fontSize: 10.5, fontFace: "Helvetica",
+          bold: true, color: C_NAVY, valign: "middle",
         });
 
-        const remarksText = site.customNotes || "Prime visibility facing high-density vehicular and pedestrian traffic. Unobstructed viewing angle for maximum brand recall.";
+        const remarksText = site.customNotes || `Prime strategic visibility facing high vehicular traffic at ${site.name}, ${site.city}. Unobstructed viewing angle for high brand recall.`;
         slide.addText(remarksText, {
-          x: rightX + 0.2, y: 4.85, w: rightW - 0.4, h: 1.5,
+          x: rightX + 0.2, y: 4.9, w: rightW - 0.4, h: 1.5,
           fontSize: 10, fontFace: "Helvetica",
           color: C_TEXT_SLATE,
           italic: true,
@@ -700,114 +907,176 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
         // Footer Note
         slide.addText(
-          `Sellads Outdoor Advertising · Proposal for ${clientName || "Valued Client"} · Slide ${index + 3} of ${selectedSitesList.length + 3}`,
+          `TrueSign Media · Quotation For Advertisement · Slide ${index + 3} of ${selectedSitesList.length + 3}`,
           {
             x: 0.8, y: 6.85, w: 11.733, h: 0.35,
             fontSize: 8.5, fontFace: "Helvetica",
-            color: "94A3B8", align: "center",
+            color: C_TEXT_MUTED, align: "center",
           }
         );
       });
 
       // -------------------------------------------------------------
-      // FINAL SLIDE: Commercials, Terms & Next Steps
+      // FINAL SLIDE: Official Terms & Conditions & Sign-off (Exact match with Anurag Sir.xlsx)
       // -------------------------------------------------------------
       const finalSlide = ppt.addSlide();
-      finalSlide.background = { color: C_NAVY };
+      finalSlide.background = { color: C_BG_LIGHT };
 
-      finalSlide.addText("TERMS, NEXT STEPS & BOOKING", {
-        x: 0.8, y: 0.6, w: 11.733, h: 0.45,
-        fontSize: 24, fontFace: "Helvetica",
+      finalSlide.addShape(ppt.ShapeType.rect, {
+        x: 0, y: 0, w: 13.333, h: 1.1,
+        fill: { color: C_NAVY },
+      });
+
+      finalSlide.addText("TERMS & CONDITIONS", {
+        x: 0.8, y: 0.18, w: 11.733, h: 0.4,
+        fontSize: 18, fontFace: "Helvetica",
         bold: true, color: C_WHITE,
       });
-      finalSlide.addText("Commercial summary and execution guidelines for campaign commencement", {
-        x: 0.8, y: 1.05, w: 11.733, h: 0.35,
+      finalSlide.addText("Standard operational terms, execution guidelines & confirmation details", {
+        x: 0.8, y: 0.6, w: 11.733, h: 0.3,
         fontSize: 11, fontFace: "Helvetica",
-        color: C_GOLD,
+        color: C_BORDER_BLUE,
       });
 
-      // Left Box: Commercial Summary
+      // Left Box: 9 Official Terms & Conditions exactly from Anurag Sir.xlsx
       finalSlide.addShape(ppt.ShapeType.roundRect, {
-        x: 0.8, y: 1.55, w: 5.7, h: 4.0,
-        fill: { color: C_NAVY_LIGHT },
-        line: { color: "1E40AF", width: 1 },
+        x: 0.8, y: 1.35, w: 7.6, h: 4.6,
+        fill: { color: C_WHITE },
+        line: { color: C_BORDER_BLUE, width: 1.5 },
       });
 
-      finalSlide.addText("COMMERCIAL TERMS", {
-        x: 1.05, y: 1.75, w: 5.2, h: 0.35,
-        fontSize: 13, fontFace: "Helvetica",
-        bold: true, color: C_GOLD,
+      finalSlide.addShape(ppt.ShapeType.rect, {
+        x: 0.8, y: 1.35, w: 7.6, h: 0.45,
+        fill: { color: C_ICE_BLUE },
+      });
+
+      finalSlide.addText("TERMS & CONDITIONS :-", {
+        x: 1.05, y: 1.35, w: 7.1, h: 0.45,
+        fontSize: 11, fontFace: "Helvetica",
+        bold: true, color: C_ROYAL_BLUE, valign: "middle",
+      });
+
+      const termsText = [
+        { text: "1.  All the above mentioned sites are Subject to availability at the time of final booking/written confirmation.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "2.  Formal Add Release order to be drawn in favour of \"Truesign Media\".\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "3.  No mid term cancellation will be accepted.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "4.  Flex torn due to natural calamity or stolen by chance shall not be our responsibility.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "5.  Flex Mounting Charges @Rs.3/- Per Sq.ft  and Printing Charges for Non lit @ Rs. 09/- Per Sqr. Ft.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "6.  Rates mentioned above is inclusive of Ground Rent and Municipal Taxes.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: includeGst ? "7.  Rates mentioned above are inclusive of 18.00% GST.\n" : "7.  GST @18.00% extra.\n", options: { bold: true, color: C_ROYAL_BLUE, fontSize: 8.5 } },
+        { text: "8.  After completion of the campaign, the flex material may be collected by the party from our office within 7 (seven) days, failing which our agency shall not be responsible for damage, or loss, and no claim regarding the flex will be entertained there.\n", options: { color: C_TEXT_SLATE, fontSize: 8.5 } },
+        { text: "9.  Payment is Advance.", options: { bold: true, color: C_NAVY, fontSize: 9 } },
+      ];
+
+      finalSlide.addText(termsText, {
+        x: 1.05, y: 1.9, w: 7.1, h: 3.9,
+        fontFace: "Helvetica",
+        lineSpacingMultiple: 1.1,
+      });
+
+      // Right Box: Official Sign-Off & Contact (from Anurag Sir.xlsx)
+      finalSlide.addShape(ppt.ShapeType.roundRect, {
+        x: 8.7, y: 1.35, w: 3.833, h: 4.6,
+        fill: { color: C_WHITE },
+        line: { color: C_BORDER_BLUE, width: 1.5 },
+      });
+
+      finalSlide.addShape(ppt.ShapeType.rect, {
+        x: 8.7, y: 1.35, w: 3.833, h: 0.45,
+        fill: { color: C_ICE_BLUE },
+      });
+
+      finalSlide.addText("AUTHORISED SIGN-OFF", {
+        x: 8.95, y: 1.35, w: 3.3, h: 0.45,
+        fontSize: 11, fontFace: "Helvetica",
+        bold: true, color: C_ROYAL_BLUE, valign: "middle",
       });
 
       finalSlide.addText(
         [
-          { text: "Total Monthly Rental: ", options: { bold: true, color: C_WHITE, fontSize: 11 } },
-          { text: `₹${totalQuotedAmount.toLocaleString("en-IN")} + GST\n\n`, options: { bold: true, color: C_GOLD, fontSize: 13 } },
-          { text: "1. Advance Payment: ", options: { bold: true, color: C_WHITE, fontSize: 10 } },
-          { text: "100% advance along with formal Purchase Order / Confirmation.\n\n", options: { color: "CBD5E1", fontSize: 9.5 } },
-          { text: "2. Printing & Mounting: ", options: { bold: true, color: C_WHITE, fontSize: 10 } },
-          { text: "Flex printing and mounting charges extra as applicable.\n\n", options: { color: "CBD5E1", fontSize: 9.5 } },
-          { text: "3. Proposal Validity: ", options: { bold: true, color: C_WHITE, fontSize: 10 } },
-          { text: `This quotation is valid for ${validityDays} from ${quotationDate}. Sites subject to availability at time of confirmation.`, options: { color: "CBD5E1", fontSize: 9.5 } },
+          { text: "Thanking you and looking forward for your favorable reply.\n\n", options: { italic: true, color: C_TEXT_SLATE, fontSize: 9.5 } },
+          { text: "Yours truly,\n\n", options: { color: C_TEXT_DARK, fontSize: 10 } },
+          { text: `${preparedBy || "Jatin Dhakre"}\n`, options: { bold: true, color: C_NAVY, fontSize: 12 } },
+          { text: "Mo.no. 9765556859 / 9765556861\n", options: { color: C_TEXT_SLATE, fontSize: 10 } },
+          { text: "Truesign Media\n", options: { bold: true, color: C_ROYAL_BLUE, fontSize: 11 } },
+          { text: "Nagpur", options: { color: C_TEXT_MUTED, fontSize: 10 } },
         ],
         {
-          x: 1.05, y: 2.15, w: 5.2, h: 3.2,
+          x: 8.95, y: 1.9, w: 3.3, h: 2.7,
           fontFace: "Helvetica",
         }
       );
 
-      // Right Box: Execution Next Steps
-      finalSlide.addShape(ppt.ShapeType.roundRect, {
-        x: 6.833, y: 1.55, w: 5.7, h: 4.0,
-        fill: { color: C_NAVY_LIGHT },
-        line: { color: "1E40AF", width: 1 },
-      });
+      // Embedded TrueSign Media Logo in sign-off card
+      if (logoData) {
+        try {
+          finalSlide.addImage({
+            data: logoData,
+            x: 9.0, y: 4.75,
+            w: 3.2, h: 1.0,
+            sizing: { type: "contain", w: 3.2, h: 1.0 },
+          });
+        } catch (e) {
+          console.warn("Logo embed error in sign-off:", e);
+        }
+      }
 
-      finalSlide.addText("CAMPAIGN EXECUTION TIMELINE", {
-        x: 7.08, y: 1.75, w: 5.2, h: 0.35,
-        fontSize: 13, fontFace: "Helvetica",
-        bold: true, color: C_GOLD,
+      // Bottom Office Address Bar matching Anurag Sir.xlsx
+      finalSlide.addShape(ppt.ShapeType.roundRect, {
+        x: 0.8, y: 6.15, w: 11.733, h: 0.85,
+        fill: { color: C_ICE_BLUE },
+        line: { color: C_BORDER_BLUE, width: 1.5 },
       });
 
       finalSlide.addText(
-        [
-          { text: "STEP 1: Site Confirmation\n", options: { bold: true, color: C_WHITE, fontSize: 10.5 } },
-          { text: "Sign and return the proposal along with campaign dates.\n\n", options: { color: "CBD5E1", fontSize: 9.5 } },
-          { text: "STEP 2: Creative Delivery\n", options: { bold: true, color: C_WHITE, fontSize: 10.5 } },
-          { text: "Provide high-resolution CDR / TIFF artworks as per site dimensions.\n\n", options: { color: "CBD5E1", fontSize: 9.5 } },
-          { text: "STEP 3: Mounting & Go-Live\n", options: { bold: true, color: C_WHITE, fontSize: 10.5 } },
-          { text: "On-ground installation completed within 48-72 hours with photo proof.\n\n", options: { color: "CBD5E1", fontSize: 9.5 } },
-          { text: "STEP 4: Monitoring & Proof of Display\n", options: { bold: true, color: C_WHITE, fontSize: 10.5 } },
-          { text: "Continuous inspection and maintenance throughout campaign duration.", options: { color: "CBD5E1", fontSize: 9.5 } },
-        ],
+        "Office Ad. - 123, Bhagwaghar Layout, Behind Traffic Park, Dharampeth, Nagpur-440010. Ph: 0712-2544985, E-Mail : samarketing.nagpur@gmail.com / truesignmedia@gmail.com",
         {
-          x: 7.08, y: 2.15, w: 5.2, h: 3.2,
-          fontFace: "Helvetica",
+          x: 1.0, y: 6.15, w: 11.333, h: 0.85,
+          fontSize: 9.5, fontFace: "Helvetica",
+          bold: true, color: C_NAVY, align: "center", valign: "middle",
         }
       );
 
-      // Bottom Contact Bar
-      finalSlide.addShape(ppt.ShapeType.roundRect, {
-        x: 0.8, y: 5.75, w: 11.733, h: 1.15,
-        fill: { color: C_GOLD },
-      });
-
-      finalSlide.addText("SELLADS OUTDOOR ADVERTISING · NAGPUR", {
-        x: 1.0, y: 5.85, w: 11.333, h: 0.35,
-        fontSize: 12, fontFace: "Helvetica",
-        bold: true, color: C_NAVY, align: "center",
-      });
-
-      finalSlide.addText("Office: 123, Bhagwaghar Layout, Dharampeth, Nagpur 440010 | Email: truesignmedia@gmail.com | Phone: +91 9765556861, +91 9765556859", {
-        x: 1.0, y: 6.2, w: 11.333, h: 0.5,
-        fontSize: 9.5, fontFace: "Helvetica",
-        bold: true, color: "78350F", align: "center",
-      });
-
-      const fileName = `Sellads_Proposal_${(clientName || "Client").replace(/[^a-zA-Z0-9]/g, "_")}_${quotationDate}.pptx`;
+      const fileName = `Quotation_Advertisement_${clientName.replace(/[^a-zA-Z0-9]/g, "_")}_${quotationDate}.pptx`;
       await ppt.writeFile({ fileName });
     } catch (err: any) {
       alert("Failed to export PowerPoint: " + err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // ==========================================
+  // 3. EXPORT BOTH (PPT + EXCEL) AT THE SAME TIME
+  // ==========================================
+  const handleExportBoth = async () => {
+    if (selectedSitesList.length === 0) {
+      alert("Please select at least one site to export.");
+      return;
+    }
+
+    if (!clientName.trim()) {
+      alert("Please enter the Client / Brand Name. It is mandatory for generating the proposal.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (!campaignName.trim()) {
+      alert("Please enter the Campaign Name. It is mandatory for generating the proposal.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      // 1. Trigger Excel download
+      handleExportExcel();
+      // Brief pause to allow the browser to initiate the Excel download stream
+      await new Promise(res => setTimeout(res, 400));
+      // 2. Trigger PPT download
+      await handleExportPPT();
+    } catch (err: any) {
+      alert("Failed to export files: " + err.message);
     } finally {
       setIsExporting(false);
     }
@@ -823,70 +1092,116 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
               <FileSpreadsheet className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Quotation & Proposal Builder</h1>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Quotation &amp; Proposal Builder</h1>
               <p className="text-xs text-gray-500 mt-0.5">Select sites, customize rates, and export to clean Excel (.xlsx) and PowerPoint (.pptx).</p>
             </div>
           </div>
         </div>
 
         {/* Action Export Buttons */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleExportExcel}
             disabled={selectedSitesList.length === 0 || isExporting}
-            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <FileSpreadsheet className="h-4 w-4" />
-            <span>Export Excel (.xlsx)</span>
+            <span>Excel (.xlsx)</span>
           </button>
 
           <button
             onClick={handleExportPPT}
             disabled={selectedSitesList.length === 0 || isExporting}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-105 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Presentation className="h-4 w-4" />
-            <span>Export PPT (.pptx)</span>
+            <span>PPT (.pptx)</span>
+          </button>
+
+          <button
+            onClick={handleExportBoth}
+            disabled={selectedSitesList.length === 0 || isExporting}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 hover:brightness-110 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            title="Download both PPT and Excel files with one click"
+          >
+            <Download className="h-4 w-4" />
+            <span>Download Both (PPT + Excel)</span>
           </button>
         </div>
       </div>
 
       {/* Campaign Details Form */}
       <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-        <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Settings2 className="h-4 w-4 text-indigo-600" />
-          Campaign & Client Details
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+            <Settings2 className="h-4 w-4 text-indigo-600" />
+            Campaign &amp; Client Details
+          </h2>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* GST Toggle Switch */}
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-xs font-bold text-gray-700">Include 18% GST:</span>
+              <button
+                type="button"
+                onClick={() => setIncludeGst(!includeGst)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  includeGst ? 'bg-indigo-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    includeGst ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              <span className={`text-[11px] font-bold ${includeGst ? 'text-indigo-600' : 'text-gray-400'}`}>
+                {includeGst ? "ON (+18%)" : "OFF"}
+              </span>
+            </div>
+
+            <span className="text-xs text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full font-medium">
+              * Client &amp; Campaign mandatory for PPT
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Client / Brand Name</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
+              Client / Brand Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
+              required
               value={clientName}
               onChange={e => setClientName(e.target.value)}
               placeholder="e.g. Tata Motors / Tanishq"
-              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 outline-none transition-all"
+              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Campaign Name</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
+              Campaign Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
+              required
               value={campaignName}
               onChange={e => setCampaignName(e.target.value)}
               placeholder="e.g. Festive Launch Q4"
-              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 outline-none transition-all"
+              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Quotation Date</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Quotation Date</label>
             <input
               type="date"
               value={quotationDate}
               onChange={e => setQuotationDate(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 outline-none transition-all"
+              className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 outline-none transition-all cursor-pointer"
             />
           </div>
 
@@ -896,7 +1211,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
               type="text"
               value={preparedBy}
               onChange={e => setPreparedBy(e.target.value)}
-              placeholder="Sellads Outdoor Advertising"
+              placeholder="TrueSign Media"
               className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-400 outline-none transition-all"
             />
           </div>
@@ -904,7 +1219,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Selected Sites</p>
@@ -917,7 +1232,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Standard / Card Value</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Standard Card Rate</p>
             <p className="text-2xl font-black text-slate-700 mt-1">₹{totalStandardAmount.toLocaleString("en-IN")}</p>
           </div>
           <div className="h-12 w-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
@@ -925,10 +1240,27 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">Total Quoted Monthly</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Base Quoted (Excl. GST)</p>
+            <p className="text-2xl font-black text-indigo-700 mt-1">₹{baseQuotedAmount.toLocaleString("en-IN")}</p>
+          </div>
+          <div className="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+            <Percent className="h-6 w-6" />
+          </div>
+        </div>
+
+        <div className={`p-5 rounded-2xl border shadow-sm flex items-center justify-between transition-all ${
+          includeGst ? "bg-emerald-50/50 border-emerald-300" : "bg-white border-gray-200"
+        }`}>
+          <div>
+            <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">
+              {includeGst ? "Total (Incl. 18% GST)" : "Total Quoted Monthly"}
+            </p>
             <p className="text-2xl font-black text-emerald-700 mt-1">₹{totalQuotedAmount.toLocaleString("en-IN")}</p>
+            {includeGst && (
+              <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">+₹{gstAmount.toLocaleString("en-IN")} GST (18%)</p>
+            )}
           </div>
           <div className="h-12 w-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
             <Sparkles className="h-6 w-6" />
@@ -978,44 +1310,55 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       {activeStep === "select" && (
         <div className="space-y-4">
           {/* Filter Bar */}
-          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
             {/* Search */}
             <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search site, city, area..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full h-10 pl-9 pr-4 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-indigo-500/25 outline-none"
+                className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 text-sm font-medium focus:ring-2 focus:ring-indigo-500/25 outline-none"
               />
             </div>
 
             {/* Dropdown Filters */}
-            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
               <select
                 value={selectedCity}
                 onChange={e => setSelectedCity(e.target.value)}
-                className="h-10 px-3 rounded-xl border border-gray-200 text-xs font-semibold bg-white text-gray-700 focus:outline-none"
+                className="h-12 px-4 rounded-xl border border-gray-200 text-sm font-bold bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-xs"
               >
                 {citiesList.map(c => (
-                  <option key={c} value={c}>{c === "All" ? "All Cities" : c}</option>
+                  <option key={c} value={c} className="text-sm py-1.5">{c === "All" ? "All Cities" : c}</option>
                 ))}
               </select>
 
               <select
                 value={selectedType}
                 onChange={e => setSelectedType(e.target.value)}
-                className="h-10 px-3 rounded-xl border border-gray-200 text-xs font-semibold bg-white text-gray-700 focus:outline-none"
+                className="h-12 px-4 rounded-xl border border-gray-200 text-sm font-bold bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-xs"
               >
                 {typesList.map(t => (
-                  <option key={t} value={t}>{t === "All" ? "All Media Types" : t}</option>
+                  <option key={t} value={t} className="text-sm py-1.5">{t === "All" ? "All Media Types" : t}</option>
                 ))}
+              </select>
+
+              <select
+                value={selectedStatus}
+                onChange={e => setSelectedStatus(e.target.value)}
+                className="h-12 px-4 rounded-xl border border-gray-200 text-sm font-bold bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-xs"
+              >
+                <option value="All">All Status</option>
+                <option value="Available">Available</option>
+                <option value="Booked">Booked</option>
+                <option value="Blocked">Blocked</option>
               </select>
 
               <button
                 onClick={handleSelectAllFiltered}
-                className="h-10 px-3 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors cursor-pointer"
+                className="h-12 px-5 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-bold hover:bg-indigo-100 transition-colors cursor-pointer shadow-xs flex items-center justify-center"
               >
                 Select All Filtered ({filteredSites.length})
               </button>
@@ -1023,7 +1366,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
               {selectedSitesList.length > 0 && (
                 <button
                   onClick={handleClearSelection}
-                  className="h-10 px-3 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs font-bold hover:bg-red-100 transition-colors cursor-pointer"
+                  className="h-12 px-5 rounded-xl border border-red-200 bg-red-50 text-red-700 text-sm font-bold hover:bg-red-100 transition-colors cursor-pointer shadow-xs flex items-center justify-center"
                 >
                   Clear Selection
                 </button>
@@ -1031,56 +1374,80 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
             </div>
           </div>
 
-          {/* Sites Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Sites List View */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
             {filteredSites.length === 0 ? (
-              <div className="col-span-full bg-white p-12 text-center rounded-2xl border border-gray-200">
+              <div className="p-12 text-center">
                 <Search className="h-8 w-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-gray-600">No inventory sites matched your search or filter.</p>
               </div>
             ) : (
-              filteredSites.map(site => {
+              filteredSites.map((site, index) => {
                 const isSelected = !!selectedSitesMap[site.uuid];
+                const displayCode = site.code || getSiteCode(site, index + 1);
+                const statusColor = site.status === 'Available'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : site.status === 'Blocked'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-rose-50 text-rose-700 border-rose-200';
+
                 return (
                   <div
                     key={site.uuid}
                     onClick={() => toggleSite(site)}
-                    className={`bg-white rounded-2xl border transition-all cursor-pointer p-4 relative overflow-hidden group ${
+                    className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 sm:px-5 sm:py-3.5 gap-3 transition-all cursor-pointer select-none ${
                       isSelected
-                        ? "border-indigo-600 ring-2 ring-indigo-600/20 shadow-md bg-indigo-50/20"
-                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                        ? "bg-indigo-50/60 hover:bg-indigo-50/80"
+                        : "hover:bg-gray-50/80 bg-white"
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      {/* Selection Box */}
-                      <div className="mt-0.5 shrink-0">
+                    {/* Left: Checkbox & Details */}
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div className="shrink-0">
                         {isSelected ? (
-                          <div className="h-5 w-5 rounded bg-indigo-600 text-white flex items-center justify-center">
+                          <div className="h-5 w-5 rounded bg-indigo-600 text-white flex items-center justify-center shadow-xs">
                             <Check className="h-3.5 w-3.5" />
                           </div>
                         ) : (
-                          <div className="h-5 w-5 rounded border border-gray-300 bg-white" />
+                          <div className="h-5 w-5 rounded border border-gray-300 bg-white hover:border-indigo-400 transition-colors" />
                         )}
                       </div>
 
-                      {/* Info */}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <p className="text-sm font-bold text-gray-900 truncate">{site.name}</p>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700 shrink-0">
-                            {site.size}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-mono font-black px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-xs shrink-0">
+                            {displayCode}
+                          </span>
+                          <p className="text-sm font-bold text-gray-900 truncate">
+                            {site.name}
+                          </p>
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                            {site.size || "Standard"}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusColor} shrink-0`}>
+                            {site.status || "Available"}
                           </span>
                         </div>
-
-                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                          <span className="truncate">{site.city}{site.area ? `, ${site.area}` : ""}</span>
-                        </p>
-
-                        <div className="mt-2.5 flex items-center justify-between text-xs pt-2.5 border-t border-gray-100">
-                          <span className="text-gray-500">{site.type} · {site.lit_type}</span>
-                          <span className="font-bold text-indigo-700">₹{Number(site.net_rate).toLocaleString("en-IN")} / mo</span>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mt-1">
+                          <span className="flex items-center gap-1 font-semibold text-slate-700">
+                            <MapPin className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                            {site.city}{site.area ? `, ${site.area}` : ""}
+                          </span>
+                          <span className="text-gray-300">•</span>
+                          <span>{site.type}</span>
+                          <span className="text-gray-300">•</span>
+                          <span>{site.lit_type || "Front Lit"}</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Rate */}
+                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pl-8 sm:pl-0 shrink-0">
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-indigo-700">
+                          ₹{Number(site.net_rate).toLocaleString("en-IN")}
+                          <span className="text-xs font-normal text-gray-500 ml-1">/ mo</span>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1150,22 +1517,29 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
                 <table className="w-full text-left text-xs">
                   <thead className="bg-gray-50 text-gray-500 border-b border-gray-200 uppercase font-semibold">
                     <tr>
-                      <th className="px-4 py-3">Site Details</th>
+                      <th className="px-4 py-3">Site Details &amp; Code</th>
                       <th className="px-4 py-3">City & Location</th>
                       <th className="px-4 py-3">Dimensions</th>
                       <th className="px-4 py-3">Card Rate (₹)</th>
+                      <th className="px-4 py-3 w-28">Discount (%)</th>
                       <th className="px-4 py-3 min-w-[160px]">Custom Offer Rate (₹ / mo)</th>
                       <th className="px-4 py-3 min-w-[220px]">Proposal Remarks</th>
                       <th className="px-4 py-3 text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {selectedSitesList.map(site => (
-                      <tr key={site.uuid} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-semibold text-gray-900">
-                          {site.name}
-                          <span className="block text-[10px] text-gray-400 font-normal">ID: {site.uuid}</span>
-                        </td>
+                    {selectedSitesList.map((site, index) => {
+                      const displayCode = site.code || getSiteCode(site, index + 1);
+                      return (
+                        <tr key={site.uuid} className="hover:bg-gray-50/50">
+                          <td className="px-4 py-3 font-semibold text-gray-900">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                                {displayCode}
+                              </span>
+                              <span className="truncate font-bold">{site.name}</span>
+                            </div>
+                          </td>
                         <td className="px-4 py-3 text-gray-600">
                           {site.city}{site.area ? `, ${site.area}` : ""}
                         </td>
@@ -1174,6 +1548,20 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
                         </td>
                         <td className="px-4 py-3 text-gray-500 line-through">
                           ₹{Number(site.net_rate).toLocaleString("en-IN")}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="relative">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={site.discountPercent || ""}
+                              onChange={e => handleDiscountPercentChange(site.uuid, Number(e.target.value) || 0)}
+                              placeholder="0"
+                              className="w-full h-8 pl-2 pr-6 rounded-lg border border-gray-300 font-bold text-gray-900 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-center"
+                            />
+                            <span className="absolute right-2 top-2 text-gray-400 font-bold text-[10px]">%</span>
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="relative">
@@ -1205,18 +1593,37 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    );
+                  })}
                   </tbody>
-                  <tfoot className="bg-slate-50 font-bold border-t border-gray-200">
+                  <tfoot className="bg-slate-50 font-bold border-t border-gray-200 divide-y divide-gray-200/60">
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-right text-gray-700 text-sm">
-                        TOTAL QUOTED AMOUNT:
+                      <td colSpan={5} className="px-4 py-2.5 text-right text-gray-700 text-xs">
+                        BASE QUOTED MONTHLY:
+                      </td>
+                      <td colSpan={3} className="px-4 py-2.5 text-gray-900 text-xs font-bold">
+                        ₹{baseQuotedAmount.toLocaleString("en-IN")} / Month
+                        {discountPercent > 0 && (
+                          <span className="text-[11px] text-amber-600 font-normal ml-2">({discountPercent}% global discount applied)</span>
+                        )}
+                      </td>
+                    </tr>
+                    {includeGst && (
+                      <tr className="bg-indigo-50/40">
+                        <td colSpan={5} className="px-4 py-2 text-right text-indigo-700 text-xs font-semibold">
+                          GST (18%):
+                        </td>
+                        <td colSpan={3} className="px-4 py-2 text-indigo-800 text-xs font-bold">
+                          + ₹{gstAmount.toLocaleString("en-IN")} / Month
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-slate-100">
+                      <td colSpan={5} className="px-4 py-3 text-right text-gray-900 text-sm font-bold">
+                        TOTAL PAYABLE {includeGst ? "(INCL. 18% GST)" : "(EXCL. GST)"}:
                       </td>
                       <td colSpan={3} className="px-4 py-3 text-emerald-700 text-base font-black">
                         ₹{totalQuotedAmount.toLocaleString("en-IN")} / Month
-                        {discountPercent > 0 && (
-                          <span className="text-xs text-amber-600 font-normal ml-2">({discountPercent}% discount applied)</span>
-                        )}
                       </td>
                     </tr>
                   </tfoot>
@@ -1299,39 +1706,70 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
                   <span className="font-bold">{selectedSitesList.length} Locations</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/50">
+                  <span className="font-semibold text-slate-500">Base Quoted (Excl. GST):</span>
+                  <span className="font-bold">₹{baseQuotedAmount.toLocaleString("en-IN")}</span>
+                </div>
+                {includeGst && (
+                  <div className="flex justify-between py-1 border-b border-slate-200/50 text-indigo-700">
+                    <span className="font-semibold">GST (18%):</span>
+                    <span className="font-bold">+ ₹{gstAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between py-1 border-b border-slate-200/50">
                   <span className="font-semibold text-slate-500">Active Columns in Excel:</span>
                   <span className="font-bold">{selectedColumns.length} Columns</span>
                 </div>
                 <div className="flex justify-between py-1 pt-2 text-sm font-black text-emerald-700">
-                  <span>Total Quoted Monthly:</span>
+                  <span>Total Quoted Monthly {includeGst ? "(Incl. 18% GST)" : "(Excl. GST)"}:</span>
                   <span>₹{totalQuotedAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
+
+              {(!clientName.trim() || !campaignName.trim()) && (
+                <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    <strong>Client &amp; Campaign details required:</strong> Please fill in both Client Name and Campaign Name in the top details form before downloading PPT.
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Big Action Download Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button
                 onClick={handleExportExcel}
                 disabled={selectedSitesList.length === 0 || isExporting}
                 className="flex items-center justify-center gap-3 p-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
-                <FileSpreadsheet className="h-5 w-5" />
+                <FileSpreadsheet className="h-5 w-5 shrink-0" />
                 <div className="text-left">
-                  <div>Download Excel (.xlsx)</div>
-                  <div className="text-[10px] text-emerald-100 font-normal">Data sheet with no images</div>
+                  <div>Excel Sheet (.xlsx)</div>
+                  <div className="text-[10px] text-emerald-100 font-normal">Standard Data Sheet</div>
                 </div>
               </button>
 
               <button
                 onClick={handleExportPPT}
                 disabled={selectedSitesList.length === 0 || isExporting}
-                className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:brightness-110 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                className="flex items-center justify-center gap-3 p-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
-                <Presentation className="h-5 w-5" />
+                <Presentation className="h-5 w-5 shrink-0" />
                 <div className="text-left">
-                  <div>Download PowerPoint (.pptx)</div>
-                  <div className="text-[10px] text-amber-100 font-normal">1 slide per site + photos</div>
+                  <div>PowerPoint (.pptx)</div>
+                  <div className="text-[10px] text-blue-100 font-normal">Executive Deck with Photos</div>
+                </div>
+              </button>
+
+              <button
+                onClick={handleExportBoth}
+                disabled={selectedSitesList.length === 0 || isExporting}
+                className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 hover:brightness-110 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer ring-2 ring-indigo-400/30"
+              >
+                <Download className="h-5 w-5 shrink-0" />
+                <div className="text-left">
+                  <div>Download Both</div>
+                  <div className="text-[10px] text-indigo-100 font-normal">PPT + Excel Together</div>
                 </div>
               </button>
             </div>

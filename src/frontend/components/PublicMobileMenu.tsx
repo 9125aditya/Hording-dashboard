@@ -52,7 +52,7 @@ export default function PublicMobileMenu({
           <div className="absolute inset-y-0 right-0 w-[80vw] max-w-[320px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <img src="/logo.png" alt="Sellads Advertising" className="h-9 w-auto object-contain mix-blend-multiply" />
+              <img src="/logo.png" alt="Sellads Advertising" className="h-11 w-auto object-contain mix-blend-multiply" />
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-slate-500 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
@@ -99,7 +99,7 @@ export default function PublicMobileMenu({
               >
                 Get In Touch
               </Link>
-              {hasUser ? (
+              {hasUser && (
                 <>
                   <Link
                     href="/dashboard"
@@ -118,14 +118,6 @@ export default function PublicMobileMenu({
                     </button>
                   </form>
                 </>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center w-full h-11 rounded-full border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors"
-                >
-                  <span>Admin Login</span>
-                </Link>
               )}
             </div>
           </div>

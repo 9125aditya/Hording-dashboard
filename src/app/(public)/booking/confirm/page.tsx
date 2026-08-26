@@ -75,7 +75,7 @@ export default async function BookingConfirmPage({
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md mb-3 border border-white/20">
               <Building2 className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">SellAds OOH Media</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">TrueSign Media</h1>
             <p className="text-indigo-100 text-sm mt-1">Hoarding Reservation &amp; Booking Confirmation</p>
           </div>
 

@@ -39,14 +39,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
   };
 
   if (!user) {
-    return (
-      <Link
-        href="/login"
-        className="h-10 px-4 rounded-full border border-slate-200 bg-white text-slate-800 text-[13px] font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-xs ml-1"
-      >
-        <span>Admin Login</span>
-      </Link>
-    );
+    return null;
   }
 
   const userInitial = (user.name || user.email || 'A')[0].toUpperCase();
@@ -78,7 +71,7 @@ export default function PublicUserNav({ user, isAdmin }: PublicUserNavProps) {
           {userInitial}
         </div>
         <div className="flex flex-col text-left">
-          <span className="text-[13px] font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight truncate max-w-[100px]">
+          <span className="text-[13px] font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-tight truncate max-w-[160px]">
             {user.name || 'Staff'}
           </span>
           <span className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider leading-none">

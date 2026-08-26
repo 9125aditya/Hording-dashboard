@@ -163,22 +163,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 </span>
               </Link>
             )}
-            <Link href="/profile" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-              <div className="hidden sm:flex flex-col items-end mr-1">
-                <span className="text-sm font-semibold text-gray-900 leading-none">{userName}</span>
-                <span className="text-[10px] uppercase text-gray-500 mt-1 tracking-wider font-medium">{role.replace('_', ' ')}</span>
-              </div>
+            {/* User Profile Pill Badge */}
+            <Link 
+              href="/profile" 
+              className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all group shadow-2xs"
+            >
               {avatarBase64 ? (
-                <img src={avatarBase64} alt="Avatar" className="h-8 w-8 rounded-full object-cover" />
+                <img src={avatarBase64} alt="Avatar" className="h-8 w-8 rounded-full object-cover shrink-0" />
               ) : (
-                <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                   {userInitial}
                 </div>
               )}
+              <div className="hidden sm:flex flex-col text-left">
+                <span className="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition-colors whitespace-nowrap leading-tight">
+                  {userName}
+                </span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none mt-0.5 whitespace-nowrap">
+                  {role.replace('_', ' ')}
+                </span>
+              </div>
             </Link>
-            <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+
+            <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+
             <AdminLogoutButton
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors border border-gray-200 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all border border-slate-200 bg-white shadow-2xs cursor-pointer"
               iconClassName="h-3.5 w-3.5"
               label="Sign Out"
             />

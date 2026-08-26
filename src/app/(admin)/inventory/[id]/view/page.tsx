@@ -148,6 +148,7 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
             {renderField("Net Rate", site.net_rate ? `₹${site.net_rate}` : null)}
             {renderField("DCPM Rate", site.dcpm_rate ? `₹${site.dcpm_rate}` : null)}
             {renderField("Agency Rate", site.agency_rate ? `₹${site.agency_rate}` : null)}
+            {renderField("Mounting Charges", site.mounting_charges ? `₹${site.mounting_charges}` : null)}
           </div>
         </div>
       </div>

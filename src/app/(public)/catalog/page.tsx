@@ -12,17 +12,22 @@ export default async function CatalogPage() {
   const supabase = await createClient();
   const { data: dbSites } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
 
-  const sites = dbSites?.map((s: any) => ({
-    id: s.site_id,
-    name: s.name,
-    size: s.size,
-    type: s.type,
-    lit_type: s.lit_type || 'Front Lit',
-    status: s.status,
-    color: s.status === 'Available' ? 'bg-available' : s.status === 'Booked' ? 'bg-booked' : 'bg-blocked text-white',
-    img: s.photos?.[0] || 'https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80',
-    city: s.city
-  })) || [];
+  const sites = dbSites?.map((s: any) => {
+    let lit = s.lit_type?.trim();
+    if (!lit || lit === 'Front-lit') lit = 'Front Lit';
+    if (lit === 'Non-lit' || lit === 'non-lit') lit = 'Non-Lit';
+    return {
+      id: s.site_id,
+      name: s.name,
+      size: s.size,
+      type: s.type,
+      lit_type: lit || 'Front Lit',
+      status: s.status,
+      color: s.status === 'Available' ? 'bg-available' : s.status === 'Booked' ? 'bg-booked' : 'bg-blocked text-white',
+      img: s.photos?.[0] || 'https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=800&q=80',
+      city: s.city
+    };
+  }) || [];
   return (
     <div className="flex-1 bg-background pt-10 pb-24">
       <div className="container mx-auto px-4 max-w-7xl">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { X, Calendar, User, Mail, Clock, Send, Loader2, AlertCircle, CheckCircle2, ShieldAlert } from "lucide-react";
+import { useState, useTransition, useMemo } from "react";
+import { X, Calendar, User, Mail, Clock, Send, Loader2, AlertCircle, CheckCircle2, ShieldAlert, ShieldCheck, Lock } from "lucide-react";
 import { createSiteBooking, StaffOption } from "@/backend/actions/booking-actions";
 
 export interface SiteBookingModalProps {
@@ -33,9 +33,14 @@ export default function SiteBookingModal({
   currentUserName,
   onBookingSuccess,
 }: SiteBookingModalProps) {
+  const todayStr = new Date().toISOString().split("T")[0];
+  const defaultEndStr = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+  const [bookingType, setBookingType] = useState<"BLOCKED" | "CONFIRMED">("BLOCKED");
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [bookingPeriod, setBookingPeriod] = useState("");
+  const [startDate, setStartDate] = useState(todayStr);
+  const [endDate, setEndDate] = useState(defaultEndStr);
   const [selectedStaffId, setSelectedStaffId] = useState(
     currentUserId || (staffList.length > 0 ? staffList[0].id : "")
   );
@@ -45,10 +50,28 @@ export default function SiteBookingModal({
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Compute duration in days & formatted string
+  const durationInfo = useMemo(() => {
+    if (!startDate || !endDate) return null;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    if (diffDays <= 0) return { days: 0, text: "Invalid date range", valid: false };
+
+    const startFormatted = start.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    const endFormatted = end.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+    return {
+      days: diffDays,
+      text: `${startFormatted} – ${endFormatted} (${diffDays} Day${diffDays === 1 ? "" : "s"})`,
+      valid: true,
+    };
+  }, [startDate, endDate]);
+
   if (!isOpen) return null;
 
   const isFull = site.activeBookingsCount >= 3;
-  const remainingSlots = Math.max(0, 3 - site.activeBookingsCount);
 
   const selectedStaffObj = staffList.find(s => s.id === selectedStaffId);
   const staffName = selectedStaffObj?.name || currentUserName || "Staff Member";
@@ -70,12 +93,25 @@ export default function SiteBookingModal({
       return;
     }
 
+    if (!startDate || !endDate) {
+      setError("Please select both Start Date and End Date from the calendar.");
+      return;
+    }
+
+    if (durationInfo && !durationInfo.valid) {
+      setError("End Date must be on or after Start Date.");
+      return;
+    }
+
     setError(null);
     const formData = new FormData();
     formData.append("site_id", site.uuid || String(site.id));
     formData.append("client_name", clientName.trim());
     formData.append("client_email", clientEmail.trim());
-    formData.append("booking_period", bookingPeriod.trim());
+    formData.append("booking_type", bookingType);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    formData.append("booking_period", durationInfo?.text || `${startDate} to ${endDate}`);
     formData.append("booked_by_staff_id", selectedStaffId);
     formData.append("booked_by_staff_name", staffName);
     formData.append("notes", notes.trim());
@@ -104,7 +140,7 @@ export default function SiteBookingModal({
           <div>
             <h2 className="text-lg font-bold">Book Hoarding Site</h2>
             <p className="text-xs text-indigo-100 mt-0.5">
-              Simultaneous Booking Hold (Slot {site.activeBookingsCount + 1} of 3)
+              Simultaneous Booking Slot ({site.activeBookingsCount + 1} of 3)
             </p>
           </div>
           <button
@@ -140,7 +176,11 @@ export default function SiteBookingModal({
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               <div>
                 <p className="font-bold">Booking Created Successfully!</p>
-                <p className="text-xs text-emerald-700">5-day reservation hold active &amp; confirmation email dispatched.</p>
+                <p className="text-xs text-emerald-700">
+                  {bookingType === "BLOCKED"
+                    ? "5-day temporary reservation hold active."
+                    : "Confirmed booking recorded for the scheduled campaign period."}
+                </p>
               </div>
             </div>
           )}
@@ -162,6 +202,40 @@ export default function SiteBookingModal({
             </div>
           ) : (
             <>
+              {/* Booking Type Selector: Blocked (5-Day Rule) vs Confirmed */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                  Booking Classification <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setBookingType("BLOCKED")}
+                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      bookingType === "BLOCKED"
+                        ? "bg-white text-amber-700 shadow-xs border border-amber-200"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Blocked (5-Day Hold)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBookingType("CONFIRMED")}
+                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      bookingType === "CONFIRMED"
+                        ? "bg-white text-emerald-700 shadow-xs border border-emerald-200"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Confirmed Booking</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Client Name */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -192,18 +266,42 @@ export default function SiteBookingModal({
                 />
               </div>
 
-              {/* Booking Period (Optional) */}
+              {/* Booking Period with Calendar Date Pickers */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-600" /> Booking Period <span className="text-gray-400 text-[10px] font-normal">(Optional)</span>
+                  <Calendar className="w-3.5 h-3.5 text-indigo-600" /> Booking Period (Calendar Range) <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1st Sep - 15th Sep or 30 Days"
-                  value={bookingPeriod}
-                  onChange={e => setBookingPeriod(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[11px] font-semibold text-gray-500 mb-1">Start Date</span>
+                    <input
+                      type="date"
+                      required
+                      value={startDate}
+                      onChange={e => setStartDate(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[11px] font-semibold text-gray-500 mb-1">End Date</span>
+                    <input
+                      type="date"
+                      required
+                      min={startDate}
+                      value={endDate}
+                      onChange={e => setEndDate(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Duration Summary Badge */}
+                {durationInfo && durationInfo.valid && (
+                  <div className="mt-1 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-indigo-900">Selected Schedule:</span>
+                    <span className="font-bold text-indigo-700">{durationInfo.text}</span>
+                  </div>
+                )}
               </div>
 
               {/* Booked by Staff Member */}
@@ -227,13 +325,22 @@ export default function SiteBookingModal({
                 </select>
               </div>
 
-              {/* Hold Duration & Auto-Expiry Notice */}
-              <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="text-xs text-amber-900">
-                  <span className="font-bold">5-Day Automatic Hold:</span> This booking will auto-unbook after <strong>5 days</strong> unless extended manually by staff from the dashboard.
+              {/* 5-Day Rule / Confirmation Policy Box */}
+              {bookingType === "BLOCKED" ? (
+                <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex items-start gap-2.5">
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-900">
+                    <span className="font-bold">5-Day Automatic Hold Rule:</span> This blocked reservation will automatically release after <strong>5 days</strong> unless extended manually or converted into a confirmed booking.
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3.5 flex items-start gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="text-xs text-emerald-900">
+                    <span className="font-bold">Confirmed Booking:</span> This site is locked for the entire scheduled calendar duration until <strong>{endDate}</strong>. No 5-day expiration applies.
+                  </div>
+                </div>
+              )}
 
               {/* Automated Confirmation Email Checkbox */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
@@ -286,12 +393,12 @@ export default function SiteBookingModal({
                 {isPending ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Booking...</span>
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Confirm &amp; Book Site</span>
+                    <span>{bookingType === "BLOCKED" ? "Block Site (5-Day Hold)" : "Confirm & Book Site"}</span>
                   </>
                 )}
               </button>

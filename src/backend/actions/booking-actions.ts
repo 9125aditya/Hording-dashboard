@@ -171,7 +171,10 @@ export async function createSiteBooking(formData: FormData) {
     const siteId = formData.get("site_id") as string;
     const clientName = (formData.get("client_name") as string)?.trim();
     const clientEmail = (formData.get("client_email") as string)?.trim().toLowerCase();
-    const bookingPeriod = (formData.get("booking_period") as string)?.trim() || "";
+    const bookingType = (formData.get("booking_type") as string) || "BLOCKED";
+    const startDate = (formData.get("start_date") as string)?.trim() || "";
+    const endDate = (formData.get("end_date") as string)?.trim() || "";
+    const bookingPeriod = (formData.get("booking_period") as string)?.trim() || (startDate && endDate ? `${startDate} to ${endDate}` : "");
     const bookedByStaffId = (formData.get("booked_by_staff_id") as string) || user.id;
     const bookedByStaffName = (formData.get("booked_by_staff_name") as string)?.trim() || user.user_metadata?.name || user.email || "Staff";
     const notes = (formData.get("notes") as string)?.trim() || "";
@@ -217,9 +220,23 @@ export async function createSiteBooking(formData: FormData) {
       };
     }
 
-    // 3. Prepare 5-day expiration and confirmation token
+    // 3. Prepare expiration: 5-Day rule ONLY applies to Blocked holds. Confirmed bookings run for the full campaign period.
     const createdAt = new Date().toISOString();
-    const expiresAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(); // 5 days
+    let expiresAt: string;
+    if (bookingType === "BLOCKED") {
+      // 5-day rule for temporary blocked holds
+      expiresAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
+    } else {
+      // Confirmed bookings expire after the campaign end date (or 1 year if unspecified)
+      if (endDate) {
+        const parsedEnd = new Date(endDate);
+        parsedEnd.setHours(23, 59, 59, 999);
+        expiresAt = parsedEnd.toISOString();
+      } else {
+        expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+      }
+    }
+
     const confirmationToken = crypto.randomBytes(24).toString("hex");
     const bookingId = crypto.randomUUID();
 
@@ -230,13 +247,17 @@ export async function createSiteBooking(formData: FormData) {
       site_name: site.name || "Site",
       client_name: clientName,
       client_email: clientEmail,
+      booking_type: bookingType,
+      start_date: startDate,
+      end_date: endDate,
       booking_period: bookingPeriod,
       booked_by_staff_id: bookedByStaffId,
       booked_by_staff_name: bookedByStaffName,
       created_at: createdAt,
       expires_at: expiresAt,
+      is_blocked: bookingType === "BLOCKED",
       extended_count: 0,
-      status: "ACTIVE",
+      status: bookingType === "CONFIRMED" ? "CONFIRMED" : "ACTIVE",
       confirmation_token: confirmationToken,
       confirmation_email_status: sendEmail ? "PENDING" : "SKIPPED",
       notes: notes,

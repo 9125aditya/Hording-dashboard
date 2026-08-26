@@ -10,7 +10,7 @@ const TESTIMONIALS = [
     company: "PayNova"
   },
   {
-    quote: "Finally, a transparent and visually stunning way to book outdoor media. The team at Sellads Advertising helped us dominate Cyber Hub completely.",
+    quote: "Finally, a transparent and visually stunning way to book outdoor media. The team at TrueSign Media helped us dominate Cyber Hub completely.",
     author: "Aditi Desai",
     role: "Marketing Director",
     company: "Zest Retail"

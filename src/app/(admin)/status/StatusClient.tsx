@@ -54,46 +54,28 @@ const STATUS_OPTIONS = [
 ];
 
 function BookingSlotsBadge({ activeCount, status }: { activeCount: number; status: string }) {
-  if (status === "Blocked") {
+  if (status === "Blocked" || (activeCount > 0 && activeCount < 3 && status !== "Booked")) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
         <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-        Blocked
+        {activeCount > 0 ? `Blocked (${activeCount}/3 Hold)` : "Blocked"}
       </span>
     );
   }
 
-  if (activeCount >= 3 || (status === "Booked" && activeCount === 0)) {
+  if (activeCount >= 3 || status === "Booked") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
         <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-        {activeCount >= 3 ? "Fully Booked (3/3)" : "Booked (3/3 Full)"}
-      </span>
-    );
-  }
-
-  if (activeCount === 2) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
-        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-        2/3 Booked
-      </span>
-    );
-  }
-
-  if (activeCount === 1) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
-        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-        1/3 Booked
+        Booked (3/3 Full)
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-      Available (0/3)
+      Available
     </span>
   );
 }
@@ -176,7 +158,7 @@ export default function StatusClient({
   // Summary Metrics
   const totalSites = localInventory.length;
   const availableCount = localInventory.filter(i => i.activeBookingsCount === 0 && i.status === "Available").length;
-  const partiallyBookedCount = localInventory.filter(i => (i.activeBookingsCount === 1 || i.activeBookingsCount === 2) && i.status !== "Blocked" && i.status !== "Booked").length;
+  const blockedCount = localInventory.filter(i => i.status === "Blocked" || (i.activeBookingsCount > 0 && i.activeBookingsCount < 3 && i.status !== "Booked")).length;
   const fullyBookedCount = localInventory.filter(i => i.activeBookingsCount >= 3 || i.status === "Booked").length;
   const totalActiveHolds = localInventory.reduce((acc, i) => acc + i.activeBookingsCount, 0);
 
@@ -191,12 +173,10 @@ export default function StatusClient({
     // Filter by slot state
     if (selectedSlotFilter === "Available") {
       result = result.filter(item => item.activeBookingsCount === 0 && item.status === "Available");
-    } else if (selectedSlotFilter === "Partial") {
-      result = result.filter(item => (item.activeBookingsCount === 1 || item.activeBookingsCount === 2) && item.status !== "Blocked" && item.status !== "Booked");
+    } else if (selectedSlotFilter === "Blocked" || selectedSlotFilter === "Partial") {
+      result = result.filter(item => item.status === "Blocked" || (item.activeBookingsCount > 0 && item.activeBookingsCount < 3 && item.status !== "Booked"));
     } else if (selectedSlotFilter === "Full") {
       result = result.filter(item => item.activeBookingsCount >= 3 || item.status === "Booked");
-    } else if (selectedSlotFilter === "Blocked") {
-      result = result.filter(item => item.status === "Blocked");
     }
 
     // Filter by search
@@ -370,17 +350,17 @@ export default function StatusClient({
         </div>
 
         <div
-          onClick={() => setSelectedSlotFilter("Partial")}
+          onClick={() => setSelectedSlotFilter("Blocked")}
           className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all hover:shadow-md ${
-            selectedSlotFilter === "Partial" ? "border-purple-600 ring-2 ring-purple-500/20" : "border-gray-200"
+            selectedSlotFilter === "Blocked" ? "border-amber-600 ring-2 ring-amber-500/20" : "border-gray-200"
           }`}
         >
-          <div className="flex items-center justify-between text-purple-700 text-xs font-semibold mb-1">
-            <span>Partially Booked</span>
-            <span className="w-2 h-2 rounded-full bg-purple-500" />
+          <div className="flex items-center justify-between text-amber-700 text-xs font-semibold mb-1">
+            <span>Blocked</span>
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
           </div>
-          <p className="text-2xl font-bold text-purple-700">{partiallyBookedCount}</p>
-          <p className="text-[11px] text-purple-600/80 mt-0.5">1 or 2 slots booked</p>
+          <p className="text-2xl font-bold text-amber-700">{blockedCount}</p>
+          <p className="text-[11px] text-amber-600/80 mt-0.5">Reserved / On-hold</p>
         </div>
 
         <div
@@ -484,7 +464,7 @@ export default function StatusClient({
             const isExpanded = expandedSiteId === site.uuid;
             const activeBookings = site.bookings?.filter(b => b.status === "ACTIVE" || b.status === "CONFIRMED") || [];
             const isSiteBooked = site.status === "Booked" || site.activeBookingsCount >= 3;
-            const canBookMore = site.activeBookingsCount < 3 && site.status === "Available";
+            const canBookMore = site.activeBookingsCount < 3 && site.status !== "Booked";
 
             return (
               <div
@@ -615,9 +595,15 @@ export default function StatusClient({
                                   <p className="truncate">
                                     <span className="text-gray-400">Staff:</span> {booking.booked_by_staff_name}
                                   </p>
-                                  <p className="text-gray-400 truncate">
-                                    Hold Until: {new Date(booking.expires_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                                  </p>
+                                  {booking.status === "CONFIRMED" ? (
+                                    <p className="text-emerald-700 font-semibold truncate">
+                                      Active Campaign: Confirmed Schedule
+                                    </p>
+                                  ) : (
+                                    <p className="text-amber-700 font-medium truncate">
+                                      5-Day Hold Until: {new Date(booking.expires_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                                    </p>
+                                  )}
                                   {booking.extended_count > 0 && (
                                     <p className="text-purple-600 font-semibold">
                                       Extended {booking.extended_count} {booking.extended_count === 1 ? "time" : "times"}
@@ -628,20 +614,26 @@ export default function StatusClient({
 
                               {/* Action Buttons */}
                               <div className="pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
-                                <button
-                                  disabled={isActionLoading}
-                                  onClick={() => handleExtendBooking(booking.id, site.uuid)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer disabled:opacity-50"
-                                  title="Extend hold duration by +5 days"
-                                >
-                                  {isActionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                                  Extend (+5d)
-                                </button>
+                                {booking.status !== "CONFIRMED" ? (
+                                  <button
+                                    disabled={isActionLoading}
+                                    onClick={() => handleExtendBooking(booking.id, site.uuid)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Extend hold duration by +5 days"
+                                  >
+                                    {isActionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                                    Extend (+5d)
+                                  </button>
+                                ) : (
+                                  <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Booked
+                                  </span>
+                                )}
 
                                 <button
                                   disabled={isActionLoading}
                                   onClick={() => handleReleaseBooking(booking.id, site.uuid)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50 ml-auto"
                                   title="Release this booking hold immediately"
                                 >
                                   Release Slot

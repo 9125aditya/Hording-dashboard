@@ -13,11 +13,13 @@ export default async function AdminMapPage() {
     id: s.site_id,
     name: s.name,
     city: s.city,
+    area: s.area || '',
     lat: Number(s.lat),
     lng: Number(s.lng),
     status: s.status,
     size: s.size,
     type: s.type,
+    lit_type: s.lit_type,
     photos: s.photos
   })) || [];
 

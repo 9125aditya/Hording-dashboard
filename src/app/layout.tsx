@@ -1,31 +1,55 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit, JetBrains_Mono, Michroma } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const outfit = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const michroma = Michroma({
   weight: ["400"],
   variable: "--font-michroma",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
+};
+
 export const metadata: Metadata = {
-  title: "Sellads",
-  description: "Premium outdoor media catalog and management.",
+  title: {
+    default: "TrueSign Media - Outdoor Advertising & Billboard Solutions",
+    template: "%s | TrueSign Media",
+  },
+  description: "Leading brands choose TrueSign Media for their branding solutions. Explore premium hoardings, unipoles, gantries, and digital billboards.",
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
 };
 
 export default function RootLayout({

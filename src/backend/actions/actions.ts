@@ -553,6 +553,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       net_rate: parseFloat(formData.get("net_rate") as string) || 0,
       dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
+      mounting_charges: parseFloat(formData.get("mounting_charges") as string) || 0,
       
       // Images array
       photos: finalImages,

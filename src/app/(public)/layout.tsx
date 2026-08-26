@@ -37,9 +37,9 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <TabSessionManager />
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 w-full bg-[#f4f8fb] border-b border-slate-200/70 shadow-sm">
-        <div className="container flex h-16 md:h-20 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
-          <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Sellads Advertising" className="h-9 md:h-12 w-auto object-contain mix-blend-multiply" />
+        <div className="container flex h-20 md:h-24 max-w-7xl items-center mx-auto px-4 sm:px-6 justify-between">
+          <Link href="/" className="flex items-center py-1">
+            <img src="/logo.png" alt="Sellads Advertising" className="h-12 md:h-16 w-auto object-contain mix-blend-multiply" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
@@ -163,7 +163,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
           <div className="pt-8 border-t border-blue-800/60 text-center">
             <p className="text-[11.5px] font-medium text-blue-300/60 uppercase tracking-wide">
-              © {new Date().getFullYear()} Sellads Outdoor Advertising. All rights reserved. <Link href="/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
+              © {new Date().getFullYear()} TrueSign Media. All rights reserved. <Link href="/login" className="hover:text-white ml-2 opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
             </p>
           </div>
         </div>

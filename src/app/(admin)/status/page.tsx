@@ -24,9 +24,11 @@ export default async function StatusPage() {
     const activeCount = activeCountBySite[uuid] || activeCountBySite[String(s.id)] || 0;
 
     let computedStatus = s.status || 'Available';
-    // If active bookings reach 3, site is Booked
-    if (activeCount >= 3) {
+    // If active bookings reach 3 or site is marked Booked
+    if (activeCount >= 3 || s.status === 'Booked') {
       computedStatus = 'Booked';
+    } else if (activeCount > 0 || s.status === 'Blocked') {
+      computedStatus = 'Blocked';
     }
 
     return {
@@ -42,8 +44,7 @@ export default async function StatusPage() {
       statusColor:
         computedStatus === 'Available' ? 'bg-emerald-100 text-emerald-700'
         : computedStatus === 'Booked'  ? 'bg-rose-100 text-rose-700'
-        : computedStatus === 'Blocked' ? 'bg-amber-100 text-amber-700'
-        : 'bg-gray-100 text-gray-700',
+        : 'bg-amber-100 text-amber-700',
       activeBookingsCount: activeCount,
       bookings: bookings,
     };

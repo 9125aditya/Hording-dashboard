@@ -35,6 +35,7 @@ export default async function InventoryPage() {
     net_rate: s.net_rate || 0,
     dcpm_rate: s.dcpm_rate || 0,
     agency_rate: s.agency_rate || 0,
+    mounting_charges: s.mounting_charges || 0,
     status: s.status,
     statusColor: s.status === 'Available' ? 'bg-emerald-100 text-emerald-700' : s.status === 'Booked' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700',
   })) || [];

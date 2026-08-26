@@ -91,3 +91,53 @@ export async function rejectRequest(requestId: string) {
   revalidatePath("/admin/approvals");
   return { success: true };
 }
+
+export async function deleteActionRequest(requestId: string) {
+  const supabase = await createClient();
+  const { user } = await getUserAndRole(supabase);
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("admin_requests")
+    .delete()
+    .eq("id", requestId);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/approvals");
+  revalidatePath("/approvals");
+  return { success: true };
+}
+
+export async function deleteBulkActionRequests(requestIds: string[]) {
+  const supabase = await createClient();
+  const { user } = await getUserAndRole(supabase);
+  if (!user) throw new Error("Unauthorized");
+
+  if (!requestIds || requestIds.length === 0) return { success: true };
+
+  const { error } = await supabase
+    .from("admin_requests")
+    .delete()
+    .in("id", requestIds);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/approvals");
+  revalidatePath("/approvals");
+  return { success: true };
+}
+
+export async function clearAllActionRequests() {
+  const supabase = await createClient();
+  const { user } = await getUserAndRole(supabase);
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("admin_requests")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/approvals");
+  revalidatePath("/approvals");
+  return { success: true };
+}

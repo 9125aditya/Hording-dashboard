@@ -31,6 +31,7 @@ type SiteItem = {
   net_rate: number;
   dcpm_rate: number;
   agency_rate: number;
+  mounting_charges?: number;
 };
 
 const PAGE_SIZE = 25;
@@ -196,12 +197,13 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Net Rate</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">DCPM</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Mounting Charges</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-gray-50/80"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
@@ -220,6 +222,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.mounting_charges ? `₹${item.mounting_charges}` : '-'}</td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>
@@ -248,12 +251,13 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (NET)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Rate per Pillars (DCPM)</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Agency Rate</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider whitespace-nowrap">Mounting Charges</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-500 uppercase tracking-wider text-right whitespace-nowrap sticky right-0 bg-indigo-50/40"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedSites.length === 0 ? (
-                <tr><td colSpan={16} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
+                <tr><td colSpan={17} className="px-6 py-12 text-center text-gray-500">No sites found.</td></tr>
               ) : (
                 paginatedSites.map((item, index) => (
                   <tr key={item.uuid} className="hover:bg-indigo-50/30 transition-colors group">
@@ -272,6 +276,7 @@ export default function InventoryClient({ initialInventory }: { initialInventory
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.net_rate ? `₹${item.net_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.dcpm_rate ? `₹${item.dcpm_rate}` : '-'}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.agency_rate ? `₹${item.agency_rate}` : '-'}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-gray-600">{item.mounting_charges ? `₹${item.mounting_charges}` : '-'}</td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-indigo-50/30 border-l border-gray-100 transition-colors">
                       <SiteActions siteId={String(item.id)} currentStatus={item.status} uuid={item.uuid} />
                     </td>

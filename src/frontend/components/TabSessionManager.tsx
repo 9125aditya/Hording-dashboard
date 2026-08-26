@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { createClient } from "@/backend/db/client";
 
-const SESSION_STORAGE_KEY = "sellads_tab_auth_session";
+const SESSION_STORAGE_KEY = "truesign_tab_auth_session";
 
 export function getTabSession() {
   if (typeof window === "undefined") return null;
