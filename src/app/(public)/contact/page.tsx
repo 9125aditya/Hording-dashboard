@@ -1,7 +1,7 @@
 "use client";
 
-import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import { EnvelopeIcon, PhoneIcon, MapPinIcon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import { useState, useTransition, useEffect, Suspense } from "react";
 import { addEnquiry } from "@/backend/actions/actions";
@@ -11,15 +11,23 @@ import { useSearchParams } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
+type SiteItem = {
+  site_id: string;
+  name: string;
+  city: string;
+};
+
 function ContactFormInner() {
   const searchParams = useSearchParams();
   const preselectedSiteId = searchParams.get("site");
+  const preselectedSitesParam = searchParams.get("sites");
   const preselectedCity = searchParams.get("city");
+  
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [sites, setSites] = useState<{site_id: string, name: string, city: string}[]>([]);
-  const [selectedSiteVal, setSelectedSiteVal] = useState<string>("");
+  const [allSites, setAllSites] = useState<SiteItem[]>([]);
+  const [selectedSites, setSelectedSites] = useState<SiteItem[]>([]);
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
@@ -33,22 +41,64 @@ function ContactFormInner() {
       const supabase = createClient();
       const { data } = await supabase.from('sites').select('site_id, name, city').order('city', { ascending: true });
       if (data) {
-        setSites(data);
+        setAllSites(data);
+        
+        const initialSelected: SiteItem[] = [];
+
+        // 1. Check multiple sites query param
+        if (preselectedSitesParam) {
+          const ids = preselectedSitesParam.split(",").map(id => id.trim()).filter(Boolean);
+          ids.forEach(id => {
+            const match = data.find(s => s.site_id === id);
+            if (match && !initialSelected.some(s => s.site_id === match.site_id)) {
+              initialSelected.push(match);
+            }
+          });
+        }
+
+        // 2. Check single site query param
         if (preselectedSiteId) {
           const match = data.find(s => s.site_id === preselectedSiteId);
-          if (match) {
-            setSelectedSiteVal(`${match.name} (${match.city})`);
+          if (match && !initialSelected.some(s => s.site_id === match.site_id)) {
+            initialSelected.push(match);
+          }
+        }
+
+        if (initialSelected.length > 0) {
+          setSelectedSites(initialSelected);
+          if (!message && !preselectedCity) {
+            const siteNames = initialSelected.map(s => `${s.name} (${s.city})`).join(", ");
+            setMessage(`Hi, I am interested in inquiring about the following site(s): ${siteNames}. Please provide pricing, availability, and campaign quotation.`);
           }
         }
       }
     };
     fetchSites();
-  }, [preselectedSiteId]);
+  }, [preselectedSiteId, preselectedSitesParam]);
+
+  const handleAddSite = (siteId: string) => {
+    if (!siteId) return;
+    const match = allSites.find(s => s.site_id === siteId);
+    if (match && !selectedSites.some(s => s.site_id === match.site_id)) {
+      setSelectedSites(prev => [...prev, match]);
+    }
+  };
+
+  const handleRemoveSite = (siteId: string) => {
+    setSelectedSites(prev => prev.filter(s => s.site_id !== siteId));
+  };
+
+  const formattedPreferredSites = selectedSites.map(s => `${s.name} (${s.city})`).join(", ");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("idle");
     const formData = new FormData(e.currentTarget);
+    
+    // Set formatted preferred sites
+    if (selectedSites.length > 0) {
+      formData.set("preferredSite", formattedPreferredSites);
+    }
     
     startTransition(async () => {
       const res = await addEnquiry(formData);
@@ -58,11 +108,12 @@ function ContactFormInner() {
       } else {
         setStatus("success");
         (e.target as HTMLFormElement).reset();
-        setSelectedSiteVal("");
+        setSelectedSites([]);
         setMessage("");
       }
     });
   };
+
   return (
     <div className="flex-1 bg-background pt-10 pb-24 relative overflow-hidden">
       {/* Ambient glowing elements */}
@@ -160,30 +211,81 @@ function ContactFormInner() {
                     <input type="tel" name="phone" id="phone" className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50" placeholder="+91 98765 43210" />
                   </div>
 
-                  <div className="space-y-2 group/input">
+                  {/* MULTIPLE SITES SELECTION & DISPLAY */}
+                  <div className="space-y-3 group/input">
                     <div className="flex justify-between items-center">
-                      <label htmlFor="preferredSite" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">Preferred Site / Location (Optional)</label>
-                      <Link href="/catalog" target="_blank" className="text-xs text-primary hover:underline flex items-center">
-                        <MapPinIcon className="h-3 w-3 mr-1" /> Browse Catalog
+                      <label htmlFor="preferredSiteSelect" className="text-sm font-medium text-foreground transition-colors group-focus-within/input:text-primary">
+                        Preferred Sites / Locations ({selectedSites.length} selected)
+                      </label>
+                      <Link href="/catalog" className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
+                        <MapPinIcon className="h-3.5 w-3.5" /> + Browse Catalog
                       </Link>
                     </div>
+
+                    {/* Selected Sites Chips Container */}
+                    {selectedSites.length > 0 && (
+                      <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                          <span className="flex items-center gap-1.5 text-emerald-700">
+                            <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                            {selectedSites.length} {selectedSites.length === 1 ? 'Site' : 'Sites'} Attached to Inquiry
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSites([])}
+                            className="text-xs text-slate-400 hover:text-red-600 font-semibold cursor-pointer transition-colors"
+                          >
+                            Clear all
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {selectedSites.map(site => (
+                            <div 
+                              key={site.site_id}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs text-xs font-semibold text-slate-800 animate-in fade-in zoom-in-95 duration-150"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                              <span>{site.name}</span>
+                              <span className="text-slate-400 font-normal">({site.city})</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSite(site.site_id)}
+                                className="w-4 h-4 rounded-full bg-slate-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center text-slate-500 cursor-pointer transition-colors ml-0.5"
+                                title="Remove site"
+                              >
+                                <XMarkIcon className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dropdown to add more sites */}
                     <div className="relative">
                       <select
-                        name="preferredSite"
-                        id="preferredSite"
-                        value={selectedSiteVal}
-                        onChange={(e) => setSelectedSiteVal(e.target.value)}
-                        className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 appearance-none"
+                        id="preferredSiteSelect"
+                        value=""
+                        onChange={(e) => handleAddSite(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all hover:border-primary/50 appearance-none cursor-pointer text-sm text-slate-700"
                       >
-                        <option value="">-- Select a site from our catalog --</option>
-                        {sites.map(s => (
-                          <option key={s.site_id} value={`${s.name} (${s.city})`}>{s.name} - {s.city}</option>
-                        ))}
+                        <option value="">-- Add another site from our catalog --</option>
+                        {allSites
+                          .filter(s => !selectedSites.some(sel => sel.site_id === s.site_id))
+                          .map(s => (
+                            <option key={s.site_id} value={s.site_id}>
+                              + {s.name} - {s.city}
+                            </option>
+                          ))}
                       </select>
                       <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-muted-foreground">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <PlusIcon className="h-4 w-4" />
                       </div>
                     </div>
+
+                    {/* Hidden input to pass preferred sites string to FormData */}
+                    <input type="hidden" name="preferredSite" value={formattedPreferredSites} />
                   </div>
 
                   <div className="space-y-2 group/input">
@@ -215,14 +317,14 @@ function ContactFormInner() {
                   <button 
                     type="submit" 
                     disabled={isPending || status === "success"}
-                    className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-bold text-lg shadow-md hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
+                    className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-bold text-lg shadow-md hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none cursor-pointer"
                   >
                     {isPending ? (
                       <span className="flex items-center justify-center">
                         <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" /> Submitting...
                       </span>
                     ) : (
-                      "Submit Enquiry"
+                      `Submit Enquiry ${selectedSites.length > 0 ? `(${selectedSites.length} Sites)` : ''}`
                     )}
                   </button>
                   <p className="text-xs text-center text-muted-foreground mt-4">
