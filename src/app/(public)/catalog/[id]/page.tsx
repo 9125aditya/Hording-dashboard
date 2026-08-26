@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, ShareIcon, PrinterIcon, MapIcon, SunIcon, BoltIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, MapIcon, SunIcon, BoltIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 import LeafletMap from "@/frontend/components/LeafletMap";
@@ -40,7 +40,7 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
     ],
     description: `A highly visible ${litTypeDisplay.toLowerCase()} hoarding in ${dbSite.area || dbSite.city}, ${dbSite.city}. Excellent sightlines with no obstructions, perfect for high-impact brand campaigns.`,
     dailyTraffic: "85,000",
-    illumination: dbSite.lit_type === 'Digital' ? '24/7' : dbSite.lit_type === 'Non-Lit' ? 'Daylight Only' : '18:00 to 02:00',
+    illumination: dbSite.lit_type === 'Digital' ? '24/7' : dbSite.lit_type === 'Non-Lit' ? 'Daylight Only' : '6:00 PM to 11:00 PM',
   };
 
   return (
@@ -52,10 +52,6 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
             <ArrowLeftIcon className="mr-2 h-4 w-4" />
             Back to Catalog
           </Link>
-          <div className="flex items-center space-x-4">
-            <button className="text-muted-foreground hover:text-foreground transition-colors"><ShareIcon className="h-4 w-4" /></button>
-            <button className="text-muted-foreground hover:text-foreground transition-colors"><PrinterIcon className="h-4 w-4" /></button>
-          </div>
         </div>
       </div>
 
