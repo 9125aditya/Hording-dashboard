@@ -3,11 +3,11 @@ import { MapPinIcon, MegaphoneIcon, GlobeAltIcon, CalendarIcon, ArrowRightIcon }
 import AnimateOnScroll from "@/frontend/components/AnimateOnScroll";
 import HomeSearchBar from "@/frontend/components/HomeSearchBar";
 import AnimatedBillboard from "@/frontend/components/AnimatedBillboard";
+import TopCompaniesSection from "@/frontend/components/TopCompaniesSection";
 
 export const dynamic = 'force-dynamic';
 
 export default function PublicHomePage() {
-  const clients = ["Suzuki", "TVS", "Punjab National Bank", "ESAF Bank", "Kalptare", "Godrej Properties", "Krims Hospital", "HCG Hospital", "UltraTech Cement", "Ambuja Cement", "PNG Jewellers", "Tanishq Jewellers", "Polycab Wires", "Blinkit", "IGM", "SDPL", "Priyadarshini", "Aakash Institute", "Allen"];
 
   return (
     <div className="flex-1 flex flex-col bg-[#f4f8fb]">
@@ -102,36 +102,8 @@ export default function PublicHomePage() {
         </div>
       </section>
 
-      {/* Clients Section */}
-      <section id="clients" className="py-24 bg-white overflow-hidden border-t border-slate-100">
-        <div className="container mx-auto px-6 max-w-7xl text-center mb-16">
-          <AnimateOnScroll animation="fade-up">
-            <h2 className="text-3xl md:text-[2.5rem] font-black text-slate-900 tracking-tight mb-4">Top Companies We&apos;ve Worked With</h2>
-            <p className="text-[17px] text-slate-500 font-medium">Leading brands choose TrueSign Media for their Branding Solutions.</p>
-          </AnimateOnScroll>
-        </div>
-        
-        <div className="relative flex overflow-x-hidden group">
-          <div className="py-8 animate-marquee whitespace-nowrap flex items-center gap-16 px-8">
-            {clients.map((client, i) => (
-              <span key={i} className="text-xl sm:text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
-                {client}
-              </span>
-            ))}
-          </div>
-          <div className="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex items-center gap-16 px-8 ml-8">
-            {clients.map((client, i) => (
-              <span key={`dup-${i}`} className="text-xl sm:text-3xl font-black text-slate-200 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight">
-                {client}
-              </span>
-            ))}
-          </div>
-          
-          {/* Gradient Edges */}
-          <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
-          <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
-        </div>
-      </section>
+      {/* Top Companies Section */}
+      <TopCompaniesSection />
     </div>
   );
 }
