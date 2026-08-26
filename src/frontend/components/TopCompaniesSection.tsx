@@ -256,11 +256,11 @@ export default function TopCompaniesSection() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 no-scrollbar">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2.5 pt-1 no-scrollbar scroll-smooth">
             {/* "All" button */}
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                 selectedCategory === "all"
                   ? "bg-slate-900 text-white shadow-sm"
                   : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 shadow-xs"
@@ -270,15 +270,15 @@ export default function TopCompaniesSection() {
               <span>All Industries</span>
             </button>
 
-            {/* Category pills with toggle on click */}
-            {CATEGORIES_DATA.slice(0, 4).map((cat) => {
+            {/* All Category pills with smooth horizontal scrolling */}
+            {CATEGORIES_DATA.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
               return (
                 <button
                   key={cat.id}
                   onClick={() => toggleCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     isSelected
                       ? "bg-slate-900 text-white shadow-sm ring-2 ring-slate-900/10"
                       : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 shadow-xs"
