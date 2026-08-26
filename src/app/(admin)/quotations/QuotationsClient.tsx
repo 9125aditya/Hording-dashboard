@@ -91,19 +91,19 @@ type SelectedSite = SiteItem & {
 };
 
 const AVAILABLE_COLUMNS = [
-  { id: "code", label: "Site Code (e.g. NGP/H/001)", default: true },
-  { id: "name", label: "Site Name", default: true },
-  { id: "city", label: "City", default: true },
-  { id: "area", label: "Area / Location", default: true },
-  { id: "size", label: "Size (Dimensions)", default: true },
-  { id: "type", label: "Media Type", default: true },
-  { id: "lit_type", label: "Illumination", default: true },
-  { id: "status", label: "Availability Status", default: false },
-  { id: "net_rate", label: "Standard / Card Rate (₹)", default: false },
-  { id: "mounting_charges", label: "Mounting Charges (₹)", default: false },
-  { id: "discountPercent", label: "Discount (%)", default: false },
-  { id: "customRate", label: "Quoted Rate (₹/month)", default: true },
-  { id: "customNotes", label: "Custom Proposal Remarks", default: true },
+  { id: "code", label: "Site ID / Code", default: true, required: false },
+  { id: "name", label: "Site Name", default: true, required: true },
+  { id: "type", label: "Media Type", default: true, required: true },
+  { id: "lit_type", label: "Illumination", default: true, required: true },
+  { id: "city", label: "City", default: true, required: true },
+  { id: "size", label: "Size (Dimensions)", default: true, required: true },
+  { id: "sqft", label: "Total Sqft", default: true, required: false },
+  { id: "status", label: "Availability Status", default: false, required: false },
+  { id: "customRate", label: "Quoted Rate (₹/month)", default: true, required: false },
+  { id: "net_rate", label: "Standard / Card Rate (₹)", default: false, required: false },
+  { id: "mounting_charges", label: "Mounting Charges (₹)", default: false, required: false },
+  { id: "discountPercent", label: "Discount (%)", default: false, required: false },
+  { id: "customNotes", label: "Custom Proposal Remarks", default: true, required: false },
 ];
 
 export default function QuotationsClient({ initialSites }: { initialSites: SiteItem[] }) {
@@ -286,6 +286,8 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
   // Toggle Column for Excel Export
   const toggleColumn = (colId: string) => {
+    const colDef = AVAILABLE_COLUMNS.find(c => c.id === colId);
+    if (colDef?.required) return; // Cannot untick default required items
     setSelectedColumns(prev => {
       if (prev.includes(colId)) {
         if (prev.length === 1) return prev; // Keep at least one
@@ -1668,18 +1670,33 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
             <div className="space-y-2">
               {AVAILABLE_COLUMNS.map(col => {
                 const isChecked = selectedColumns.includes(col.id);
+                const isLocked = col.required;
                 return (
                   <label
                     key={col.id}
-                    className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer text-xs font-semibold text-gray-700"
+                    className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-semibold transition-all select-none ${
+                      isLocked
+                        ? 'bg-slate-100/90 border-slate-200 text-slate-700 cursor-not-allowed opacity-90'
+                        : isChecked
+                        ? 'bg-indigo-50/60 border-indigo-200 text-indigo-950 cursor-pointer hover:bg-indigo-50'
+                        : 'bg-white border-gray-200 text-gray-600 cursor-pointer hover:bg-gray-50'
+                    }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleColumn(col.id)}
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-                    />
-                    <span>{col.label}</span>
+                    <div className="flex items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        disabled={isLocked}
+                        onChange={() => toggleColumn(col.id)}
+                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 disabled:opacity-75 cursor-pointer disabled:cursor-not-allowed"
+                      />
+                      <span>{col.label}</span>
+                    </div>
+                    {isLocked && (
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-600">
+                        Default
+                      </span>
+                    )}
                   </label>
                 );
               })}
