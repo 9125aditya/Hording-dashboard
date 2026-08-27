@@ -312,6 +312,37 @@ export async function createSiteBooking(formData: FormData) {
         confirmationToken: confirmationToken,
       });
 
+      // Log email sending to action history
+      try {
+        const emailAdminClient = getAdminSupabase();
+        await emailAdminClient
+          .from("admin_requests")
+          .insert([
+            {
+              action_type: "EMAIL_SENT",
+              entity_id: null,
+              payload: {
+                booking_id: bookingPayload.booking_id || newRequest?.id,
+                client_email: clientEmail,
+                client_name: clientName,
+                site_name: site.name || "Hoarding Site",
+                email_status: emailResult.success ? (emailResult.simulated ? "SIMULATED" : "SENT") : "FAILED",
+                email_simulated: emailResult.simulated || false,
+                staff_name: bookedByStaffName,
+                staff_id: user.id,
+                sent_at: new Date().toISOString()
+              },
+              requested_by: user.id,
+              status: "APPROVED",
+              resolved_at: new Date().toISOString(),
+              resolved_by: user.id,
+            },
+          ]);
+      } catch (emailLogError) {
+        // Don't fail the booking if email logging fails
+        console.warn("Failed to log email to action history:", emailLogError);
+      }
+
       // Update email dispatch status in payload
       bookingPayload.confirmation_email_status = emailResult.success ? (emailResult.simulated ? "SIMULATED" : "SENT") : "FAILED";
       if (newRequest?.id) {

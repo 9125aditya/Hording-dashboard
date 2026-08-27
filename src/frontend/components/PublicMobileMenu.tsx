@@ -85,6 +85,9 @@ export default function PublicMobileMenu({
               <Link href="/catalog" onClick={() => setIsOpen(false)} className={linkClass}>
                 <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Catalogue
               </Link>
+              <Link href="/#services" onClick={() => setIsOpen(false)} className={linkClass}>
+                <Squares2X2Icon className="h-4 w-4 text-slate-400 shrink-0" /> Our Services
+              </Link>
               <Link href="/careers" onClick={() => setIsOpen(false)} className={linkClass}>
                 <BriefcaseIcon className="h-4 w-4 text-slate-400 shrink-0" /> Careers
               </Link>

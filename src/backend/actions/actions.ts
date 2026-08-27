@@ -4,6 +4,65 @@ import { createClient } from "@/backend/db/server";
 import { getAdminSupabase } from "@/backend/db/admin";
 import { revalidatePath } from "next/cache";
 
+// Helper functions for site code generation
+function getCityAbbreviation(city: string): string {
+  const c = (city || "Nagpur").trim().toUpperCase();
+  if (c.startsWith("NAGPUR")) return "NGP";
+  if (c.startsWith("MUMBAI")) return "MUM";
+  if (c.startsWith("PUNE")) return "PUN";
+  if (c.startsWith("DELHI")) return "DEL";
+  if (c.startsWith("HYDERABAD")) return "HYD";
+  if (c.startsWith("BANGALORE") || c.startsWith("BENGALURU")) return "BLR";
+  if (c.startsWith("CHANDRAPUR")) return "CHP";
+  if (c.startsWith("AMRAVATI")) return "AMR";
+  if (c.startsWith("WARDHA")) return "WRD";
+  if (c.startsWith("NASHIK")) return "NSK";
+  if (c.startsWith("AURANGABAD") || c.startsWith("SAMBHAJINAGAR")) return "CSN";
+  return c.slice(0, 3).toUpperCase();
+}
+
+function getMediaTypeAbbreviation(type: string): string {
+  const t = (type || "Hoarding").trim().toUpperCase();
+  if (t.includes("GANTRY")) return "G";
+  if (t.includes("UNIPOLE")) return "U";
+  if (t.includes("KIOSK")) return "K";
+  if (t.includes("METRO") || t.includes("PILLAR")) return "M";
+  if (t.includes("SHELTER") || t.includes("BUS")) return "B";
+  return "H"; // Hoarding/default
+}
+
+async function getNextSiteCodeSerial(siteType: string, city: string): Promise<number> {
+  const supabase = await createClient();
+  const adminClient = getAdminSupabase();
+
+  const cityCode = getCityAbbreviation(city);
+  const mediaCode = getMediaTypeAbbreviation(siteType);
+
+  // Find the highest serial number for this city+media_type combination
+  const { data: existingSites } = await adminClient
+    .from("sites")
+    .select("site_code")
+    .not("site_code", "is", null)
+    .like("site_code", `${cityCode}/${mediaCode}/%`)
+    .order("site_code", { ascending: false })
+    .limit(1);
+
+  let nextSerial = 1;
+  if (existingSites && existingSites.length > 0) {
+    const latestSiteCode = existingSites[0].site_code;
+    if (latestSiteCode) {
+      // Extract serial number from format like "NGP/H/001"
+      const match = latestSiteCode.match(/\/(\d+)$/);
+      if (match) {
+        const currentSerial = parseInt(match[1], 10);
+        nextSerial = currentSerial + 1;
+      }
+    }
+  }
+
+  return nextSerial;
+}
+
 // ==========================================
 // RBAC HELPER
 // ==========================================
@@ -293,7 +352,13 @@ export async function addSite(formData: FormData) {
   const supabase = await createClient();
   const { user } = await getUserAndRole(supabase);
   await requireRole(supabase, ['admin', 'super_admin']);
-  
+
+  // Generate site code
+  const cityCode = getCityAbbreviation(city);
+  const mediaCode = getMediaTypeAbbreviation(type);
+  const serialNumber = await getNextSiteCodeSerial(type, city);
+  const siteCode = `${cityCode}/${mediaCode}/${String(serialNumber).padStart(3, '0')}`;
+
   const payload = {
     name,
     type,
@@ -303,7 +368,8 @@ export async function addSite(formData: FormData) {
     price: parseInt(price) || 0,
     image_url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80",
     lat: 21.1458,
-    lng: 79.0882
+    lng: 79.0882,
+    site_code: siteCode
   };
 
   // Log the action for history (use service client to bypass RLS)
@@ -501,7 +567,7 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
             const parts = url.split('/site-images/');
             return parts.length > 1 ? parts[1] : null;
           }).filter(Boolean) as string[];
-          
+
           if (pathsToRemove.length > 0) {
             await supabase.storage.from('site-images').remove(pathsToRemove);
           }
@@ -509,6 +575,17 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       }
     }
     // ---- End image uploads ----
+
+    // Generate site_code for new sites (preserve existing ones for updates)
+    let site_code: string | undefined;
+    if (!siteId) {
+      const city = formData.get("city") as string;
+      const type = formData.get("type") as string;
+      const cityCode = getCityAbbreviation(city);
+      const mediaCode = getMediaTypeAbbreviation(type);
+      const serialNumber = await getNextSiteCodeSerial(type, city);
+      site_code = `${cityCode}/${mediaCode}/${String(serialNumber).padStart(3, '0')}`;
+    }
 
     const payload = {
       name: formData.get("name") as string,
@@ -522,41 +599,42 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
       type: formData.get("type") as string,
       lit_type: formData.get("lit_type") as string,
       status: (formData.get("status") as string) || 'Available',
-      
+
       // Additional metrics
       is_metro: formData.get("is_metro") === "true",
       qty: parseInt(formData.get("qty") as string) || 1,
       total_sq_ft: parseFloat(formData.get("total_sq_ft") as string) || 0,
       printable_size: formData.get("printable_size") as string || null,
-      
+
       // Metro specific
       metro_line: formData.get("metro_line") as string || null,
       metro_pillars: formData.get("metro_pillars") as string || null,
       no_of_pillars: parseInt(formData.get("no_of_pillars") as string) || null,
       no_of_displays: parseInt(formData.get("no_of_displays") as string) || null,
-      
+
       // Electricity
       electricity_consumer_no: formData.get("electricity_consumer_no") as string || null,
       electricity_consumer_name: formData.get("electricity_consumer_name") as string || null,
       electricity_bill_date: formData.get("electricity_bill_date") as string || null,
       electricity_due_date: formData.get("electricity_due_date") as string || null,
-      
+
       // Landlord
       landlord: formData.get("landlord") as string || null,
       landlord_contact: formData.get("landlord_contact") as string || null,
       rent: parseFloat(formData.get("rent") as string) || 0,
-      
+
       // Rationale
       rationale: formData.get("rationale") as string || null,
-      
+
       // Rates
       net_rate: parseFloat(formData.get("net_rate") as string) || 0,
       dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
       mounting_charges: parseFloat(formData.get("mounting_charges") as string) || 0,
-      
+
       // Images array
       photos: finalImages,
+      ...(site_code !== undefined ? { site_code } : {})
     };
 
     // Log the action for history

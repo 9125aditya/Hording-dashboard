@@ -51,6 +51,7 @@ export default async function QuotationsPage() {
       city: s.city || 'Nagpur',
       area: s.area || '',
       size: s.size || '30x15',
+      total_sq_ft: s.total_sq_ft ?? 0,
       type: s.type || 'Hoarding',
       lit_type: s.lit_type || 'Front Lit',
       status: s.status || 'Available',

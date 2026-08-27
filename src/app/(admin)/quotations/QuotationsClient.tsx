@@ -37,6 +37,7 @@ type SiteItem = {
   city: string;
   area: string;
   size: string;
+  total_sq_ft: number;
   type: string;
   lit_type: string;
   status: string;
@@ -90,14 +91,19 @@ type SelectedSite = SiteItem & {
   customNotes: string;
 };
 
-const AVAILABLE_COLUMNS = [
+// Required columns: always included, not shown in selection UI
+const REQUIRED_COLUMNS = [
+  { id: "name", label: "Site Name" },
+  { id: "type", label: "Media Type" },
+  { id: "lit_type", label: "Illumination" },
+  { id: "city", label: "City" },
+  { id: "size", label: "Size (Dimensions)" },
+];
+
+// Optional columns: user can show/hide
+const OPTIONAL_COLUMNS = [
   { id: "code", label: "Site Code (e.g. NGP/H/001)", default: true },
-  { id: "name", label: "Site Name", default: true },
-  { id: "city", label: "City", default: true },
-  { id: "area", label: "Area / Location", default: true },
-  { id: "size", label: "Size (Dimensions)", default: true },
-  { id: "type", label: "Media Type", default: true },
-  { id: "lit_type", label: "Illumination", default: true },
+  { id: "total_sq_ft", label: "Total Sq Ft", default: false },
   { id: "status", label: "Availability Status", default: false },
   { id: "net_rate", label: "Standard / Card Rate (₹)", default: false },
   { id: "mounting_charges", label: "Mounting Charges (₹)", default: false },
@@ -105,6 +111,9 @@ const AVAILABLE_COLUMNS = [
   { id: "customRate", label: "Quoted Rate (₹/month)", default: true },
   { id: "customNotes", label: "Custom Proposal Remarks", default: true },
 ];
+
+// All columns (required + optional) for reference
+const ALL_COLUMNS = [...REQUIRED_COLUMNS, ...OPTIONAL_COLUMNS];
 
 export default function QuotationsClient({ initialSites }: { initialSites: SiteItem[] }) {
   // Campaign & Client Info State
@@ -126,9 +135,9 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
   // Selected Sites in Quotation (uuid -> SelectedSite)
   const [selectedSitesMap, setSelectedSitesMap] = useState<Record<string, SelectedSite>>({});
 
-  // Column Customization for Excel Export
+  // Column Customization for Excel Export (optional columns only)
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    AVAILABLE_COLUMNS.filter(c => c.default).map(c => c.id)
+    OPTIONAL_COLUMNS.filter(c => c.default).map(c => c.id)
   );
 
   // Active Tab: "builder" (site select & customize) | "preview"
@@ -335,6 +344,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       const formattedDate = quotationDate ? quotationDate.split("-").reverse().join(".") : "22.08.2026";
       const primaryCity = selectedSitesList[0]?.city || "Nagpur";
 
+      const includeTotalSqft = selectedColumns.includes("total_sq_ft");
       // Build Header Info matching Anurag Sir.xlsx
       const sheetData: any[][] = [
         ["Quotation For Advertisement"],
@@ -349,26 +359,32 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
         ["Subject: - Quotation of Advertsement"],
         [],
         ["We are pleased to submit our media quotation for as under:-"],
-        ["Sr. No", "City", "Hoarding Location ", " LIT/ N.LIT", "Media", "W", "H", "Qty.", "Total Sq. ft.", "DCPM"],
+              [(includeTotalSqft ? ["Sr. No", "City", "Hoarding Location ", " LIT/ N.LIT", "Media", "W", "H", "Qty.", "Total Sq. ft.", "DCPM"] : ["Sr. No", "City", "Hoarding Location ", " LIT/ N.LIT", "Media", "W", "H", "Qty.", "DCPM"])]
       ];
 
       // Table Rows
       let grandTotalSqft = 0;
+      let totalQuotedAmount = 0;
       selectedSitesList.forEach((site, index) => {
-        const { w, h, sqft } = parseDimensions(site.size);
+        const { w, h } = parseDimensions(site.size);
+        const sqft = site.total_sq_ft;
         grandTotalSqft += sqft;
-        sheetData.push([
+        totalQuotedAmount += Number(site.customRate) || 0;
+
+        const rowFull = [
           index + 1,
           site.city || primaryCity,
-          `${site.name}${site.area ? " (" + site.area + ")" : ""}`,
+          `${site.name}`,
           formatLitType(site.lit_type),
           site.type || "Hoarding",
           w,
           h,
           1,
           sqft,
-          Number(site.customRate) || 0
-        ]);
+          Number(site.customRate) || 0,
+        ];
+        const row = includeTotalSqft ? rowFull : rowFull.filter((_, idx) => idx !== 8);
+        sheetData.push(row);
       });
 
       // Total Row
@@ -520,7 +536,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
 
       let grandTotalSqft = 0;
       selectedSitesList.forEach(site => {
-        const { sqft } = parseDimensions(site.size);
+        const sqft = site.total_sq_ft;
         grandTotalSqft += sqft;
       });
 
@@ -696,12 +712,13 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
       ];
 
       const tableBody = selectedSitesList.map((site, i) => {
-        const { w, h, sqft } = parseDimensions(site.size);
+        const { w, h } = parseDimensions(site.size);
+        const sqft = site.total_sq_ft;
         const bg = i % 2 === 0 ? C_WHITE : "F8FAFC";
         return [
           { text: String(i + 1), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
           { text: site.city || primaryCity, options: { fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
-          { text: `${site.name}${site.area ? " (" + site.area + ")" : ""}`, options: { bold: true, fontSize: 9, color: C_TEXT_DARK, fill: { color: bg } } },
+          { text: `${site.name}`, options: { bold: true, fontSize: 9, color: C_TEXT_DARK, fill: { color: bg } } },
           { text: formatLitType(site.lit_type), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
           { text: site.type || "Hoarding", options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
           { text: String(w), options: { align: "center" as const, fontSize: 9, color: C_TEXT_SLATE, fill: { color: bg } } },
@@ -1666,7 +1683,7 @@ export default function QuotationsClient({ initialSites }: { initialSites: SiteI
             </p>
 
             <div className="space-y-2">
-              {AVAILABLE_COLUMNS.map(col => {
+              {OPTIONAL_COLUMNS.map(col => {
                 const isChecked = selectedColumns.includes(col.id);
                 return (
                   <label

@@ -122,7 +122,7 @@ function CatalogFilters({ sites }: { sites: any[] }) {
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent opacity-60" />
                   <div className="absolute top-3 left-3 z-10">
                     <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-slate-800 shadow-sm border border-white/50">
-                      {site.lit_type || 'Front Lit'}
+                      {site.lit_type || 'Non-Lit'}
                     </span>
                   </div>
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />

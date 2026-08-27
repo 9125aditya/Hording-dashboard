@@ -44,8 +44,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
             <Link href="/catalog" className="hover:text-red-600 transition-colors">Catalogue</Link>
+            <Link href="/#services" className="hover:text-red-600 transition-colors">Our Services</Link>
             <Link href="/careers" className="hover:text-red-600 transition-colors">Careers</Link>
-            <Link href="/contact" className="hover:text-red-600 transition-colors">Enquiry</Link>
           </nav>
 
           <div className="flex items-center gap-3">
