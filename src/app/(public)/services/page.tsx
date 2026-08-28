@@ -263,30 +263,34 @@ export default function ServicesPage() {
           </div>
 
           {/* CTA Row */}
-          <div className="mt-12 pt-8 border-t border-slate-100 flex flex-wrap items-center justify-between gap-6">
-            <div className="flex flex-wrap items-center gap-4">
+          <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full lg:w-auto">
               <Link
                 href="/catalog"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-md"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-md text-center"
               >
                 Browse Inventory Catalogue <ArrowRightIcon className="w-4 h-4" />
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#fab935] text-slate-900 text-sm font-bold hover:bg-[#f2a81d] transition-all shadow-sm"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#fab935] text-slate-900 text-sm font-bold hover:bg-[#f2a81d] transition-all shadow-sm text-center"
               >
                 Get In Touch <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
 
-            <div className="flex items-center gap-6 text-[13.5px] font-semibold text-slate-600">
-              <a href="tel:+919765556861" className="flex items-center gap-2 hover:text-[#0284c7] transition-colors">
-                <PhoneIcon className="w-4 h-4 text-slate-400" />
-                +91 9765556861
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 text-[13.5px] font-semibold text-slate-700 w-full lg:w-auto pt-2 lg:pt-0">
+              <a href="tel:+919765556861" className="flex items-center gap-2.5 hover:text-[#0284c7] transition-colors">
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
+                  <PhoneIcon className="w-4 h-4" />
+                </div>
+                <span className="whitespace-nowrap">+91 9765556861</span>
               </a>
-              <a href="mailto:truesignmedia@gmail.com" className="flex items-center gap-2 hover:text-[#0284c7] transition-colors">
-                <EnvelopeIcon className="w-4 h-4 text-slate-400" />
-                truesignmedia@gmail.com
+              <a href="mailto:truesignmedia@gmail.com" className="flex items-center gap-2.5 hover:text-[#0284c7] transition-colors">
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
+                  <EnvelopeIcon className="w-4 h-4" />
+                </div>
+                <span>truesignmedia@gmail.com</span>
               </a>
             </div>
           </div>
