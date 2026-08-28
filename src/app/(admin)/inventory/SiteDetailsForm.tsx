@@ -176,11 +176,6 @@ export default function SiteDetailsForm({ site = null }: { site?: any }) {
             </p>
           </div>
         </div>
-
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-          <Building2 className="w-3.5 h-3.5" />
-          Admin &amp; Super Admin Direct Edit
-        </span>
       </div>
 
       {error && (
