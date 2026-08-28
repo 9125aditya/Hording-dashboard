@@ -138,7 +138,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               )}
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{userName}</p>
-                <p className="text-[11px] text-gray-500 capitalize">{role.replace('_', ' ')}</p>
+                <p className="text-[11px] text-gray-500 capitalize whitespace-nowrap">{role.replace('_', ' ')}</p>
               </div>
             </Link>
           </div>
@@ -163,9 +163,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 </span>
               </Link>
             )}
-            {/* User Profile Pill Badge */}
-            <Link 
-              href="/profile" 
+{/* User Profile Pill Badge */}
+            <Link
+              href="/profile"
               className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all group shadow-2xs"
             >
               {avatarBase64 ? (

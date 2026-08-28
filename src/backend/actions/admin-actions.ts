@@ -49,7 +49,7 @@ export async function addStaffMemberWithAuth(formData: FormData) {
 
   const userId = authData.user.id;
 
-  // 2. Ensure Profile exists and is set to 'admin' 
+  // 2. Ensure Profile exists and is set to 'admin'
   // (Supabase triggers might do this, but let's be explicit)
   await supabase.from('profiles').upsert({
     id: userId,
@@ -80,30 +80,39 @@ export async function addStaffMemberWithAuth(formData: FormData) {
 import { createClient as createServerClient } from "@/backend/db/server";
 
 export async function updateUserDetails(targetUserId: string, name: string, role: string, permissions: string[]) {
-  const normalClient = await createServerClient();
-  const { data: { user } } = await normalClient.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
-  
-  const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'super_admin') {
-    return { error: "Insufficient permissions" };
+  try {
+    const normalClient = await createServerClient();
+    const { data: { user } } = await normalClient.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'super_admin') {
+      return { error: "Insufficient permissions" };
+    }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { error: "Server Configuration Error: SUPABASE_SERVICE_ROLE_KEY is missing." };
+    }
+
+    const adminClient = getAdminSupabase();
+    const { error } = await adminClient
+      .from('profiles')
+      .update({ name, role, permissions })
+      .eq('id', targetUserId);
+
+    if (error) return { error: error.message };
+
+    // Also try to update auth metadata for name if possible
+    await adminClient.auth.admin.updateUserById(targetUserId, {
+      user_metadata: { full_name: name }
+    });
+
+    revalidatePath('/admin/permissions');
+    return { success: true };
+  } catch (err: any) {
+    console.error("Caught Exception in updateUserDetails:", err);
+    return { error: `Exception: ${serializeError(err)}` };
   }
-
-  const adminClient = getAdminSupabase();
-  const { error } = await adminClient
-    .from('profiles')
-    .update({ name, role, permissions })
-    .eq('id', targetUserId);
-
-  if (error) return { error: error.message };
-  
-  // Also try to update auth metadata for name if possible
-  await adminClient.auth.admin.updateUserById(targetUserId, {
-    user_metadata: { full_name: name }
-  });
-
-  revalidatePath('/admin/permissions');
-  return { success: true };
 }
 
 export async function createAdminUser(formData: FormData) {
@@ -120,7 +129,7 @@ export async function createAdminUser(formData: FormData) {
     const normalClient = await createServerClient();
     const { data: { user } } = await normalClient.auth.getUser();
     if (!user) return { error: "Unauthorized" };
-    
+
     const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
     if (profile?.role !== 'super_admin') {
       return { error: "Insufficient permissions to create users." };
@@ -172,12 +181,12 @@ export async function deleteAdminUser(targetUserId: string) {
     const normalClient = await createServerClient();
     const { data: { user } } = await normalClient.auth.getUser();
     if (!user) return { error: "Unauthorized" };
-    
+
     const { data: profile } = await normalClient.from('profiles').select('role').eq('id', user.id).single();
     if (profile?.role !== 'super_admin') {
       return { error: "Insufficient permissions to delete users." };
     }
-    
+
     if (user.id === targetUserId) {
       return { error: "You cannot delete your own account." };
     }
@@ -191,7 +200,7 @@ export async function deleteAdminUser(targetUserId: string) {
     // 0. Clean up foreign keys that might block deletion (e.g., admin_requests)
     const { error: reqError1 } = await supabase.from('admin_requests').delete().eq('requested_by', targetUserId);
     if (reqError1) console.warn("Warning clearing requested_by:", reqError1.message);
-    
+
     const { error: reqError2 } = await supabase.from('admin_requests').delete().eq('resolved_by', targetUserId);
     if (reqError2) console.warn("Warning clearing resolved_by:", reqError2.message);
 
