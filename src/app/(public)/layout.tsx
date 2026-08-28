@@ -43,8 +43,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             <Link href="/" className="flex items-center py-1">
               <img 
                 src="/logo.png" 
-                alt="TrueSign Media" 
-                className="h-20 sm:h-24 md:h-24 lg:h-24 w-auto object-contain mix-blend-multiply" 
+                alt="Sellads &amp; TrueSign Media" 
+                className="h-16 sm:h-20 md:h-20 lg:h-22 w-auto object-contain mix-blend-multiply" 
               />
             </Link>
           </div>
@@ -91,8 +91,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             
             {/* Brand Column */}
             <div className="col-span-1 md:col-span-1">
-              <Link href="/" className="inline-block mb-6 bg-white rounded-xl p-2 shadow-sm hover:opacity-95 transition-opacity">
-                <img src="/logo.png" alt="Sellads Advertising" className="h-14 md:h-16 w-auto object-contain" />
+              <Link href="/" className="inline-block mb-6 bg-white rounded-xl p-3 shadow-sm hover:opacity-95 transition-opacity">
+                <img src="/logo.png" alt="Sellads &amp; TrueSign Media" className="h-12 md:h-14 w-auto object-contain" />
               </Link>
               <p className="text-[13px] text-blue-100 leading-relaxed pr-4 font-medium opacity-90">
                 Premium outdoor media inventory across Maharashtra. Hoardings, billboards, and brand campaigns that drive reach.
