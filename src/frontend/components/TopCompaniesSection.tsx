@@ -424,12 +424,6 @@ const ALL_COMPANIES_FLAT = [
 ];
 
 export default function TopCompaniesSection() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Clients");
-
-  const filteredLogos = selectedCategory === "All Clients"
-    ? CLIENT_LOGOS
-    : CLIENT_LOGOS.filter(c => c.category === selectedCategory);
-
   return (
     <section id="clients" className="py-20 md:py-24 bg-[#fafbfc] overflow-hidden border-t border-slate-200/80">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
@@ -472,36 +466,14 @@ export default function TopCompaniesSection() {
           <div className="absolute inset-y-0 right-0 w-24 sm:w-40 bg-gradient-to-l from-[#fafbfc] to-transparent pointer-events-none z-10" />
         </div>
 
-        {/* 3. CATEGORY BUTTONS (Filter pills based on mockup item 4) */}
-        <div className="mb-8 sm:mb-10">
-          <div className="flex items-center gap-2.5 overflow-x-auto pb-3 pt-1 no-scrollbar scroll-smooth">
-            {CATEGORIES_LIST.map((category) => {
-              const isSelected = selectedCategory === category;
-              return (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
-                    isSelected
-                      ? "bg-[#6355d8] text-white shadow-md shadow-indigo-500/20"
-                      : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80 shadow-xs hover:border-slate-300"
-                  }`}
-                >
-                  {category}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 4. CLIENT LOGO GRID (4 columns Desktop / 2 columns Mobile based on mockup item 5) */}
+        {/* 3. CLIENT LOGO GRID (Sharp Edged Rectangular Boxes in 4-columns Desktop / 2-columns Mobile) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredLogos.map((client) => {
+          {CLIENT_LOGOS.map((client) => {
             const LogoComponent = client.logo;
             return (
               <div
                 key={client.id}
-                className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 flex items-center justify-center min-h-[110px] sm:min-h-[135px] shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 group"
+                className="bg-white rounded-none border border-slate-200/90 p-6 sm:p-8 flex items-center justify-center min-h-[110px] sm:min-h-[135px] shadow-xs hover:shadow-md hover:border-slate-400 hover:-translate-y-0.5 transition-all duration-300 group"
               >
                 <div className="transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
                   <LogoComponent />
@@ -510,21 +482,6 @@ export default function TopCompaniesSection() {
             );
           })}
         </div>
-
-        {/* Empty State Fallback (if any category has 0 items) */}
-        {filteredLogos.length === 0 && (
-          <div className="py-16 text-center bg-white rounded-2xl border border-slate-200/80 p-8">
-            <p className="text-sm font-semibold text-slate-500">
-              No clients found in {selectedCategory}.
-            </p>
-            <button
-              onClick={() => setSelectedCategory("All Clients")}
-              className="mt-3 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-all"
-            >
-              Show All Clients
-            </button>
-          </div>
-        )}
 
       </div>
     </section>
