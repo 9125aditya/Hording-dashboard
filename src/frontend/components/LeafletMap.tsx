@@ -82,10 +82,10 @@ export default function LeafletMap({
       // Add zoom control to bottom-left
       L.control.zoom({ position: "bottomleft" }).addTo(map);
 
-      // Use light elegant tiles
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd",
-        maxZoom: 20,
+      // Use OpenStreetMap clean tiles (No API key required, no watermark)
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
       // LayerGroup for markers to update without destroying the map
