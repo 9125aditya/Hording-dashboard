@@ -179,41 +179,20 @@ export default function ServicesPage() {
             </p>
           </AnimateOnScroll>
 
-          {/* Service Icon Circles - 2 Rows (5 on top, 3 on bottom) */}
+          {/* Service Icon Circles - Perfectly balanced 2-col on Mobile, 4-col on Desktop */}
           <div className="max-w-5xl mx-auto">
-            {/* Row 1: 5 Services */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 justify-items-center mb-8 sm:mb-10">
-              {SERVICES_LIST.slice(0, 5).map((service) => {
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 justify-items-center">
+              {SERVICES_LIST.map((service) => {
                 const IconComponent = service.icon;
                 return (
                   <div
                     key={service.id}
                     className="flex flex-col items-center text-center group w-full max-w-[150px] transition-all duration-300"
                   >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center text-slate-800 shadow-lg group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300 border-2 border-white/80">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center text-slate-800 shadow-lg group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300 border-2 border-white/80 shrink-0">
                       <IconComponent className="w-10 h-10 sm:w-12 sm:h-12 text-slate-800 group-hover:text-[#0284c7] transition-colors" />
                     </div>
-                    <span className="mt-3.5 text-[13px] sm:text-[14px] font-bold text-white leading-tight group-hover:text-sky-200 transition-colors">
-                      {service.name}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Row 2: 3 Services */}
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-10 md:gap-14">
-              {SERVICES_LIST.slice(5).map((service) => {
-                const IconComponent = service.icon;
-                return (
-                  <div
-                    key={service.id}
-                    className="flex flex-col items-center text-center group w-full max-w-[150px] transition-all duration-300"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center text-slate-800 shadow-lg group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300 border-2 border-white/80">
-                      <IconComponent className="w-10 h-10 sm:w-12 sm:h-12 text-slate-800 group-hover:text-[#0284c7] transition-colors" />
-                    </div>
-                    <span className="mt-3.5 text-[13px] sm:text-[14px] font-bold text-white leading-tight group-hover:text-sky-200 transition-colors">
+                    <span className="mt-3 text-[13px] sm:text-[14px] font-bold text-white leading-snug group-hover:text-sky-200 transition-colors">
                       {service.name}
                     </span>
                   </div>
