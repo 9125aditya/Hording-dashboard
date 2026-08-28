@@ -209,34 +209,32 @@ export default function TopCompaniesSection() {
           </p>
         </div>
 
-        {/* 2. SLEEK CLIENT TICKER / CAROUSEL */}
-        <div className="relative flex overflow-x-hidden mb-12 py-3 bg-white rounded-2xl border border-slate-200/70 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-          <div className="py-3 animate-marquee whitespace-nowrap flex items-center gap-10 sm:gap-14 px-6">
+        {/* 2. PREVIOUS TYPOGRAPHIC CLIENT TICKER */}
+        <div className="relative flex overflow-x-hidden mb-12 sm:mb-16 group">
+          <div className="py-4 animate-marquee whitespace-nowrap flex items-center gap-10 sm:gap-16 px-6">
             {ALL_COMPANIES_FLAT.map((client, i) => (
-              <div 
+              <span 
                 key={i} 
-                className="flex items-center gap-2.5 px-4 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/60 text-slate-700 text-sm font-semibold tracking-tight hover:text-slate-900 hover:bg-slate-100 transition-colors select-none"
+                className="text-xl sm:text-3xl font-black text-slate-300 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-                <span>{client}</span>
-              </div>
+                {client}
+              </span>
             ))}
           </div>
-          <div className="absolute top-0 py-3 animate-marquee2 whitespace-nowrap flex items-center gap-10 sm:gap-14 px-6 ml-6">
+          <div className="absolute top-0 py-4 animate-marquee2 whitespace-nowrap flex items-center gap-10 sm:gap-16 px-6 ml-6">
             {ALL_COMPANIES_FLAT.map((client, i) => (
-              <div 
+              <span 
                 key={`dup-${i}`} 
-                className="flex items-center gap-2.5 px-4 py-1.5 rounded-lg bg-slate-50/80 border border-slate-200/60 text-slate-700 text-sm font-semibold tracking-tight hover:text-slate-900 hover:bg-slate-100 transition-colors select-none"
+                className="text-xl sm:text-3xl font-black text-slate-300 hover:text-slate-800 transition-colors cursor-default select-none tracking-tight"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-                <span>{client}</span>
-              </div>
+                {client}
+              </span>
             ))}
           </div>
 
           {/* Clean Fade Masks */}
-          <div className="absolute inset-y-0 left-0 w-24 sm:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
-          <div className="absolute inset-y-0 right-0 w-24 sm:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
+          <div className="absolute inset-y-0 left-0 w-24 sm:w-40 bg-gradient-to-r from-[#fafbfc] to-transparent pointer-events-none z-10" />
+          <div className="absolute inset-y-0 right-0 w-24 sm:w-40 bg-gradient-to-l from-[#fafbfc] to-transparent pointer-events-none z-10" />
         </div>
 
         {/* 3. CATEGORY PILLS (Refined Corporate Design) */}

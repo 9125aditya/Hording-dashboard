@@ -451,137 +451,163 @@ export async function saveSiteDetails(siteId: string | null, formData: FormData)
     const { user } = await getUserAndRole(supabase);
     await requireRole(supabase, ['admin', 'super_admin']);
 
-    // ---- Handle image uploads ----
+    const adminClient = getAdminSupabase();
+
+    // ---- Handle image uploads & manual URLs ----
     const existingImagesRaw = formData.get("existing_images") as string;
     let existingImages: string[] = [];
     try {
       existingImages = existingImagesRaw ? JSON.parse(existingImagesRaw) : [];
-    } catch { existingImages = []; }
+    } catch { 
+      existingImages = existingImagesRaw ? [existingImagesRaw] : []; 
+    }
+
+    const manualUrlsRaw = formData.get("manual_urls") as string;
+    let manualUrls: string[] = [];
+    try {
+      manualUrls = manualUrlsRaw ? JSON.parse(manualUrlsRaw) : [];
+    } catch {
+      manualUrls = manualUrlsRaw ? [manualUrlsRaw] : [];
+    }
 
     const newImageFiles = formData.getAll("images") as File[];
     const uploadedUrls: string[] = [];
 
     for (const file of newImageFiles) {
-      if (!file || file.size === 0) continue;
-      // Enforce 2MB limit server-side too
-      if (file.size > 2 * 1024 * 1024) {
-        return { error: `Image ${file.name} exceeds the 2MB size limit.` };
+      if (!file || file.size === 0 || typeof file === 'string') continue;
+      // Enforce 5MB limit server-side
+      if (file.size > 5 * 1024 * 1024) {
+        return { error: `Image ${file.name} exceeds the 5MB size limit.` };
       }
       const ext = file.name.split('.').pop() || 'jpg';
       const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const filePath = `sites/${uniqueName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('site-images')
-        .upload(filePath, file, { contentType: file.type, upsert: false });
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('site-images')
+          .upload(filePath, file, { contentType: file.type, upsert: false });
 
-      if (uploadError) {
-        return { error: `Failed to upload image: ${uploadError.message}` };
-      }
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('site-images')
+            .getPublicUrl(filePath);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('site-images')
-        .getPublicUrl(filePath);
-
-      uploadedUrls.push(publicUrl);
-    }
-
-    // Merge existing + new, cap at 5
-    const finalImages = [...existingImages, ...uploadedUrls].slice(0, 5);
-
-    // If updating, delete removed images from storage
-    if (siteId) {
-      const { data: oldSite } = await supabase.from('sites').select('photos').eq('site_id', siteId).single();
-      if (oldSite && oldSite.photos) {
-        const oldPhotos: string[] = oldSite.photos;
-        const removedUrls = oldPhotos.filter(url => !finalImages.includes(url));
-        if (removedUrls.length > 0) {
-          const pathsToRemove = removedUrls.map(url => {
-            // Extract the relative path after the bucket name
-            const parts = url.split('/site-images/');
-            return parts.length > 1 ? parts[1] : null;
-          }).filter(Boolean) as string[];
-          
-          if (pathsToRemove.length > 0) {
-            await supabase.storage.from('site-images').remove(pathsToRemove);
-          }
+          uploadedUrls.push(publicUrl);
+        } else {
+          console.warn("Storage upload error:", uploadError.message);
         }
+      } catch (uploadEx) {
+        console.warn("Storage upload exception:", uploadEx);
       }
     }
-    // ---- End image uploads ----
 
-    const payload = {
+    // Merge all pictures (existing + manual URLs + newly uploaded files), deduplicate and filter valid strings
+    const finalImages = Array.from(new Set([
+      ...existingImages.filter((u): u is string => typeof u === 'string' && u.trim().length > 0),
+      ...manualUrls.filter((u): u is string => typeof u === 'string' && u.trim().length > 0),
+      ...uploadedUrls.filter((u): u is string => typeof u === 'string' && u.trim().length > 0)
+    ])).slice(0, 10);
+
+    const primaryImage = finalImages[0] || "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80";
+
+    const payload: Record<string, any> = {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
-      area: formData.get("area") as string || '',
-      address: formData.get("address") as string || null,
-      maps_link: formData.get("maps_link") as string || null,
-      lat: parseFloat(formData.get("lat") as string) || null,
-      lng: parseFloat(formData.get("lng") as string) || null,
+      area: (formData.get("area") as string) || '',
+      address: (formData.get("address") as string) || null,
+      maps_link: (formData.get("maps_link") as string) || null,
+      lat: parseFloat(formData.get("lat") as string) || 21.1458,
+      lng: parseFloat(formData.get("lng") as string) || 79.0882,
       size: formData.get("size") as string,
       type: formData.get("type") as string,
-      lit_type: formData.get("lit_type") as string,
+      lit_type: (formData.get("lit_type") as string) || 'Front Lit',
       status: (formData.get("status") as string) || 'Available',
       
       // Additional metrics
       is_metro: formData.get("is_metro") === "true",
       qty: parseInt(formData.get("qty") as string) || 1,
       total_sq_ft: parseFloat(formData.get("total_sq_ft") as string) || 0,
-      printable_size: formData.get("printable_size") as string || null,
+      printable_size: (formData.get("printable_size") as string) || null,
       
       // Metro specific
-      metro_line: formData.get("metro_line") as string || null,
-      metro_pillars: formData.get("metro_pillars") as string || null,
+      metro_line: (formData.get("metro_line") as string) || null,
+      metro_pillars: (formData.get("metro_pillars") as string) || null,
       no_of_pillars: parseInt(formData.get("no_of_pillars") as string) || null,
       no_of_displays: parseInt(formData.get("no_of_displays") as string) || null,
       
       // Electricity
-      electricity_consumer_no: formData.get("electricity_consumer_no") as string || null,
-      electricity_consumer_name: formData.get("electricity_consumer_name") as string || null,
-      electricity_bill_date: formData.get("electricity_bill_date") as string || null,
-      electricity_due_date: formData.get("electricity_due_date") as string || null,
+      electricity_consumer_no: (formData.get("electricity_consumer_no") as string) || null,
+      electricity_consumer_name: (formData.get("electricity_consumer_name") as string) || null,
+      electricity_bill_date: (formData.get("electricity_bill_date") as string) || null,
+      electricity_due_date: (formData.get("electricity_due_date") as string) || null,
       
       // Landlord
-      landlord: formData.get("landlord") as string || null,
-      landlord_contact: formData.get("landlord_contact") as string || null,
+      landlord: (formData.get("landlord") as string) || null,
+      landlord_contact: (formData.get("landlord_contact") as string) || null,
       rent: parseFloat(formData.get("rent") as string) || 0,
       
       // Rationale
-      rationale: formData.get("rationale") as string || null,
+      rationale: (formData.get("rationale") as string) || null,
       
       // Rates
       net_rate: parseFloat(formData.get("net_rate") as string) || 0,
       dcpm_rate: parseFloat(formData.get("dcpm_rate") as string) || 0,
       agency_rate: parseFloat(formData.get("agency_rate") as string) || 0,
       mounting_charges: parseFloat(formData.get("mounting_charges") as string) || 0,
+      price: parseFloat(formData.get("net_rate") as string) || parseFloat(formData.get("price") as string) || 0,
       
-      // Images array
+      // Images / Photos array and primary image
       photos: finalImages,
+      images: finalImages,
+      image_url: primaryImage
     };
 
     // Log the action for history
-    await supabase.from("admin_requests").insert([
-      {
-        action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
-        entity_id: siteId,
-        payload: { ...payload, site_id: siteId },
-        requested_by: user.id,
-        status: 'APPROVED',
-        resolved_at: new Date().toISOString(),
-        resolved_by: user.id
-      }
-    ]);
+    try {
+      await adminClient.from("admin_requests").insert([
+        {
+          action_type: siteId ? 'UPDATE_SITE' : 'ADD_SITE',
+          entity_id: siteId,
+          payload: { ...payload, site_id: siteId },
+          requested_by: user.id,
+          status: 'APPROVED',
+          resolved_at: new Date().toISOString(),
+          resolved_by: user.id
+        }
+      ]);
+    } catch (logErr) {
+      console.warn("Could not log to admin_requests:", logErr);
+    }
 
-    // Direct save
+    // Direct save using adminClient to ensure admin/super_admin permissions
     if (siteId) {
-      const { error } = await supabase.from("sites").update(payload).eq("site_id", siteId);
-      if (error) return { error: error.message };
+      const isNumeric = /^\d+$/.test(siteId);
+      let updateRes;
+      if (isNumeric) {
+        updateRes = await adminClient.from("sites").update(payload).eq("id", parseInt(siteId, 10));
+      } else {
+        updateRes = await adminClient.from("sites").update(payload).eq("site_id", siteId);
+      }
+      if (updateRes.error) {
+        console.error("Site update error:", updateRes.error);
+        return { error: updateRes.error.message };
+      }
     } else {
-      const { error } = await supabase.from("sites").insert([payload]);
-      if (error) return { error: error.message };
+      const newSiteId = crypto.randomUUID();
+      payload.site_id = newSiteId;
+      const { error: insertError } = await adminClient.from("sites").insert([payload]);
+      if (insertError) {
+        console.error("Site insert error:", insertError);
+        return { error: insertError.message };
+      }
     }
 
     revalidatePath("/inventory");
+    revalidatePath("/status");
+    revalidatePath("/map");
+    revalidatePath("/catalog");
+    revalidatePath("/admin-map");
     return { success: true };
   } catch (err: any) {
     console.error("saveSiteDetails Error:", err);

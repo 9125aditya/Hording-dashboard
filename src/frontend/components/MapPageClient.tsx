@@ -1,14 +1,15 @@
+
 "use client";
 
 import dynamic from "next/dynamic";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { 
-  MagnifyingGlassIcon, 
-  MapPinIcon, 
-  XMarkIcon, 
-  ArrowsPointingOutIcon, 
+import {
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  XMarkIcon,
+  ArrowsPointingOutIcon,
   ChevronRightIcon
 } from "@heroicons/react/24/outline";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
@@ -173,7 +174,7 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
     // If exact matches exist
     if (exactMatches.length > 0) {
       const availableExact = exactMatches.filter(s => s.status === "Available");
-      
+
       // If there are exact matches but NONE are available:
       // Find nearby available hoardings around the first exact match within ~2 km!
       if (availableExact.length === 0 && exactMatches[0]?.lat && exactMatches[0]?.lng) {
@@ -380,11 +381,10 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                     setActiveStatus(filter);
                     setSelectedSite(null);
                   }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                    activeStatus === filter
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${activeStatus === filter
                       ? "bg-indigo-600 text-white shadow-xs shadow-indigo-500/25 scale-105"
                       : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   {filter}
                 </button>
@@ -439,10 +439,9 @@ export default function MapPageClient({ initialSites }: MapPageClientProps) {
                   </div>
                   <div className="bg-slate-50 hover:bg-white hover:shadow-xs transition-all rounded-xl p-3.5 border border-slate-100">
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Status</p>
-                    <p className={`text-sm font-bold ${
-                      selectedSite.status === "Available" ? "text-emerald-600" :
-                      selectedSite.status === "Booked" ? "text-rose-600" : "text-amber-600"
-                    }`}>{selectedSite.status}</p>
+                    <p className={`text-sm font-bold ${selectedSite.status === "Available" ? "text-emerald-600" :
+                        selectedSite.status === "Booked" ? "text-rose-600" : "text-amber-600"
+                      }`}>{selectedSite.status}</p>
                   </div>
                   <div className="bg-slate-50 hover:bg-white hover:shadow-xs transition-all rounded-xl p-3.5 border border-slate-100">
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Coordinates</p>

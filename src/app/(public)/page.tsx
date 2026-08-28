@@ -80,7 +80,7 @@ export default function PublicHomePage() {
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight relative z-10">Outdoor Media</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium relative z-10">Outdoor advertising across major highways, junctions and city roads with prime visibility.</p>
-                <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
+                <Link href="/services" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
                   Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -93,7 +93,7 @@ export default function PublicHomePage() {
                 </div>
                 <h3 className="text-[22px] font-black text-slate-900 mb-4 tracking-tight relative z-10">Digital Marketing</h3>
                 <p className="text-[15px] text-slate-500 leading-relaxed mb-8 font-medium relative z-10">Social media, Google Ads, SEO and online campaigns that complement your outdoor presence.</p>
-                <Link href="/contact" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
+                <Link href="/services" className="mt-auto text-[#dd3333] font-bold text-[15px] flex items-center group-hover:text-red-700 relative z-10">
                   Learn more <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>

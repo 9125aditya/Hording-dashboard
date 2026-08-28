@@ -51,6 +51,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
           
           <nav className="hidden md:flex items-center space-x-7 text-[13.5px] font-bold text-slate-700">
             <Link href="/catalog" className="hover:text-red-600 transition-colors">Catalogue</Link>
+            <Link href="/services" className="hover:text-red-600 transition-colors">Services</Link>
             <Link href="/careers" className="hover:text-red-600 transition-colors">Careers</Link>
             <Link href="/contact" className="hover:text-red-600 transition-colors">Enquiry</Link>
           </nav>
@@ -138,7 +139,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
                 <li><Link href="/" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Home</Link></li>
                 <li><Link href="/catalog" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Inventory</Link></li>
                 <li><Link href="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Enquiry</Link></li>
-                <li><Link href="/#services" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Services</Link></li>
+                <li><Link href="/services" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Services</Link></li>
                 <li><Link href="/#clients" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Clients</Link></li>
                 <li><Link href="/careers" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Careers</Link></li>
                 <li><Link href="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-transform">Contact</Link></li>

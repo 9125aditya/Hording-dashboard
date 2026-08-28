@@ -32,7 +32,30 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
     </div>
   );
 
-  const siteImages: string[] = site.images || [];
+  // Safe photo extraction
+  let siteImages: string[] = [];
+  if (Array.isArray(site.photos)) {
+    siteImages = site.photos;
+  } else if (typeof site.photos === 'string' && site.photos.trim()) {
+    try {
+      const parsed = JSON.parse(site.photos);
+      siteImages = Array.isArray(parsed) ? parsed : [site.photos];
+    } catch {
+      siteImages = [site.photos];
+    }
+  } else if (Array.isArray(site.images)) {
+    siteImages = site.images;
+  } else if (typeof site.images === 'string' && site.images.trim()) {
+    try {
+      const parsed = JSON.parse(site.images);
+      siteImages = Array.isArray(parsed) ? parsed : [site.images];
+    } catch {
+      siteImages = [site.images];
+    }
+  } else if (site.image_url) {
+    siteImages = [site.image_url];
+  }
+  siteImages = siteImages.filter(Boolean);
 
   return (
     <div className="max-w-[900px] mx-auto space-y-6 pb-20">
