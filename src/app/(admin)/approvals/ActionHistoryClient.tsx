@@ -50,6 +50,8 @@ const ACTION_TYPE_COLORS: Record<string, string> = {
   ENQUIRY_NOTE: "bg-purple-100 text-purple-700 border-purple-200",
   ENQUIRY_REPLY: "bg-cyan-100 text-cyan-700 border-cyan-200",
   FLEX_TRANSACTION: "bg-orange-100 text-orange-700 border-orange-200",
+  SITE_BOOKING: "bg-blue-100 text-blue-700 border-blue-200",
+  EMAIL_SENT: "bg-purple-100 text-purple-700 border-purple-200",
 };
 
 const ACTION_TYPE_LABELS: Record<string, string> = {
@@ -61,6 +63,8 @@ const ACTION_TYPE_LABELS: Record<string, string> = {
   ENQUIRY_NOTE: "Enquiry Note",
   ENQUIRY_REPLY: "Enquiry Reply",
   FLEX_TRANSACTION: "Flex Inventory",
+  SITE_BOOKING: "Booking Confirmation",
+  EMAIL_SENT: "Email Sent",
 };
 
 export default function ActionHistoryClient({ initialRequests }: { initialRequests: AdminRequestItem[] }) {
@@ -368,6 +372,9 @@ export default function ActionHistoryClient({ initialRequests }: { initialReques
                         {req.action_type === 'UPDATE_SITE' && req.payload?.name && (
                           <span>Edit site: <strong>{req.payload.name}</strong></span>
                         )}
+                        {req.action_type === 'SITE_BOOKING' && (
+                          <span>Booking: <strong>{req.payload?.client_name}</strong> for <strong>{req.payload?.site_name}</strong> ({req.payload?.booking_type || 'Blocked Hold'})</span>
+                        )}
                         {req.action_type === 'UPDATE_ENQUIRY_STATUS' && (
                           <span>Enquiry #{req.payload?.enquiry_id} status changed to <strong>{req.payload?.status}</strong></span>
                         )}
@@ -379,6 +386,9 @@ export default function ActionHistoryClient({ initialRequests }: { initialReques
                         )}
                         {req.action_type === 'FLEX_TRANSACTION' && (
                           <span>Flex inventory: <strong>{req.payload?.quantity}x {req.payload?.size}</strong> ({req.payload?.type})</span>
+                        )}
+                        {req.action_type === 'EMAIL_SENT' && (
+                          <span>Email sent to <strong>{req.payload?.client_email}</strong> regarding <strong>{req.payload?.booking_id || 'booking'}</strong> (<strong>{req.payload?.email_status || 'status unknown'}</strong>)</span>
                         )}
                       </div>
 
