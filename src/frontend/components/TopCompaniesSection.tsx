@@ -352,6 +352,47 @@ export function AakashLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: st
   );
 }
 
+export function MalabarLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex flex-col items-center leading-none ${className}`}>
+      <span className="font-serif font-black text-xs sm:text-sm text-[#9b111e] tracking-widest">
+        MALABAR
+      </span>
+      <span className="text-[8px] font-bold text-[#b48833] tracking-widest mt-0.5">GOLD &amp; DIAMONDS</span>
+    </div>
+  );
+}
+
+export function CareHospitalLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <span className="font-bold text-base sm:text-lg text-[#00857c] tracking-tight font-sans">
+        CARE <span className="text-slate-700 font-medium text-xs">Hospitals</span>
+      </span>
+    </div>
+  );
+}
+
+export function AllenLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <span className="font-black text-xl sm:text-2xl text-[#0054a6] tracking-tighter font-sans">
+        ALLEN
+      </span>
+    </div>
+  );
+}
+
+export function SdplLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <span className="font-black text-base sm:text-lg text-[#1e3a8a] tracking-wider">
+        SDPL <span className="text-xs font-semibold text-slate-500">Builders</span>
+      </span>
+    </div>
+  );
+}
+
 // ==========================================
 // CLIENT DATA STRUCTURE BY CATEGORY
 // ==========================================
@@ -364,46 +405,59 @@ export type ClientLogoItem = {
 };
 
 export const CLIENT_LOGOS: ClientLogoItem[] = [
-  // Row 1 (As seen in Mockup)
+  // Automotive
   { id: "tata", name: "Tata", category: "Automotive", logo: TataLogo },
-  { id: "adani", name: "Adani", category: "Technology", logo: AdaniLogo },
-  { id: "infosys", name: "Infosys", category: "Technology", logo: InfosysLogo },
-  { id: "hdfc", name: "HDFC Bank", category: "Banking & Finance", logo: HdfcBankLogo },
-
-  // Row 2 (As seen in Mockup)
-  { id: "sbi", name: "SBI", category: "Banking & Finance", logo: SbiLogo },
-  { id: "dhl", name: "DHL", category: "Technology", logo: DhlLogo },
-  { id: "coca-cola", name: "Coca-Cola", category: "FMCG", logo: CocaColaLogo },
-  { id: "asian-paints", name: "Asian Paints", category: "Building & Construction", logo: AsianPaintsLogo },
-
-  // Row 3 (As seen in Mockup)
   { id: "maruti-suzuki", name: "Maruti Suzuki", category: "Automotive", logo: MarutiSuzukiLogo },
-  { id: "nestle", name: "Nestle", category: "FMCG", logo: NestleLogo },
-  { id: "pg", name: "P&G", category: "FMCG", logo: PgLogo },
-  { id: "vivo", name: "Vivo", category: "Technology", logo: VivoLogo },
-
-  // Additional Brands Across Categories
-  { id: "tanishq", name: "Tanishq", category: "Jewellery & Luxury", logo: TanishqLogo },
-  { id: "kalyan", name: "Kalyan Jewellers", category: "Jewellery & Luxury", logo: KalyanLogo },
-  { id: "png", name: "PNG Jewellers", category: "Jewellery & Luxury", logo: PngJewellersLogo },
   { id: "hyundai", name: "Hyundai", category: "Automotive", logo: HyundaiLogo },
   { id: "tvs", name: "TVS Motor", category: "Automotive", logo: TvsLogo },
+
+  // Banking & Finance
+  { id: "hdfc", name: "HDFC Bank", category: "Banking & Finance", logo: HdfcBankLogo },
+  { id: "sbi", name: "SBI", category: "Banking & Finance", logo: SbiLogo },
   { id: "pnb", name: "Punjab National Bank", category: "Banking & Finance", logo: PnbLogo },
   { id: "icici", name: "ICICI Bank", category: "Banking & Finance", logo: IciciBankLogo },
-  { id: "godrej", name: "Godrej Properties", category: "Real Estate", logo: GodrejLogo },
-  { id: "kalpataru", name: "Kalpataru", category: "Real Estate", logo: KalpataruLogo },
-  { id: "ultratech", name: "UltraTech Cement", category: "Building & Construction", logo: UltratechLogo },
-  { id: "ambuja", name: "Ambuja Cement", category: "Building & Construction", logo: AmbujaLogo },
-  { id: "polycab", name: "Polycab", category: "Building & Construction", logo: PolycabLogo },
+
+  // FMCG
+  { id: "coca-cola", name: "Coca-Cola", category: "FMCG", logo: CocaColaLogo },
+  { id: "nestle", name: "Nestle", category: "FMCG", logo: NestleLogo },
+  { id: "pg", name: "P&G", category: "FMCG", logo: PgLogo },
   { id: "zomato", name: "Zomato", category: "FMCG", logo: ZomatoLogo },
   { id: "swiggy", name: "Swiggy", category: "FMCG", logo: SwiggyLogo },
   { id: "blinkit", name: "Blinkit", category: "FMCG", logo: BlinkitLogo },
+
+  // Jewellery & Luxury
+  { id: "tanishq", name: "Tanishq", category: "Jewellery & Luxury", logo: TanishqLogo },
+  { id: "kalyan", name: "Kalyan Jewellers", category: "Jewellery & Luxury", logo: KalyanLogo },
+  { id: "png", name: "PNG Jewellers", category: "Jewellery & Luxury", logo: PngJewellersLogo },
+  { id: "malabar", name: "Malabar Gold", category: "Jewellery & Luxury", logo: MalabarLogo },
+
+  // Real Estate
+  { id: "godrej", name: "Godrej Properties", category: "Real Estate", logo: GodrejLogo },
+  { id: "kalpataru", name: "Kalpataru", category: "Real Estate", logo: KalpataruLogo },
+  { id: "sdpl", name: "SDPL Builders", category: "Real Estate", logo: SdplLogo },
+
+  // Healthcare
   { id: "krims", name: "Krims Hospital", category: "Healthcare", logo: KrimsLogo },
+  { id: "care", name: "Care Hospitals", category: "Healthcare", logo: CareHospitalLogo },
+
+  // Education
   { id: "aakash", name: "Aakash Institute", category: "Education", logo: AakashLogo },
+  { id: "allen", name: "Allen Career Institute", category: "Education", logo: AllenLogo },
+
+  // Building & Construction
+  { id: "asian-paints", name: "Asian Paints", category: "Building & Construction", logo: AsianPaintsLogo },
+  { id: "ultratech", name: "UltraTech Cement", category: "Building & Construction", logo: UltratechLogo },
+  { id: "ambuja", name: "Ambuja Cement", category: "Building & Construction", logo: AmbujaLogo },
+  { id: "polycab", name: "Polycab", category: "Building & Construction", logo: PolycabLogo },
+
+  // Technology
+  { id: "adani", name: "Adani", category: "Technology", logo: AdaniLogo },
+  { id: "infosys", name: "Infosys", category: "Technology", logo: InfosysLogo },
+  { id: "dhl", name: "DHL", category: "Technology", logo: DhlLogo },
+  { id: "vivo", name: "Vivo", category: "Technology", logo: VivoLogo },
 ];
 
 export const CATEGORIES_LIST = [
-  "All Clients",
   "Automotive",
   "Banking & Finance",
   "FMCG",
@@ -424,6 +478,10 @@ const ALL_COMPANIES_FLAT = [
 ];
 
 export default function TopCompaniesSection() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("Automotive");
+
+  const filteredLogos = CLIENT_LOGOS.filter(c => c.category === selectedCategory);
+
   return (
     <section id="clients" className="py-20 md:py-24 bg-[#fafbfc] overflow-hidden border-t border-slate-200/80">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
@@ -466,9 +524,31 @@ export default function TopCompaniesSection() {
           <div className="absolute inset-y-0 right-0 w-24 sm:w-40 bg-gradient-to-l from-[#fafbfc] to-transparent pointer-events-none z-10" />
         </div>
 
-        {/* 3. CLIENT LOGO GRID (Sharp Edged Rectangular Boxes in 4-columns Desktop / 2-columns Mobile) */}
+        {/* 3. CATEGORY BUTTONS (All categories except All Clients) */}
+        <div className="mb-8 sm:mb-10">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-3 pt-1 no-scrollbar scroll-smooth">
+            {CATEGORIES_LIST.map((category) => {
+              const isSelected = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
+                    isSelected
+                      ? "bg-[#6355d8] text-white shadow-md shadow-indigo-500/20"
+                      : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80 shadow-xs hover:border-slate-300"
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 4. CLIENT LOGO GRID (Sharp Edged Rectangular Boxes) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {CLIENT_LOGOS.map((client) => {
+          {filteredLogos.map((client) => {
             const LogoComponent = client.logo;
             return (
               <div
