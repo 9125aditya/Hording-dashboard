@@ -1449,23 +1449,17 @@ export default function TopCompaniesSection() {
           <div className="flex items-center gap-2.5 overflow-x-auto pb-3 pt-1 no-scrollbar scroll-smooth">
             {CATEGORIES_LIST.map((category) => {
               const isSelected = selectedCategory === category;
-              const count = CLIENT_LOGOS.filter(c => c.category === category).length;
               return (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
                     isSelected
                       ? "bg-[#6355d8] text-white shadow-md shadow-indigo-500/20"
                       : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80 shadow-xs hover:border-slate-300"
                   }`}
                 >
-                  <span>{category}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isSelected ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
-                  }`}>
-                    {count}
-                  </span>
+                  {category}
                 </button>
               );
             })}
