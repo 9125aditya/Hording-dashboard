@@ -90,9 +90,10 @@ export default async function ViewSiteDetailsPage({ params }: { params: Promise<
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {siteImages.map((url: string, i: number) => (
-                <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-gray-200 aspect-video hover:opacity-90 transition-opacity">
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-gray-200 bg-slate-900 aspect-video hover:opacity-90 transition-opacity relative group" title="Click to open full original image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`Site photo ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={url} alt={`Site photo ${i + 1}`} className="w-full h-full object-contain" />
+                  <span className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Enlarge ↗</span>
                 </a>
               ))}
             </div>

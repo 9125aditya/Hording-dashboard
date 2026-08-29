@@ -1,9 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, MapIcon, SunIcon, BoltIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, MapPinIcon, ArrowsPointingOutIcon, CheckIcon, SunIcon, BoltIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/backend/db/server";
 import { notFound } from "next/navigation";
 import LeafletMap from "@/frontend/components/LeafletMap";
+import SiteGallery from "@/frontend/components/SiteGallery";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +22,36 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
 
   const litTypeDisplay = dbSite.lit_type || 'Front Lit';
 
+  let siteImages: string[] = [];
+  if (Array.isArray(dbSite.photos)) {
+    siteImages = dbSite.photos;
+  } else if (typeof dbSite.photos === 'string' && dbSite.photos.trim()) {
+    try {
+      const parsed = JSON.parse(dbSite.photos);
+      siteImages = Array.isArray(parsed) ? parsed : [dbSite.photos];
+    } catch {
+      siteImages = dbSite.photos.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+  } else if (Array.isArray(dbSite.images)) {
+    siteImages = dbSite.images;
+  } else if (typeof dbSite.images === 'string' && dbSite.images.trim()) {
+    try {
+      const parsed = JSON.parse(dbSite.images);
+      siteImages = Array.isArray(parsed) ? parsed : [dbSite.images];
+    } catch {
+      siteImages = dbSite.images.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+  } else if (dbSite.image_url) {
+    siteImages = [dbSite.image_url];
+  }
+  siteImages = siteImages.filter(Boolean);
+  if (siteImages.length === 0) {
+    siteImages = [
+      "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=1600&q=80",
+      "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80"
+    ];
+  }
+
   const site = {
     id: dbSite.site_id,
     name: dbSite.name,
@@ -34,10 +64,7 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
     lat: Number(dbSite.lat),
     lng: Number(dbSite.lng),
     color: dbSite.status === "Available" ? "bg-available text-primary-foreground" : dbSite.status === "Booked" ? "bg-booked text-primary-foreground" : "bg-blocked text-white",
-    images: dbSite.photos && dbSite.photos.length > 0 ? dbSite.photos : [
-      "https://images.unsplash.com/photo-1533069027836-fa937181a8ce?w=1600&q=80",
-      "https://images.unsplash.com/photo-1513757378314-e46255f6ed16?w=800&q=80"
-    ],
+    images: siteImages,
     description: `A highly visible ${litTypeDisplay.toLowerCase()} hoarding in ${dbSite.area || dbSite.city}, ${dbSite.city}. Excellent sightlines with no obstructions, perfect for high-impact brand campaigns.`,
     dailyTraffic: "85,000",
     illumination: dbSite.lit_type === 'Digital' ? '24/7' : dbSite.lit_type === 'Non-Lit' ? 'Daylight Only' : '6:00 PM to 11:00 PM',
@@ -72,23 +99,12 @@ export default async function SiteDetailsPage({ params }: { params: Promise<{ id
                <p className="text-lg text-muted-foreground flex items-center"><MapPinIcon className="mr-2 h-5 w-5" /> {site.address || site.city}</p>
             </div>
 
-            {/* Gallery */}
-            <div className="space-y-4">
-              <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-muted border border-border relative">
-                <Image src={site.images[0]} alt={site.name} fill priority sizes="100vw" className="object-cover" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border relative">
-                  <Image src={site.images[1]} alt={site.name} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />
-                </div>
-                <Link href={`/map?siteId=${site.id}`} className="aspect-video rounded-xl overflow-hidden bg-muted border border-border flex items-center justify-center relative group cursor-pointer">
-                  <MapIcon className="h-10 w-10 text-muted-foreground group-hover:scale-110 transition-transform" />
-                  <div className="absolute inset-0 bg-primary/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="bg-background px-4 py-2 rounded-full text-sm font-medium shadow-sm">View interactive map</span>
-                  </div>
-                </Link>
-              </div>
-            </div>
+            {/* Interactive Gallery with Zoom & Lightbox */}
+            <SiteGallery 
+              images={site.images} 
+              siteName={site.name} 
+              siteId={site.id} 
+            />
 
             {/* Description */}
             <div className="pt-8 border-t border-border">

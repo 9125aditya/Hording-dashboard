@@ -44,7 +44,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
               <img 
                 src="/logo.png" 
                 alt="Sellads &amp; TrueSign Media" 
-                className="h-12 sm:h-15 md:h-16 lg:h-16 w-auto object-contain mix-blend-multiply" 
+                className="h-12 md:h-16 w-auto object-contain mix-blend-multiply" 
               />
             </Link>
           </div>
