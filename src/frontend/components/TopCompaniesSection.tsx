@@ -10,7 +10,7 @@ import React, { useState } from "react";
 export function TataLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <svg className="h-7 sm:h-8 w-auto text-[#00529b]" viewBox="0 0 100 70" fill="currentColor">
+      <svg className="h-9 sm:h-10 w-auto text-[#00529b]" viewBox="0 0 100 70" fill="currentColor">
         <path d="M50 0C22.4 0 0 15.7 0 35c0 19.3 22.4 35 50 35s50-15.7 50-35C100 15.7 77.6 0 50 0zm0 62C27.9 62 10 49.9 10 35S27.9 8 50 8s40 12.1 40 27-17.9 27-40 27z" />
         <path d="M43 20h14v7h-3.5v22h-7V27H43v-7zm-14 7h10v6h-10v-6zm32 0h10v6h-10v-6z" />
       </svg>
@@ -21,13 +21,13 @@ export function TataLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: str
   );
 }
 
-export function MarutiSuzukiLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function MarutiSuzukiLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#d32f2f] text-white font-black italic flex items-center justify-center rounded-xs text-sm sm:text-base">
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#d32f2f] text-white font-black italic flex items-center justify-center rounded-xs text-base sm:text-lg">
         S
       </div>
-      <span className="font-black text-xs sm:text-sm tracking-wider text-[#002663] uppercase">
+      <span className="font-black text-sm sm:text-base tracking-wider text-[#002663] uppercase">
         Maruti Suzuki
       </span>
     </div>
@@ -60,20 +60,20 @@ export function TvsLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: strin
   );
 }
 
-export function MahindraLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function MahindraLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="flex items-center text-[#d32f2f] font-black text-lg sm:text-xl tracking-wide">
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <div className="flex items-center text-[#d32f2f] font-black text-xl sm:text-2xl tracking-wide">
         <span className="text-[#d32f2f]">mahindra</span>
       </div>
     </div>
   );
 }
 
-export function HondaLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function HondaLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      <span className="font-serif font-black text-lg sm:text-xl text-[#cc0000] tracking-widest">
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className="font-serif font-black text-xl sm:text-2xl text-[#cc0000] tracking-widest">
         HONDA
       </span>
     </div>
@@ -93,10 +93,10 @@ export function HeroLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: stri
   );
 }
 
-export function ToyotaLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function ToyotaLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      <span className="font-black text-sm sm:text-base text-[#eb0a1e] tracking-[0.2em]">
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className="font-black text-base sm:text-lg text-[#eb0a1e] tracking-[0.2em]">
         TOYOTA
       </span>
     </div>
@@ -123,52 +123,92 @@ export function KiaLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: strin
   );
 }
 
-export function RoyalEnfieldLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function RoyalEnfieldLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <span className="font-serif font-black text-xs sm:text-sm text-[#b8860b] tracking-widest uppercase">
+      <span className="font-serif font-black text-sm sm:text-base text-[#b8860b] tracking-widest uppercase">
         ROYAL ENFIELD
       </span>
     </div>
   );
 }
 
-export function SkodaLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function SkodaLogo({ className = "h-8 sm:h-10 w-auto" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      <span className="font-black text-sm sm:text-base text-[#0e3b2e] tracking-[0.15em] uppercase">
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className="font-black text-base sm:text-lg text-[#0e3b2e] tracking-[0.15em] uppercase">
         ŠKODA
       </span>
     </div>
   );
 }
 
+export function AudiLogo({ className = "h-10 sm:h-12 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/audi.png" alt="Audi" className="h-8 sm:h-10 w-auto" />
+    </div>
+  );
+}
+
+export function MercedesLogo({ className = "h-10 sm:h-12 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/mercides.png" alt="Mercedes" className="h-8 sm:h-10 w-auto" />
+    </div>
+  );
+}
+
+export function BMWLogo({ className = "h-10 sm:h-12 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/bmw.png" alt="BMW" className="h-8 sm:h-10 w-auto" />
+    </div>
+  );
+}
+
+export function TriumphLogo({ className = "h-10 sm:h-12 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/triumph-motorcycles-ltd.png" alt="Triumph" className="h-8 sm:h-10 w-auto" />
+    </div>
+  );
+}
+
+export function VolkswagenLogo({ className = "h-10 sm:h-12 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/volkswagen.png" alt="Volkswagen" className="h-8 sm:h-10 w-auto" />
+    </div>
+  );
+}
+
 
 // --- BANKING & FINANCE LOGOS ---
-export function HdfcBankLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+export function HdfcBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#004c8f] rounded flex items-center justify-center p-1 relative">
+      <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#004c8f] rounded flex items-center justify-center p-1 relative">
         <div className="w-full h-full border border-white relative flex items-center justify-center">
           <div className="w-2 h-2 bg-[#ed232a]"></div>
         </div>
       </div>
       <div className="flex flex-col leading-none">
-        <span className="font-black text-xs sm:text-sm tracking-wider text-[#004c8f]">HDFC BANK</span>
+        <span className="font-black text-base sm:text-lg tracking-wider text-[#004c8f]">HDFC BANK</span>
       </div>
     </div>
   );
 }
 
-export function SbiLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+export function SbiLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#00a3e0] flex items-center justify-center relative">
+      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#00a3e0] flex items-center justify-center relative">
         <div className="w-2 h-2 rounded-full bg-white relative">
           <div className="absolute top-1 left-0.5 w-1 h-3 bg-[#00a3e0] -translate-x-1/2"></div>
         </div>
       </div>
-      <span className="font-black text-sm sm:text-base tracking-wider text-[#22408c]">
+      <span className="font-black text-base sm:text-lg tracking-wider text-[#22408c]">
         State Bank of India
       </span>
     </div>
@@ -188,13 +228,13 @@ export function IciciBankLogo({ className = "h-7 sm:h-9 w-auto" }: { className?:
   );
 }
 
-export function PnbLogo({ className = "h-7 sm:h-9 w-auto" }: { className?: string }) {
+export function PnbLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-6 h-6 bg-[#a20a3a] rounded flex items-center justify-center text-[#ffc20e] font-bold text-xs">
+      <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#a20a3a] rounded flex items-center justify-center text-[#ffc20e] font-bold text-lg">
         pnb
       </div>
-      <span className="font-bold text-xs sm:text-sm text-[#a20a3a]">
+      <span className="font-bold text-base sm:text-lg text-[#a20a3a]">
         Punjab National Bank
       </span>
     </div>
@@ -227,13 +267,13 @@ export function KotakLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: str
   );
 }
 
-export function BankOfBarodaLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function BankOfBarodaLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      <div className="w-6 h-6 bg-[#f26522] rounded-full flex items-center justify-center text-white font-bold text-xs">
+      <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#f26522] rounded-full flex items-center justify-center text-white font-bold text-lg">
         B
       </div>
-      <span className="font-bold text-xs sm:text-sm text-[#f26522]">
+      <span className="font-bold text-base sm:text-lg text-[#f26522]">
         Bank of Baroda
       </span>
     </div>
@@ -263,11 +303,11 @@ export function IndusIndLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: 
   );
 }
 
-export function EsafLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: string }) {
+export function EsafLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      <span className="font-black text-xs sm:text-sm text-[#006837]">
-        ESAF <span className="text-[10px] text-slate-500 font-medium">Bank</span>
+      <span className="font-black text-lg sm:text-xl text-[#006837]">
+        ESAF <span className="text-[14px] text-slate-500 font-medium">Bank</span>
       </span>
     </div>
   );
@@ -1228,6 +1268,62 @@ export function DhlLogo({ className = "h-6 sm:h-8 w-auto" }: { className?: strin
   );
 }
 
+export function AuBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/au-bank.png" alt="AU Bank" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function DcbBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/dcb-bank.png" alt="DCB Bank" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function UnionBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/union-bank.png" alt="Union Bank" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function TheDharampethLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/the-dharampeth-mahila.png" alt="The Dharampeth" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function MaharashtraGrinBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/maharastra-gramin-bank.png" alt="Maharashtra Gramin Bank" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function SaraswatBankLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/sarasvat-bank.png" alt="Saraswat Bank" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
+export function NnsbLogo({ className = "h-12 sm:h-14 w-auto" }: { className?: string }) {
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img src="/assets/client-logos/nnsb.png" alt="NNSB" className="h-12 sm:h-14 w-auto object-contain" />
+    </div>
+  );
+}
+
 
 // ==========================================
 // CLIENT DATA STRUCTURE BY CATEGORY
@@ -1242,32 +1338,32 @@ export type ClientLogoItem = {
 
 export const CLIENT_LOGOS: ClientLogoItem[] = [
   // 1. Automotive (12 clients)
-  { id: "tata", name: "Tata Motors", category: "Automotive", logo: TataLogo },
+  { id: "audi", name: "Audi", category: "Automotive", logo: AudiLogo },
+  { id: "mercedes", name: "Mercedes", category: "Automotive", logo: MercedesLogo },
   { id: "maruti-suzuki", name: "Maruti Suzuki", category: "Automotive", logo: MarutiSuzukiLogo },
-  { id: "hyundai", name: "Hyundai", category: "Automotive", logo: HyundaiLogo },
-  { id: "tvs", name: "TVS Motor", category: "Automotive", logo: TvsLogo },
-  { id: "mahindra", name: "Mahindra", category: "Automotive", logo: MahindraLogo },
-  { id: "honda", name: "Honda", category: "Automotive", logo: HondaLogo },
-  { id: "hero", name: "Hero MotoCorp", category: "Automotive", logo: HeroLogo },
-  { id: "toyota", name: "Toyota", category: "Automotive", logo: ToyotaLogo },
-  { id: "bajaj", name: "Bajaj Auto", category: "Automotive", logo: BajajLogo },
-  { id: "kia", name: "Kia Motors", category: "Automotive", logo: KiaLogo },
+  { id: "bmw", name: "BMW", category: "Automotive", logo: BMWLogo },
+  { id: "triumph", name: "Triumph", category: "Automotive", logo: TriumphLogo },
+  { id: "tata", name: "Tata Motors", category: "Automotive", logo: TataLogo },
   { id: "royal-enfield", name: "Royal Enfield", category: "Automotive", logo: RoyalEnfieldLogo },
+  { id: "toyota", name: "Toyota", category: "Automotive", logo: ToyotaLogo },
+  { id: "mahindra", name: "Mahindra", category: "Automotive", logo: MahindraLogo },
+  { id: "volkswagen", name: "Volkswagen", category: "Automotive", logo: VolkswagenLogo },
   { id: "skoda", name: "Škoda Auto", category: "Automotive", logo: SkodaLogo },
+  { id: "honda", name: "Honda", category: "Automotive", logo: HondaLogo },
 
   // 2. Banking & Finance (12 clients)
-  { id: "hdfc", name: "HDFC Bank", category: "Banking & Finance", logo: HdfcBankLogo },
   { id: "sbi", name: "SBI", category: "Banking & Finance", logo: SbiLogo },
-  { id: "icici", name: "ICICI Bank", category: "Banking & Finance", logo: IciciBankLogo },
-  { id: "pnb", name: "Punjab National Bank", category: "Banking & Finance", logo: PnbLogo },
-  { id: "axis", name: "Axis Bank", category: "Banking & Finance", logo: AxisBankLogo },
-  { id: "kotak", name: "Kotak Mahindra Bank", category: "Banking & Finance", logo: KotakLogo },
+  { id: "hdfc", name: "HDFC", category: "Banking & Finance", logo: HdfcBankLogo },
+  { id: "pnb", name: "PNB", category: "Banking & Finance", logo: PnbLogo },
+  { id: "au-bank", name: "AU Bank", category: "Banking & Finance", logo: AuBankLogo },
   { id: "bob", name: "Bank of Baroda", category: "Banking & Finance", logo: BankOfBarodaLogo },
-  { id: "canara", name: "Canara Bank", category: "Banking & Finance", logo: CanaraBankLogo },
-  { id: "indusind", name: "IndusInd Bank", category: "Banking & Finance", logo: IndusIndLogo },
-  { id: "esaf", name: "ESAF Small Finance Bank", category: "Banking & Finance", logo: EsafLogo },
-  { id: "bajaj-finserv", name: "Bajaj Finserv", category: "Banking & Finance", logo: BajajFinservLogo },
-  { id: "muthoot", name: "Muthoot Finance", category: "Banking & Finance", logo: MuthootFinanceLogo },
+  { id: "dcb-bank", name: "DCB Bank", category: "Banking & Finance", logo: DcbBankLogo },
+  { id: "esaf", name: "ESAF Bank", category: "Banking & Finance", logo: EsafLogo },
+  { id: "union-bank", name: "Union Bank", category: "Banking & Finance", logo: UnionBankLogo },
+  { id: "the-dharampeth", name: "The Dharampeth Mahila Sahakari Bank", category: "Banking & Finance", logo: TheDharampethLogo },
+  { id: "maharastra-gramin-bank", name: "Maharashtra Gramin Bank", category: "Banking & Finance", logo: MaharashtraGrinBankLogo },
+  { id: "sarasvat-bank", name: "Saraswat Bank", category: "Banking & Finance", logo: SaraswatBankLogo },
+  { id: "nnsb", name: "NNSB Bank", category: "Banking & Finance", logo: NnsbLogo },
 
   // 3. FMCG & Quick Commerce (12 clients)
   { id: "coca-cola", name: "Coca-Cola", category: "FMCG", logo: CocaColaLogo },
@@ -1386,8 +1482,8 @@ export const CATEGORIES_LIST = [
 
 // Flat list for marquee
 const ALL_COMPANIES_FLAT = [
-  "Tata Motors", "Maruti Suzuki", "Hyundai", "TVS", "Mahindra", "Honda", "Hero", "Toyota", "Bajaj", "Kia", "Royal Enfield", "Škoda",
-  "HDFC Bank", "SBI", "ICICI Bank", "Punjab National Bank", "Axis Bank", "Kotak", "Bank of Baroda", "Canara Bank", "IndusInd Bank", "ESAF Bank", "Bajaj Finserv", "Muthoot Finance",
+  "Audi", "Mercedes", "Maruti Suzuki", "BMW", "Triumph", "Tata Motors", "Royal Enfield", "Toyota", "Mahindra", "Volkswagen", "Škoda", "Honda",
+  "SBI", "HDFC", "PNB", "AU Bank", "Bank of Baroda", "DCB Bank", "ESAF", "Union Bank", "The Dharampeth", "Maharashtra Gramin Bank", "Saraswat Bank", "NNSB",
   "Coca-Cola", "PepsiCo", "Nestlé", "P&G", "Hindustan Unilever", "Britannia", "Amul", "ITC", "Dabur", "Zomato", "Swiggy", "Blinkit",
   "Tanishq", "Kalyan Jewellers", "PNG Jewellers", "Malabar Gold", "Joyalukkas", "Senco Gold", "TBZ", "PC Jeweller", "CaratLane", "Bhima", "Lalithaa", "GRT",
   "Godrej Properties", "Kalpataru", "SDPL", "DLF", "Lodha", "Prestige", "Sobha", "Brigade", "Hiranandani", "Oberoi Realty", "Mahindra Lifespaces", "Puravankara",
